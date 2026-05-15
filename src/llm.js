@@ -116,7 +116,7 @@ export async function autoFixCode(brokenCode, errorMessage) {
 export async function generateCode(history, currentCode, userPrompt, classification = null) {
   let userContent;
 
-  if (classification) {
+  if (classification && Array.isArray(classification.strudelFunctions) && Array.isArray(classification.preserve)) {
     userContent = `Current code:\n${currentCode}\n\nDo exactly: ${classification.interpretation}\nUse: ${classification.strudelFunctions.join(', ')}\nPreserve: ${classification.preserve.join(', ')}\nRequest: ${userPrompt}`;
   } else {
     userContent = `Current code:\n${currentCode}\n\nRequest: ${userPrompt}`;

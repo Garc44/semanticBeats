@@ -105,7 +105,7 @@ async function handleSend() {
             if (isPlaying) await play(fixedCode);
             currentCode = fixedCode;
             updateCodePanel(fixedCode);
-            conversationHistory.push({ role: 'user', content: `Current code:\n${currentCode}\n\nRequest: ${prompt}` });
+            conversationHistory.push({ role: 'user', content: `Current code:\n${newCode}\n\nRequest: ${prompt}` });
             conversationHistory.push({ role: 'assistant', content: fixedCode });
             setStatus('Applied (auto-fixed)');
           } catch (fixErr) {

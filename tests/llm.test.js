@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { classifyIntent, autoFixCode } from '../src/llm.js';
+import { classifyIntent, autoFixCode, generateCode } from '../src/llm.js';
 
 describe('classifyIntent', () => {
   beforeEach(() => {
@@ -94,5 +94,76 @@ describe('autoFixCode', () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 });
 
     await expect(autoFixCode('bad code', 'error')).rejects.toThrow('Ollama HTTP 500');
+  });
+});
+
+describe('generateCode', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('builds classification-aware prompt when classification provided', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: 's("bd sd").lpf(500)' } }),
+    });
+
+    const classification = {
+      interpretation: 'reduce high frequencies',
+      strudelFunctions: ['lpf'],
+      preserve: ['rhythm'],
+    };
+
+    await generateCode([], 's("bd sd")', 'make it darker', classification);
+
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    const userMsg = body.messages.find((m) => m.role === 'user').content;
+    expect(userMsg).toContain('Do exactly: reduce high frequencies');
+    expect(userMsg).toContain('Use: lpf');
+    expect(userMsg).toContain('Preserve: rhythm');
+  });
+
+  it('falls back to plain prompt when classification is null', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: 's("bd sd")' } }),
+    });
+
+    await generateCode([], 's("bd sd")', 'make it darker', null);
+
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    const userMsg = body.messages.find((m) => m.role === 'user').content;
+    expect(userMsg).toBe('Current code:\ns("bd sd")\n\nRequest: make it darker');
+  });
+
+  it('falls back to plain prompt when classification omitted', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: 's("bd sd")' } }),
+    });
+
+    await generateCode([], 's("bd sd")', 'make it darker');
+
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    const userMsg = body.messages.find((m) => m.role === 'user').content;
+    expect(userMsg).toBe('Current code:\ns("bd sd")\n\nRequest: make it darker');
+  });
+
+  it('strips markdown fences from output', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        message: { content: '```javascript\ns("bd sd")\n```' },
+      }),
+    });
+
+    const result = await generateCode([], 's("bd sd")', 'test');
+    expect(result).toBe('s("bd sd")');
+  });
+
+  it('throws on non-ok response', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503 });
+
+    await expect(generateCode([], 's("bd sd")', 'test')).rejects.toThrow('Ollama HTTP 503');
   });
 });

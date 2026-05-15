@@ -113,14 +113,19 @@ export async function autoFixCode(brokenCode, errorMessage) {
   return raw.replace(/```[\w]*\n?/g, '').trim();
 }
 
-export async function generateCode(history, currentCode, userPrompt) {
+export async function generateCode(history, currentCode, userPrompt, classification = null) {
+  let userContent;
+
+  if (classification) {
+    userContent = `Current code:\n${currentCode}\n\nDo exactly: ${classification.interpretation}\nUse: ${classification.strudelFunctions.join(', ')}\nPreserve: ${classification.preserve.join(', ')}\nRequest: ${userPrompt}`;
+  } else {
+    userContent = `Current code:\n${currentCode}\n\nRequest: ${userPrompt}`;
+  }
+
   const messages = [
     { role: 'system', content: SYSTEM_PROMPT },
     ...history,
-    {
-      role: 'user',
-      content: `Current code:\n${currentCode}\n\nRequest: ${userPrompt}`,
-    },
+    { role: 'user', content: userContent },
   ];
 
   const response = await fetch('http://localhost:11434/api/chat', {
@@ -133,12 +138,9 @@ export async function generateCode(history, currentCode, userPrompt) {
     }),
   });
 
-  if (!response.ok) {
-    throw new Error(`Ollama HTTP ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`Ollama HTTP ${response.status}`);
 
   const data = await response.json();
   const raw = data.message?.content ?? '';
-  // Strip any accidental markdown fences
   return raw.replace(/```[\w]*\n?/g, '').trim();
 }

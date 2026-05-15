@@ -49,6 +49,7 @@ export function addPreviewMessage(code, onApply, onDismiss) {
     dismissBtn.disabled = true;
     try {
       await onApply();
+      wrapper.remove();
     } catch {
       applyBtn.disabled = false;
       dismissBtn.disabled = false;

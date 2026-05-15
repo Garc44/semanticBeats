@@ -85,10 +85,6 @@ async function handleSend() {
   try {
     const newCode = await generateCode(conversationHistory, currentCode, prompt);
 
-    // Add to history
-    conversationHistory.push({ role: 'user', content: `Current code:\n${currentCode}\n\nRequest: ${prompt}` });
-    conversationHistory.push({ role: 'assistant', content: newCode });
-
     addPreviewMessage(
       newCode,
       // onApply
@@ -97,6 +93,8 @@ async function handleSend() {
           if (isPlaying) await play(newCode);
           currentCode = newCode;
           updateCodePanel(newCode);
+          conversationHistory.push({ role: 'user', content: `Current code:\n${currentCode}\n\nRequest: ${prompt}` });
+          conversationHistory.push({ role: 'assistant', content: newCode });
           setStatus('Applied');
         } catch (e) {
           addErrorMessage(e.message);

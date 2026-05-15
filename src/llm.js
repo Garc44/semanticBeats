@@ -1,3 +1,21 @@
+const CLASSIFY_SYSTEM_PROMPT = `You are a music intent classifier for Strudel live-coding.
+Given current code and a user request, return ONLY a JSON object. No explanation. No markdown.
+
+JSON format:
+{"interpretation":"precise description of what to change","strudelFunctions":["fn1","fn2"],"preserve":["element1"]}
+
+Vocabulary hints:
+darker/warmer → lpf, room
+brighter/airier → hpf, fast
+punchier/harder → gain, crush
+spacious/wide → room, pan
+slower/half time → slow
+faster/double time → fast
+quieter → gain reduce
+louder → gain increase
+more groove → euclidean rhythms
+busier/more notes → fast, repeat`;
+
 const SYSTEM_PROMPT = `You are a Strudel live-coding music assistant. Strudel uses mini-notation inside JS functions.
 
 SOUNDS
@@ -41,6 +59,32 @@ RULES
 - Always preserve sounds not mentioned in the user request.
 - Modify the provided code -- do not rewrite from scratch unless explicitly asked.
 - Never add comments or blank lines outside the code.`;
+
+export async function classifyIntent(currentCode, userPrompt) {
+  try {
+    const response = await fetch('http://localhost:11434/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama3:latest',
+        messages: [
+          { role: 'system', content: CLASSIFY_SYSTEM_PROMPT },
+          { role: 'user', content: `Current code:\n${currentCode}\n\nRequest: ${userPrompt}` },
+        ],
+        stream: false,
+      }),
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const raw = data.message?.content ?? '';
+    const cleaned = raw.replace(/```[\w]*\n?/g, '').trim();
+    return JSON.parse(cleaned);
+  } catch {
+    return null;
+  }
+}
 
 export async function generateCode(history, currentCode, userPrompt) {
   const messages = [

@@ -44,10 +44,15 @@ export function addPreviewMessage(code, onApply, onDismiss) {
   const applyBtn = document.createElement('button');
   applyBtn.textContent = 'Apply';
   applyBtn.className = 'btn-apply';
-  applyBtn.addEventListener('click', () => {
-    onApply();
+  applyBtn.addEventListener('click', async () => {
     applyBtn.disabled = true;
     dismissBtn.disabled = true;
+    try {
+      await onApply();
+    } catch {
+      applyBtn.disabled = false;
+      dismissBtn.disabled = false;
+    }
   });
 
   const dismissBtn = document.createElement('button');

@@ -1,92 +1,39 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strudel AI Companion (Vite)</title>
-    <style>
-        :root {
-            --bg: #0b0e14;
-            --accent: #00d2ff;
-            --text: #e0e0e0;
-        }
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-        header {
-            padding: 1rem 2rem;
-            border-bottom: 1px solid #222;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 2rem;
-            gap: 1.5rem;
-        }
-        #editor-container {
-            flex: 1;
-            background: #161b22;
-            border-radius: 8px;
-            padding: 1rem;
-            border: 1px solid #30363d;
-            font-family: 'Fira Code', monospace;
-            color: #79c0ff;
-            white-space: pre-wrap;
-            overflow-y: auto;
-            font-size: 1.1rem;
-            line-height: 1.5;
-        }
-        .controls {
-            display: flex;
-            gap: 10px;
-        }
-        input#prompt {
-            flex: 1;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            color: white;
-            padding: 12px 15px;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        button {
-            background: var(--accent);
-            color: black;
-            border: none;
-            padding: 0 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        button:hover { opacity: 0.8; }
-        #status { color: #8b949e; font-size: 0.9rem; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strudel AI</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-    <header>
-        <div style="font-size: 1.5rem; font-weight: bold;">Strudel <span style="color:var(--accent)">AI</span></div>
-        <div id="status">Bereit</div>
-    </header>
-    <main>
-        <div id="editor-container" contenteditable="true">s("bd [hh*4] [sd [~ bd]]").room(0.5)</div>
-        <div class="controls">
-            <input type="text" id="prompt" placeholder="Befehl an die KI (z.B. 'mach die hihats kürzer und füge reverb hinzu')">
-            <button id="sendBtn">KI Anwenden</button>
-            <button id="playBtn" style="background: #238636; color: white;">Play/Stop</button>
-        </div>
-    </main>
-    <script type="module" src="/app.js"></script>
+  <header>
+    <span class="logo">Strudel <span class="accent">AI</span></span>
+    <div class="header-right">
+      <span id="status">Loading...</span>
+      <button id="play-btn">▶ Play</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="chat-panel">
+      <div id="chat"></div>
+      <div class="input-row">
+        <input
+          type="text"
+          id="prompt"
+          placeholder="e.g. make the bass faster, add reverb to the snare"
+          autocomplete="off"
+        />
+        <button id="send-btn">→</button>
+      </div>
+    </section>
+
+    <section class="code-panel">
+      <div id="code-panel" contenteditable="true" spellcheck="false"></div>
+    </section>
+  </main>
+
+  <script type="module" src="/app.js"></script>
 </body>
 </html>

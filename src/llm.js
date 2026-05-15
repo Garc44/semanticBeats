@@ -86,6 +86,33 @@ export async function classifyIntent(currentCode, userPrompt) {
   }
 }
 
+export async function autoFixCode(brokenCode, errorMessage) {
+  const response = await fetch('http://localhost:11434/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'llama3:latest',
+      messages: [
+        {
+          role: 'system',
+          content: 'Fix the Strudel JS syntax error. Return only corrected code. No markdown. No explanation.',
+        },
+        {
+          role: 'user',
+          content: `Code:\n${brokenCode}\n\nError: ${errorMessage}`,
+        },
+      ],
+      stream: false,
+    }),
+  });
+
+  if (!response.ok) throw new Error(`Ollama HTTP ${response.status}`);
+
+  const data = await response.json();
+  const raw = data.message?.content ?? '';
+  return raw.replace(/```[\w]*\n?/g, '').trim();
+}
+
 export async function generateCode(history, currentCode, userPrompt) {
   const messages = [
     { role: 'system', content: SYSTEM_PROMPT },

@@ -1,5 +1,5 @@
 import { init, play, stop } from './src/strudel.js';
-import { generateCode } from './src/llm.js';
+import { classifyIntent, generateCode, autoFixCode } from './src/llm.js';
 import {
   setStatus,
   updateCodePanel,
@@ -11,10 +11,11 @@ import {
 // Shared state
 let conversationHistory = [];
 let currentCode = `stack(
-  s("bd ~ bd ~"),
+ s("bd ~ bd ~"),
   s("~ sd ~ sd").room(0.3),
   s("hh*8").gain(0.5)
-)`;
+
+  )`;
 let isPlaying = false;
 
 const playBtn = document.getElementById('play-btn');
@@ -79,15 +80,16 @@ async function handleSend() {
   promptInput.value = '';
 
   addUserMessage(prompt);
-  setStatus('Thinking...');
+  setStatus('Interpreting...');
   sendBtn.disabled = true;
 
   try {
-    const newCode = await generateCode(conversationHistory, currentCode, prompt);
+    const classification = await classifyIntent(currentCode, prompt);
+    setStatus('Thinking...');
+    const newCode = await generateCode(conversationHistory, currentCode, prompt, classification);
 
     addPreviewMessage(
       newCode,
-      // onApply
       async () => {
         try {
           if (isPlaying) await play(newCode);
@@ -97,12 +99,22 @@ async function handleSend() {
           conversationHistory.push({ role: 'assistant', content: newCode });
           setStatus('Applied');
         } catch (e) {
-          addErrorMessage(e.message);
-          updateCodePanel(currentCode);
-          setStatus('Error — reverted');
+          setStatus('Fixing...');
+          try {
+            const fixedCode = await autoFixCode(newCode, e.message);
+            if (isPlaying) await play(fixedCode);
+            currentCode = fixedCode;
+            updateCodePanel(fixedCode);
+            conversationHistory.push({ role: 'user', content: `Current code:\n${currentCode}\n\nRequest: ${prompt}` });
+            conversationHistory.push({ role: 'assistant', content: fixedCode });
+            setStatus('Applied (auto-fixed)');
+          } catch (fixErr) {
+            addErrorMessage(fixErr.message);
+            updateCodePanel(currentCode);
+            setStatus('Error — reverted');
+          }
         }
       },
-      // onDismiss
       () => {
         setStatus('Ready');
       }

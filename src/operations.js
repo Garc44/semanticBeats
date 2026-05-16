@@ -20,7 +20,7 @@ function round2(v) {
 
 // Finds `.method(N)` and adjusts N by delta. Appends with default+delta if absent.
 function adjustMethod(code, method, delta, { min, max, defaultVal }) {
-  const regex = new RegExp(`\\.${method}\\(([\\d.]+)\\)`);
+  const regex = new RegExp(`\\.${method}\\(\\s*([\\d.]+)\\s*\\)`);
   const match = code.match(regex);
   if (match) {
     const next = clamp(parseFloat(match[1]) + delta, min, max);
@@ -35,7 +35,7 @@ function appendIfMissing(code, method, value) {
 }
 
 function removeLastEffect(code) {
-  return code.replace(/\n?\s*\.[a-zA-Z]+\([^)]*\)\s*$/, '').trimEnd();
+  return code.replace(/\n?\s*\.[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)\s*$/, '').trimEnd();
 }
 
 function setMethodPattern(code, method, pattern) {

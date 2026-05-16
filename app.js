@@ -1,6 +1,6 @@
 import { init, play, stop } from './src/strudel.js';
 import { generateTransformationPlan, autoFixCode } from './src/llm.js';
-import { applyTransformation, generateSeed } from './src/patchEngine.js';
+import { applyTransformation, generateSeed, buildVoiceCode, stackCode } from './src/patchEngine.js';
 import { expandStyle } from './src/library/styles.js';
 import { validateCode } from './src/validate.js';
 import {
@@ -106,6 +106,15 @@ async function handleSend() {
         ? applyTransformation(currentCode, {
             operations: expandStyle(plan.style, plan.target, plan.intensity),
           })
+        : plan.mode === 'compose'
+        ? stackCode(
+            currentCode,
+            buildVoiceCode(
+              plan.voiceType,
+              plan.notes,
+              expandStyle(plan.style, plan.voiceType, plan.intensity)
+            )
+          )
         : generateSeed(plan);
 
     const validation = validateCode(newCode);

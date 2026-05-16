@@ -29,10 +29,6 @@ function adjustMethod(code, method, delta, { min, max, defaultVal }) {
   return code.trimEnd() + `\n  .${method}(${round2(clamp(defaultVal + delta, min, max))})`;
 }
 
-function appendIfMissing(code, method, value) {
-  if (code.includes(`.${method}(`)) return code;
-  return code.trimEnd() + `\n  .${method}(${value})`;
-}
 
 function removeLastEffect(code) {
   return code.replace(/\n?\s*\.[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)\s*$/, '').trimEnd();
@@ -46,11 +42,11 @@ function setMethodPattern(code, method, pattern) {
 
 export const OPERATION_HANDLERS = {
   increase_reverb:        (code, amt) => adjustMethod(code, 'room',      amt,         { min: 0,   max: 0.9,  defaultVal: 0 }),
-  reduce_reverb:          (code, amt) => adjustMethod(code, 'room',      -amt,        { min: 0,   max: 0.9,  defaultVal: 0.5 }),
+  reduce_reverb:          (code, amt) => adjustMethod(code, 'room',      -amt,        { min: 0,   max: 0.9,  defaultVal: 0 }),
   increase_resonance:     (code, amt) => adjustMethod(code, 'resonance', amt * 10,    { min: 0,   max: 20,   defaultVal: 0 }),
   decrease_cutoff:        (code, amt) => adjustMethod(code, 'lpf',       -amt * 2000, { min: 200, max: 4000, defaultVal: 4000 }),
-  add_delay:              (code, amt) => appendIfMissing(code, 'delay',  round2(amt).toString()),
-  add_distortion:         (code, amt) => appendIfMissing(code, 'distort', round2(amt).toString()),
+  add_delay:              (code, amt) => adjustMethod(code, 'delay',   amt, { min: 0, max: 1, defaultVal: 0 }),
+  add_distortion:         (code, amt) => adjustMethod(code, 'distort', amt, { min: 0, max: 1, defaultVal: 0 }),
   increase_density:       (code, amt) => adjustMethod(code, 'fast',      amt * 2,     { min: 0.5, max: 8,   defaultVal: 1 }),
   simplify_pattern:       (code, _)   => removeLastEffect(code),
   increase_filter_motion: (code, _)   => setMethodPattern(code, 'lpf', '"<400 800 200 600>"'),

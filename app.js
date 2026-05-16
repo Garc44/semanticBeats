@@ -94,6 +94,12 @@ async function handleSend() {
       return;
     }
 
+    if (plan.mode === 'generate' && currentCode.trim()) {
+      addErrorMessage('Generate mode returned for existing code. Try a more specific request.');
+      setStatus('Error');
+      return;
+    }
+
     const newCode =
       plan.mode === 'transform'
         ? applyTransformation(currentCode, plan)
@@ -111,9 +117,10 @@ async function handleSend() {
       async () => {
         try {
           if (isPlaying) await play(newCode);
+          const prevCode = currentCode;
           currentCode = newCode;
           updateCodePanel(newCode);
-          conversationHistory.push({ role: 'user', content: `Current code:\n${currentCode}\n\nRequest: ${prompt}` });
+          conversationHistory.push({ role: 'user', content: `Current code:\n${prevCode}\n\nRequest: ${prompt}` });
           conversationHistory.push({ role: 'assistant', content: newCode });
           setStatus('Applied');
         } catch (e) {

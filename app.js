@@ -101,6 +101,12 @@ async function handleSend() {
       return;
     }
 
+    if (plan.mode === 'compose' && !currentCode.trim()) {
+      addErrorMessage('Compose mode requires existing code. Start with a beat first.');
+      setStatus('Error');
+      return;
+    }
+
     const newCode =
       plan.mode === 'transform'
         ? applyTransformation(currentCode, {

@@ -1,182 +1,198 @@
 import { init, play, stop } from './src/strudel.js';
 import { generateTransformationPlan, autoFixCode } from './src/llm.js';
-import { applyTransformation, generateSeed, buildVoiceCode, stackCode } from './src/patchEngine.js';
+import { applyTransformation, generateSeed } from './src/patchEngine.js';
 import { expandStyle } from './src/library/styles.js';
 import { validateCode } from './src/validate.js';
+import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
 import {
   setStatus,
-  updateCodePanel,
-  addUserMessage,
-  addErrorMessage,
-  addPreviewMessage,
+  renderGlobalControls,
+  renderPillar,
+  updatePillarCode,
+  setPillarMuted,
+  setPillarSoloed,
+  addPillarMessage,
+  addPillarPreviewMessage,
 } from './src/ui.js';
 
-// Shared state
-let conversationHistory = [];
-let currentCode = `stack(
- s("bd ~ bd ~"),
-  s("~ sd ~ sd").room(0.3),
-  s("hh*8").gain(0.5)
+const pillars = makePillars();
 
-  )`;
-let isPlaying = false;
+const globalState = {
+  tempo: 1.0,
+  masterVolume: 0.8,
+  masterFilter: 1.0,
+  intensity: 0.5,
+  isPlaying: false,
+  soloedPillar: null,
+};
+
+// ── Playback ──────────────────────────────────────────────
 
 const playBtn = document.getElementById('play-btn');
-const promptInput = document.getElementById('prompt');
-const sendBtn = document.getElementById('send-btn');
-const codePanel = document.getElementById('code-panel');
 
-// Init Strudel
-(async () => {
-  setStatus('Loading...');
-  try {
-    await init();
-    setStatus('Ready');
-    updateCodePanel(currentCode);
-  } catch (e) {
-    setStatus('Engine failed');
-    console.error(e);
+async function rebuildAndPlay() {
+  const stack = rebuildStack(pillars, globalState);
+  if (!stack) {
+    if (globalState.isPlaying) { stop(); setStatus('Nothing active'); }
+    return;
   }
-})();
-
-// Play / Stop
-playBtn.addEventListener('click', async () => {
-  if (!isPlaying) {
+  if (!globalState.isPlaying) return;
+  try {
+    await play(stack);
+  } catch (e) {
+    setStatus('Fixing...');
     try {
-      await play(currentCode);
-      isPlaying = true;
+      const fixed = await autoFixCode(stack, e.message);
+      await play(fixed);
+      setStatus('Playing (auto-fixed)');
+    } catch {
+      stop();
+      globalState.isPlaying = false;
+      playBtn.textContent = '▶ Play';
+      setStatus('Error — stopped');
+    }
+  }
+}
+
+playBtn.addEventListener('click', async () => {
+  if (!globalState.isPlaying) {
+    const stack = rebuildStack(pillars, globalState);
+    if (!stack) { setStatus('No active pillars'); return; }
+    try {
+      await play(stack);
+      globalState.isPlaying = true;
       playBtn.textContent = '■ Stop';
       setStatus('Playing');
     } catch (e) {
       setStatus('Play error');
-      addErrorMessage(e.message);
     }
   } else {
     stop();
-    isPlaying = false;
+    globalState.isPlaying = false;
     playBtn.textContent = '▶ Play';
     setStatus('Stopped');
   }
 });
 
-// Manual code edit sync
-codePanel.addEventListener('blur', async () => {
-  const edited = codePanel.textContent.trim();
-  if (edited === currentCode) return;
-  if (isPlaying) {
-    try {
-      await play(edited);
-      currentCode = edited;
-    } catch (e) {
-      addErrorMessage(e.message);
-      updateCodePanel(currentCode); // revert display
-    }
-  } else {
-    currentCode = edited;
-  }
-});
+// ── Global Sliders ────────────────────────────────────────
 
-// Send prompt to LLM
-async function handleSend() {
-  const prompt = promptInput.value.trim();
-  if (!prompt) return;
-  promptInput.value = '';
-
-  addUserMessage(prompt);
-  setStatus('Planning...');
-  sendBtn.disabled = true;
-
-  try {
-    const plan = await generateTransformationPlan(currentCode, prompt);
-
-    if (!plan) {
-      addErrorMessage('Could not plan transformation. Try rephrasing.');
-      setStatus('Error');
-      return;
-    }
-
-    if (plan.mode === 'generate' && currentCode.trim()) {
-      addErrorMessage('Generate mode returned for existing code. Try a more specific request.');
-      setStatus('Error');
-      return;
-    }
-
-    if (plan.mode === 'compose' && !currentCode.trim()) {
-      addErrorMessage('Compose mode requires existing code. Start with a beat first.');
-      setStatus('Error');
-      return;
-    }
-
-    let newCode;
-    if (plan.mode === 'transform') {
-      newCode = applyTransformation(currentCode, {
-        operations: expandStyle(plan.style, plan.target, plan.intensity),
-      });
-    } else if (plan.mode === 'compose') {
-      const VOICE_TARGET = { chords: 'all', percussion: 'drums' };
-      const target = VOICE_TARGET[plan.voiceType] ?? plan.voiceType;
-      newCode = stackCode(
-        currentCode,
-        buildVoiceCode(plan.voiceType, plan.notes, expandStyle(plan.style, target, plan.intensity))
-      );
-    } else {
-      newCode = generateSeed(plan);
-    }
-
-    const validation = validateCode(newCode);
-    if (!validation.valid) {
-      addErrorMessage(`Validation failed: ${validation.errors.join(', ')}`);
-      setStatus('Error');
-      return;
-    }
-
-    addPreviewMessage(
-      newCode,
-      async () => {
-        try {
-          if (isPlaying) await play(newCode);
-          const prevCode = currentCode;
-          currentCode = newCode;
-          updateCodePanel(newCode);
-          conversationHistory.push({ role: 'user', content: `Current code:\n${prevCode}\n\nRequest: ${prompt}` });
-          conversationHistory.push({ role: 'assistant', content: newCode });
-          setStatus('Applied');
-        } catch (e) {
-          setStatus('Fixing...');
-          try {
-            const fixedCode = await autoFixCode(newCode, e.message);
-            if (isPlaying) await play(fixedCode);
-            currentCode = fixedCode;
-            updateCodePanel(fixedCode);
-            conversationHistory.push({ role: 'user', content: `Current code:\n${newCode}\n\nRequest: ${prompt}` });
-            conversationHistory.push({ role: 'assistant', content: fixedCode });
-            setStatus('Applied (auto-fixed)');
-          } catch (fixErr) {
-            addErrorMessage(fixErr.message);
-            updateCodePanel(currentCode);
-            setStatus('Error — reverted');
-          }
-        }
-      },
-      () => setStatus('Ready')
-    );
-
-    setStatus('Preview ready');
-  } catch (e) {
-    const msg = e.message.includes('fetch')
-      ? 'Ollama unreachable. Start with: OLLAMA_ORIGINS="*" ollama serve'
-      : e.message;
-    addErrorMessage(msg);
-    setStatus('Error');
-  } finally {
-    sendBtn.disabled = false;
-  }
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
 }
 
-sendBtn.addEventListener('click', handleSend);
-promptInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    handleSend();
-  }
+const debouncedRebuild = debounce(rebuildAndPlay, 50);
+
+renderGlobalControls(globalState, (key, value) => {
+  globalState[key] = value;
+  debouncedRebuild();
 });
+
+// ── Per-Pillar Send ───────────────────────────────────────
+
+async function handlePillarSend(pillarName, prompt) {
+  const pillar = pillars.find(p => p.name === pillarName);
+  addPillarMessage(pillarName, 'user', prompt);
+  setStatus('Planning...');
+
+  const plan = await generateTransformationPlan(
+    pillar.code,
+    prompt,
+    pillar.history,
+    globalState.intensity,
+    pillarName
+  );
+
+  if (!plan) {
+    addPillarMessage(pillarName, 'error', 'Could not plan transformation. Try rephrasing.');
+    setStatus('Error');
+    return;
+  }
+
+  if (plan.mode === 'generate' && pillar.code.trim()) {
+    addPillarMessage(pillarName, 'error', 'Generate mode returned for existing code. Try a more specific request.');
+    setStatus('Error');
+    return;
+  }
+
+  let newCode;
+  if (plan.mode === 'transform') {
+    newCode = applyTransformation(pillar.code, {
+      operations: expandStyle(plan.style, plan.target, plan.intensity),
+    });
+  } else {
+    newCode = generateSeed(plan);
+  }
+
+  const validation = validateCode(newCode);
+  if (!validation.valid) {
+    addPillarMessage(pillarName, 'error', `Validation failed: ${validation.errors.join(', ')}`);
+    setStatus('Error');
+    return;
+  }
+
+  const prevCode = pillar.code;
+  addPillarPreviewMessage(
+    pillarName,
+    newCode,
+    async () => {
+      pillar.code = newCode;
+      updatePillarCode(pillarName, newCode);
+      pillar.history.push(
+        { role: 'user', content: `Current code:\n${prevCode}\n\nRequest: ${prompt}` },
+        { role: 'assistant', content: newCode }
+      );
+      await rebuildAndPlay();
+      setStatus('Applied');
+    },
+    () => setStatus('Ready')
+  );
+
+  setStatus('Preview ready');
+}
+
+// ── Mute / Solo ───────────────────────────────────────────
+
+function handleMute(pillarName) {
+  const pillar = pillars.find(p => p.name === pillarName);
+  pillar.muted = !pillar.muted;
+  setPillarMuted(pillarName, pillar.muted);
+  rebuildAndPlay();
+}
+
+function handleSolo(pillarName) {
+  globalState.soloedPillar = globalState.soloedPillar === pillarName ? null : pillarName;
+  setPillarSoloed(globalState.soloedPillar, PILLAR_NAMES);
+  rebuildAndPlay();
+}
+
+// ── Mount Pillars ─────────────────────────────────────────
+
+const pillarsRow = document.getElementById('pillars-row');
+
+for (const pillar of pillars) {
+  const card = renderPillar(pillar, {
+    onSend: (prompt) => handlePillarSend(pillar.name, prompt),
+    onMute: () => handleMute(pillar.name),
+    onSolo: () => handleSolo(pillar.name),
+    onCodeEdit: (newCode) => {
+      if (newCode === pillar.code) return;
+      pillar.code = newCode;
+      rebuildAndPlay();
+    },
+  });
+  pillarsRow.appendChild(card);
+}
+
+// ── Init ──────────────────────────────────────────────────
+
+(async () => {
+  setStatus('Loading...');
+  try {
+    await init();
+    setStatus('Ready');
+  } catch (e) {
+    setStatus('Engine failed');
+    console.error(e);
+  }
+})();

@@ -3,6 +3,13 @@ import { ALLOWED_OPERATIONS, OPERATION_HANDLERS } from './operations.js';
 // Fallback seed for generate mode when LLM omits seedCode
 const DEFAULT_SEED = 's("bd ~ sn ~")';
 
+const VOICE_SOUNDS = {
+  melody: 'sine',
+  bass: 'sawtooth',
+  chords: 'square',
+  percussion: 'bd',
+};
+
 export function applyTransformation(code, plan) {
   const { operations = [] } = plan;
   if (!Array.isArray(operations)) return code;
@@ -14,6 +21,15 @@ export function applyTransformation(code, plan) {
 export function generateSeed(plan) {
   const { seedCode = DEFAULT_SEED, operations = [] } = plan;
   return applyTransformation(seedCode, { operations });
+}
+
+export function buildVoiceCode(voiceType, notes, operations = []) {
+  const sound = VOICE_SOUNDS[voiceType] ?? 'sine';
+  const base =
+    voiceType === 'percussion'
+      ? `s("${notes}").gain(0.7)`
+      : `note("${notes}").sound("${sound}").gain(0.5)`;
+  return applyTransformation(base, { operations });
 }
 
 function applyOperation(code, { type, amount = 0.3 }) {

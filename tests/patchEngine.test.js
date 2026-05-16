@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyTransformation, generateSeed } from '../src/patchEngine.js';
+import { applyTransformation, generateSeed, buildVoiceCode, stackCode } from '../src/patchEngine.js';
 
 const base = 's("bd ~ sn ~")';
 
@@ -85,5 +85,44 @@ describe('generateSeed', () => {
     const result = generateSeed({ operations: [] });
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
+  });
+});
+
+describe('buildVoiceCode', () => {
+  it('builds melody voice with sine sound', () => {
+    const result = buildVoiceCode('melody', 'c4 e4 g4 ~', []);
+    expect(result).toContain('note("c4 e4 g4 ~")');
+    expect(result).toContain('.sound("sine")');
+    expect(result).toContain('.gain(0.5)');
+  });
+
+  it('builds bass voice with sawtooth sound', () => {
+    const result = buildVoiceCode('bass', 'c2 ~ e2 ~', []);
+    expect(result).toContain('note("c2 ~ e2 ~")');
+    expect(result).toContain('.sound("sawtooth")');
+  });
+
+  it('builds chords voice with square sound', () => {
+    const result = buildVoiceCode('chords', 'c3 g3', []);
+    expect(result).toContain('note("c3 g3")');
+    expect(result).toContain('.sound("square")');
+  });
+
+  it('builds percussion voice using s() not note()', () => {
+    const result = buildVoiceCode('percussion', 'hh*4', []);
+    expect(result).toContain('s("hh*4")');
+    expect(result).not.toContain('note(');
+    expect(result).toContain('.gain(0.7)');
+  });
+
+  it('applies operations to the base code', () => {
+    const ops = [{ type: 'increase_reverb', amount: 0.4 }];
+    const result = buildVoiceCode('melody', 'c4 e4', ops);
+    expect(result).toContain('.room(');
+  });
+
+  it('unknown voiceType falls back to sine', () => {
+    const result = buildVoiceCode('unknown', 'c4', []);
+    expect(result).toContain('.sound("sine")');
   });
 });

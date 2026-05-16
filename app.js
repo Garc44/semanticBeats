@@ -1,6 +1,7 @@
 import { init, play, stop } from './src/strudel.js';
 import { generateTransformationPlan, autoFixCode } from './src/llm.js';
 import { applyTransformation, generateSeed } from './src/patchEngine.js';
+import { expandStyle } from './src/library/styles.js';
 import { validateCode } from './src/validate.js';
 import {
   setStatus,
@@ -102,7 +103,9 @@ async function handleSend() {
 
     const newCode =
       plan.mode === 'transform'
-        ? applyTransformation(currentCode, plan)
+        ? applyTransformation(currentCode, {
+            operations: expandStyle(plan.style, plan.target, plan.intensity),
+          })
         : generateSeed(plan);
 
     const validation = validateCode(newCode);

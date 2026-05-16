@@ -1,7 +1,7 @@
 import { STYLE_LIBRARY } from './library/styles.js';
 
 const STYLES = Object.keys(STYLE_LIBRARY);
-const VOICE_TYPES = ['melody', 'bass', 'chords', 'percussion'];
+export const VOICE_TYPES = ['melody', 'bass', 'chords', 'percussion'];
 
 const TRANSFORM_SYSTEM_PROMPT = `You are a music style selector for Strudel live-coding.
 Return ONLY valid JSON. No prose. No markdown. No explanation.
@@ -70,6 +70,7 @@ export async function generateTransformationPlan(currentCode, userPrompt) {
       if (!codeContext || codeContext === 'none') return null;
       if (!VOICE_TYPES.includes(plan.voiceType)) return null;
       if (typeof plan.notes !== 'string' || !plan.notes.trim()) return null;
+      if (typeof plan.style !== 'string') return null;
       if (!STYLES.includes(plan.style)) return null;
       if (typeof plan.intensity !== 'number') return null;
       if (plan.intensity < 0.1 || plan.intensity > 1.0) return null;

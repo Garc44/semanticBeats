@@ -7,7 +7,6 @@ const VOICE_SOUNDS = {
   melody: 'sine',
   bass: 'sawtooth',
   chords: 'square',
-  percussion: 'bd',
 };
 
 export function applyTransformation(code, plan) {

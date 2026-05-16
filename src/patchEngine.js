@@ -31,6 +31,14 @@ export function buildVoiceCode(voiceType, notes, operations = []) {
   return applyTransformation(base, { operations });
 }
 
+export function stackCode(existingCode, newVoiceCode) {
+  const trimmed = existingCode.trim();
+  if (trimmed.startsWith('stack(')) {
+    return trimmed.replace(/^stack\(\s*/, `stack(\n  ${newVoiceCode},\n  `);
+  }
+  return `stack(\n  ${newVoiceCode},\n  ${trimmed}\n)`;
+}
+
 function applyOperation(code, { type, amount = 0.3 }) {
   const handler = OPERATION_HANDLERS[type];
   if (!handler) return code;

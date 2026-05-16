@@ -126,3 +126,27 @@ describe('buildVoiceCode', () => {
     expect(result).toContain('.sound("sine")');
   });
 });
+
+describe('stackCode', () => {
+  it('wraps plain code in stack()', () => {
+    const result = stackCode('s("bd ~ sn ~")', 'note("c4 e4").sound("sine").gain(0.5)');
+    expect(result).toMatch(/^stack\(/);
+    expect(result).toContain('note("c4 e4").sound("sine").gain(0.5)');
+    expect(result).toContain('s("bd ~ sn ~")');
+  });
+
+  it('inserts new voice as first arg when existing code already uses stack()', () => {
+    const existing = 'stack(\n  s("bd ~ sn ~"),\n  s("hh*8")\n)';
+    const result = stackCode(existing, 'note("c4").sound("sine").gain(0.5)');
+    expect(result).toMatch(/^stack\(/);
+    const firstArg = result.slice(result.indexOf('stack(') + 6, result.indexOf(','));
+    expect(firstArg.trim()).toBe('note("c4").sound("sine").gain(0.5)');
+  });
+
+  it('new voice appears before existing voice', () => {
+    const result = stackCode('s("bd ~ sn ~")', 'note("c4").sound("sine").gain(0.5)');
+    const newVoiceIdx = result.indexOf('note("c4")');
+    const existingIdx = result.indexOf('s("bd ~ sn ~")');
+    expect(newVoiceIdx).toBeLessThan(existingIdx);
+  });
+});

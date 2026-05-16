@@ -7,15 +7,15 @@ describe('generateTransformationPlan', () => {
   it('returns transform plan for existing code', async () => {
     const plan = {
       mode: 'transform',
-      target: 'all',
-      operations: [{ type: 'increase_reverb', amount: 0.3 }],
-      preserve: ['rhythm'],
+      style: 'acid',
+      target: 'bass',
+      intensity: 0.7,
     };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
-    expect(await generateTransformationPlan('s("bd sd")', 'add reverb')).toEqual(plan);
+    expect(await generateTransformationPlan('s("bd sd")', 'make it acid')).toEqual(plan);
   });
 
   it('returns generate plan when code is empty', async () => {
@@ -55,10 +55,18 @@ describe('generateTransformationPlan', () => {
     expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
   });
 
-  it('returns null when transform mode lacks operations array', async () => {
+  it('returns null when transform mode lacks style string', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ message: { content: '{"mode":"transform","target":"bass"}' } }),
+      json: async () => ({ message: { content: '{"mode":"transform","target":"bass","intensity":0.5}' } }),
+    });
+    expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
+  });
+
+  it('returns null when transform mode lacks intensity number', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: '{"mode":"transform","style":"acid","target":"bass"}' } }),
     });
     expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
   });
@@ -72,7 +80,7 @@ describe('generateTransformationPlan', () => {
   });
 
   it('strips markdown fences from response', async () => {
-    const plan = { mode: 'transform', target: 'all', operations: [], preserve: [] };
+    const plan = { mode: 'transform', style: 'groove', target: 'all', intensity: 0.5 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({

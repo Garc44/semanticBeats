@@ -1,22 +1,23 @@
-import { ALLOWED_OPERATIONS } from './operations.js';
+const STYLES = ['acid', 'groove', 'minimal', 'dub', 'breakcore'];
 
-const TRANSFORM_SYSTEM_PROMPT = `You are a music transformation planner for Strudel live-coding.
+const TRANSFORM_SYSTEM_PROMPT = `You are a music style selector for Strudel live-coding.
 Return ONLY valid JSON. No prose. No markdown. No explanation.
 
-ALLOWED_OPERATIONS: ${ALLOWED_OPERATIONS.join(', ')}
+AVAILABLE STYLES: ${STYLES.join(', ')}
 
 If currentCode is empty or "none" → mode = "generate".
 If currentCode exists → mode = "transform".
 
 Transform mode schema:
-{"mode":"transform","target":"bass|drums|melody|all","operations":[{"type":"<op>","amount":0.1}],"preserve":["rhythm"]}
+{"mode":"transform","style":"acid|groove|minimal|dub|breakcore","target":"bass|drums|melody|all","intensity":0.7}
 
 Generate mode schema:
-{"mode":"generate","seedCode":"s(\\"bd ~ sn ~\\")","operations":[]}
+{"mode":"generate","seedCode":"s(\\"bd ~ sn ~\\")"}
 
 Rules:
-- Only use operations from ALLOWED_OPERATIONS
-- amount must be 0.1 to 1.0
+- style must be one of AVAILABLE STYLES
+- target must be one of: bass, drums, melody, all
+- intensity must be 0.1 to 1.0
 - No extra keys, no comments, no markdown`;
 
 export async function generateTransformationPlan(currentCode, userPrompt) {
@@ -43,7 +44,10 @@ export async function generateTransformationPlan(currentCode, userPrompt) {
     const plan = JSON.parse(cleaned);
 
     if (!plan.mode || !['transform', 'generate'].includes(plan.mode)) return null;
-    if (plan.mode === 'transform' && !Array.isArray(plan.operations)) return null;
+    if (plan.mode === 'transform' && typeof plan.style !== 'string') return null;
+    if (plan.mode === 'transform' && !STYLES.includes(plan.style)) return null;
+    if (plan.mode === 'transform' && typeof plan.intensity !== 'number') return null;
+    if (plan.mode === 'transform' && (plan.intensity < 0.1 || plan.intensity > 1.0)) return null;
     if (plan.mode === 'generate' && typeof plan.seedCode !== 'string') return null;
 
     return plan;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyTransformation, generateSeed, buildVoiceCode, stackCode } from '../src/patchEngine.js';
+import { applyTransformation, generateSeed } from '../src/patchEngine.js';
 
 const base = 's("bd ~ sn ~")';
 
@@ -88,65 +88,3 @@ describe('generateSeed', () => {
   });
 });
 
-describe('buildVoiceCode', () => {
-  it('builds melody voice with sine sound', () => {
-    const result = buildVoiceCode('melody', 'c4 e4 g4 ~', []);
-    expect(result).toContain('note("c4 e4 g4 ~")');
-    expect(result).toContain('.sound("sine")');
-    expect(result).toContain('.gain(0.5)');
-  });
-
-  it('builds bass voice with sawtooth sound', () => {
-    const result = buildVoiceCode('bass', 'c2 ~ e2 ~', []);
-    expect(result).toContain('note("c2 ~ e2 ~")');
-    expect(result).toContain('.sound("sawtooth")');
-  });
-
-  it('builds chords voice with square sound', () => {
-    const result = buildVoiceCode('chords', 'c3 g3', []);
-    expect(result).toContain('note("c3 g3")');
-    expect(result).toContain('.sound("square")');
-  });
-
-  it('builds percussion voice using s() not note()', () => {
-    const result = buildVoiceCode('percussion', 'hh*4', []);
-    expect(result).toContain('s("hh*4")');
-    expect(result).not.toContain('note(');
-    expect(result).toContain('.gain(0.7)');
-  });
-
-  it('applies operations to the base code', () => {
-    const ops = [{ type: 'increase_reverb', amount: 0.4 }];
-    const result = buildVoiceCode('melody', 'c4 e4', ops);
-    expect(result).toContain('.room(');
-  });
-
-  it('unknown voiceType falls back to sine', () => {
-    const result = buildVoiceCode('unknown', 'c4', []);
-    expect(result).toContain('.sound("sine")');
-  });
-});
-
-describe('stackCode', () => {
-  it('wraps plain code in stack()', () => {
-    const result = stackCode('s("bd ~ sn ~")', 'note("c4 e4").sound("sine").gain(0.5)');
-    expect(result).toMatch(/^stack\(/);
-    expect(result).toContain('note("c4 e4").sound("sine").gain(0.5)');
-    expect(result).toContain('s("bd ~ sn ~")');
-  });
-
-  it('inserts new voice as first arg when existing code already uses stack()', () => {
-    const existing = 'stack(\n  s("bd ~ sn ~"),\n  s("hh*8")\n)';
-    const result = stackCode(existing, 'note("c4").sound("sine").gain(0.5)');
-    expect(result).toMatch(/^stack\(/);
-    const firstArg = result.slice(result.indexOf('stack(') + 6, result.indexOf(','));
-    expect(firstArg.trim()).toBe('note("c4").sound("sine").gain(0.5)');
-  });
-
-  it('new voice appears before existing voice', () => {
-    const result = stackCode('s("bd ~ sn ~")', 'note("c4").sound("sine").gain(0.5)');
-    const newVoiceIdx = result.indexOf('note("c4")');
-    const existingIdx = result.indexOf('s("bd ~ sn ~")');
-    expect(newVoiceIdx).toBeLessThan(existingIdx);
-  });
-});

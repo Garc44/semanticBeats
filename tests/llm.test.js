@@ -152,6 +152,15 @@ describe('generateTransformationPlan', () => {
     });
     expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
   });
+
+  it('returns null for compose mode with missing intensity', async () => {
+    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4', style: 'acid' };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
+    });
+    expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
+  });
 });
 
 describe('autoFixCode', () => {

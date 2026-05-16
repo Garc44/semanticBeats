@@ -107,21 +107,21 @@ async function handleSend() {
       return;
     }
 
-    const newCode =
-      plan.mode === 'transform'
-        ? applyTransformation(currentCode, {
-            operations: expandStyle(plan.style, plan.target, plan.intensity),
-          })
-        : plan.mode === 'compose'
-        ? stackCode(
-            currentCode,
-            buildVoiceCode(
-              plan.voiceType,
-              plan.notes,
-              expandStyle(plan.style, plan.voiceType, plan.intensity)
-            )
-          )
-        : generateSeed(plan);
+    let newCode;
+    if (plan.mode === 'transform') {
+      newCode = applyTransformation(currentCode, {
+        operations: expandStyle(plan.style, plan.target, plan.intensity),
+      });
+    } else if (plan.mode === 'compose') {
+      const VOICE_TARGET = { chords: 'all', percussion: 'drums' };
+      const target = VOICE_TARGET[plan.voiceType] ?? plan.voiceType;
+      newCode = stackCode(
+        currentCode,
+        buildVoiceCode(plan.voiceType, plan.notes, expandStyle(plan.style, target, plan.intensity))
+      );
+    } else {
+      newCode = generateSeed(plan);
+    }
 
     const validation = validateCode(newCode);
     if (!validation.valid) {

@@ -1,4 +1,6 @@
-const STYLES = ['acid', 'groove', 'minimal', 'dub', 'breakcore'];
+import { STYLE_LIBRARY } from './library/styles.js';
+
+const STYLES = Object.keys(STYLE_LIBRARY);
 
 const TRANSFORM_SYSTEM_PROMPT = `You are a music style selector for Strudel live-coding.
 Return ONLY valid JSON. No prose. No markdown. No explanation.
@@ -48,6 +50,7 @@ export async function generateTransformationPlan(currentCode, userPrompt) {
     if (plan.mode === 'transform' && !STYLES.includes(plan.style)) return null;
     if (plan.mode === 'transform' && typeof plan.intensity !== 'number') return null;
     if (plan.mode === 'transform' && (plan.intensity < 0.1 || plan.intensity > 1.0)) return null;
+    if (plan.mode === 'transform' && !['bass', 'drums', 'melody', 'all'].includes(plan.target)) return null;
     if (plan.mode === 'generate' && typeof plan.seedCode !== 'string') return null;
 
     return plan;

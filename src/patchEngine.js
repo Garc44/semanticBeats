@@ -1,9 +1,11 @@
 import { ALLOWED_OPERATIONS, OPERATION_HANDLERS } from './operations.js';
 
+// Fallback seed for generate mode when LLM omits seedCode
 const DEFAULT_SEED = 's("bd ~ sn ~")';
 
 export function applyTransformation(code, plan) {
   const { operations = [] } = plan;
+  if (!Array.isArray(operations)) return code;
   return operations
     .filter((op) => ALLOWED_OPERATIONS.includes(op.type))
     .reduce((acc, op) => applyOperation(acc, op), code);

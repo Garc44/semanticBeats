@@ -15,24 +15,8 @@
     </div>
   </header>
 
-  <main>
-    <section class="chat-panel">
-      <div id="chat"></div>
-      <div class="input-row">
-        <input
-          type="text"
-          id="prompt"
-          placeholder="e.g. make the bass faster, add reverb to the snare"
-          autocomplete="off"
-        />
-        <button id="send-btn">→</button>
-      </div>
-    </section>
-
-    <section class="code-panel">
-      <div id="code-panel" contenteditable="true" spellcheck="false"></div>
-    </section>
-  </main>
+  <div id="global-controls"></div>
+  <main id="pillars-row"></main>
 
   <script type="module" src="/app.js"></script>
 </body>

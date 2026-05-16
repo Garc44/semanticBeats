@@ -89,6 +89,51 @@ describe('generateTransformationPlan', () => {
     });
     expect(await generateTransformationPlan('s("bd")', 'test')).toEqual(plan);
   });
+
+  it('returns compose plan for additive request with existing code', async () => {
+    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4 g4 ~', style: 'acid', intensity: 0.7 };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
+    });
+    expect(await generateTransformationPlan('s("bd ~ sn ~")', 'add a melody')).toEqual(plan);
+  });
+
+  it('returns null for compose mode with empty currentCode', async () => {
+    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4 g4 ~', style: 'acid', intensity: 0.7 };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
+    });
+    expect(await generateTransformationPlan('', 'add a melody')).toBeNull();
+  });
+
+  it('returns null for compose mode with invalid voiceType', async () => {
+    const plan = { mode: 'compose', voiceType: 'trumpet', notes: 'c4 e4', style: 'acid', intensity: 0.7 };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
+    });
+    expect(await generateTransformationPlan('s("bd")', 'add a trumpet')).toBeNull();
+  });
+
+  it('returns null for compose mode with missing notes', async () => {
+    const plan = { mode: 'compose', voiceType: 'melody', notes: '', style: 'acid', intensity: 0.7 };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
+    });
+    expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
+  });
+
+  it('returns null for compose mode with invalid style', async () => {
+    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4', style: 'jazz', intensity: 0.7 };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
+    });
+    expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
+  });
 });
 
 describe('autoFixCode', () => {

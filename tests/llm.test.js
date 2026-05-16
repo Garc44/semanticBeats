@@ -1,24 +1,32 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { classifyIntent, autoFixCode, generateCode } from '../src/llm.js';
+import { generateTransformationPlan, autoFixCode } from '../src/llm.js';
 
-describe('classifyIntent', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
+describe('generateTransformationPlan', () => {
+  beforeEach(() => vi.restoreAllMocks());
 
-  it('returns parsed JSON on valid response', async () => {
-    const mock = {
-      interpretation: 'reduce high frequencies',
-      strudelFunctions: ['lpf'],
+  it('returns transform plan for existing code', async () => {
+    const plan = {
+      mode: 'transform',
+      target: 'all',
+      operations: [{ type: 'increase_reverb', amount: 0.3 }],
       preserve: ['rhythm'],
     };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ message: { content: JSON.stringify(mock) } }),
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
+    expect(await generateTransformationPlan('s("bd sd")', 'add reverb')).toEqual(plan);
+  });
 
-    const result = await classifyIntent('s("bd sd")', 'make it darker');
-    expect(result).toEqual(mock);
+  it('returns generate plan when code is empty', async () => {
+    const plan = { mode: 'generate', seedCode: 's("bd ~ sn ~")', operations: [] };
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
+    });
+    const result = await generateTransformationPlan('', 'make a beat');
+    expect(result.mode).toBe('generate');
+    expect(typeof result.seedCode).toBe('string');
   });
 
   it('returns null on invalid JSON', async () => {
@@ -26,40 +34,52 @@ describe('classifyIntent', () => {
       ok: true,
       json: async () => ({ message: { content: 'not json' } }),
     });
-
-    const result = await classifyIntent('s("bd sd")', 'make it darker');
-    expect(result).toBeNull();
-  });
-
-  it('returns null on fetch error', async () => {
-    global.fetch = vi.fn().mockRejectedValue(new Error('network error'));
-
-    const result = await classifyIntent('s("bd sd")', 'make it darker');
-    expect(result).toBeNull();
+    expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
   });
 
   it('returns null on non-ok response', async () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 });
+    expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
+  });
 
-    const result = await classifyIntent('s("bd sd")', 'make it darker');
-    expect(result).toBeNull();
+  it('returns null on fetch error', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('network'));
+    expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
+  });
+
+  it('returns null when mode field is missing', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: '{"target":"bass"}' } }),
+    });
+    expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
+  });
+
+  it('returns null when transform mode lacks operations array', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: '{"mode":"transform","target":"bass"}' } }),
+    });
+    expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
+  });
+
+  it('returns null when generate mode lacks seedCode string', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: '{"mode":"generate","operations":[]}' } }),
+    });
+    expect(await generateTransformationPlan('', 'test')).toBeNull();
   });
 
   it('strips markdown fences from response', async () => {
-    const mock = {
-      interpretation: 'add reverb',
-      strudelFunctions: ['room'],
-      preserve: ['notes'],
-    };
+    const plan = { mode: 'transform', target: 'all', operations: [], preserve: [] };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        message: { content: '```json\n' + JSON.stringify(mock) + '\n```' },
+        message: { content: '```json\n' + JSON.stringify(plan) + '\n```' },
       }),
     });
-
-    const result = await classifyIntent('s("bd sd")', 'add reverb');
-    expect(result).toEqual(mock);
+    expect(await generateTransformationPlan('s("bd")', 'test')).toEqual(plan);
   });
 });
 
@@ -94,76 +114,5 @@ describe('autoFixCode', () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 });
 
     await expect(autoFixCode('bad code', 'error')).rejects.toThrow('Ollama HTTP 500');
-  });
-});
-
-describe('generateCode', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('builds classification-aware prompt when classification provided', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: 's("bd sd").lpf(500)' } }),
-    });
-
-    const classification = {
-      interpretation: 'reduce high frequencies',
-      strudelFunctions: ['lpf'],
-      preserve: ['rhythm'],
-    };
-
-    await generateCode([], 's("bd sd")', 'make it darker', classification);
-
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    const userMsg = body.messages.find((m) => m.role === 'user').content;
-    expect(userMsg).toContain('Do exactly: reduce high frequencies');
-    expect(userMsg).toContain('Use: lpf');
-    expect(userMsg).toContain('Preserve: rhythm');
-  });
-
-  it('falls back to plain prompt when classification is null', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: 's("bd sd")' } }),
-    });
-
-    await generateCode([], 's("bd sd")', 'make it darker', null);
-
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    const userMsg = body.messages.find((m) => m.role === 'user').content;
-    expect(userMsg).toBe('Current code:\ns("bd sd")\n\nRequest: make it darker');
-  });
-
-  it('falls back to plain prompt when classification omitted', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: 's("bd sd")' } }),
-    });
-
-    await generateCode([], 's("bd sd")', 'make it darker');
-
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    const userMsg = body.messages.find((m) => m.role === 'user').content;
-    expect(userMsg).toBe('Current code:\ns("bd sd")\n\nRequest: make it darker');
-  });
-
-  it('strips markdown fences from output', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        message: { content: '```javascript\ns("bd sd")\n```' },
-      }),
-    });
-
-    const result = await generateCode([], 's("bd sd")', 'test');
-    expect(result).toBe('s("bd sd")');
-  });
-
-  it('throws on non-ok response', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503 });
-
-    await expect(generateCode([], 's("bd sd")', 'test')).rejects.toThrow('Ollama HTTP 503');
   });
 });

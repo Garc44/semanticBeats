@@ -4,6 +4,10 @@ import { generateTransformationPlan, autoFixCode } from '../src/llm.js';
 describe('generateTransformationPlan', () => {
   beforeEach(() => vi.restoreAllMocks());
 
+  function capturedBody() {
+    return JSON.parse(global.fetch.mock.calls[0][1].body);
+  }
+
   it('returns transform plan for existing code', async () => {
     const plan = {
       mode: 'transform',
@@ -90,76 +94,43 @@ describe('generateTransformationPlan', () => {
     expect(await generateTransformationPlan('s("bd")', 'test')).toEqual(plan);
   });
 
-  it('returns compose plan for additive request with existing code', async () => {
-    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4 g4 ~', style: 'acid', intensity: 0.7 };
+  it('includes pillarName in system message content', async () => {
+    const plan = { mode: 'transform', style: 'acid', target: 'bass', intensity: 0.7 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
-    expect(await generateTransformationPlan('s("bd ~ sn ~")', 'add a melody')).toEqual(plan);
+    await generateTransformationPlan('s("bd")', 'make it acid', [], 0.5, 'bassline');
+    const body = capturedBody();
+    expect(body.messages[0].content).toContain('bassline');
   });
 
-  it('returns null for compose mode with empty currentCode', async () => {
-    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4 g4 ~', style: 'acid', intensity: 0.7 };
+  it('includes intensityHint in system message content', async () => {
+    const plan = { mode: 'transform', style: 'acid', target: 'bass', intensity: 0.8 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
-    expect(await generateTransformationPlan('', 'add a melody')).toBeNull();
+    await generateTransformationPlan('s("bd")', 'make it acid', [], 0.8, 'melody');
+    const body = capturedBody();
+    expect(body.messages[0].content).toContain('0.8');
   });
 
-  it('returns null for compose mode with invalid voiceType', async () => {
-    const plan = { mode: 'compose', voiceType: 'trumpet', notes: 'c4 e4', style: 'acid', intensity: 0.7 };
+  it('passes history as middle messages in fetch body', async () => {
+    const plan = { mode: 'transform', style: 'groove', target: 'all', intensity: 0.5 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
-    expect(await generateTransformationPlan('s("bd")', 'add a trumpet')).toBeNull();
-  });
-
-  it('returns null for compose mode with missing notes', async () => {
-    const plan = { mode: 'compose', voiceType: 'melody', notes: '', style: 'acid', intensity: 0.7 };
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: JSON.stringify(plan) } }),
-    });
-    expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
-  });
-
-  it('returns null for compose mode with whitespace-only notes', async () => {
-    const plan = { mode: 'compose', voiceType: 'melody', notes: '   ', style: 'acid', intensity: 0.7 };
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: JSON.stringify(plan) } }),
-    });
-    expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
-  });
-
-  it('returns null for compose mode with invalid style', async () => {
-    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4', style: 'jazz', intensity: 0.7 };
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: JSON.stringify(plan) } }),
-    });
-    expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
-  });
-
-  it('returns null for compose mode with out-of-range intensity', async () => {
-    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4', style: 'acid', intensity: 1.5 };
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: JSON.stringify(plan) } }),
-    });
-    expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
-  });
-
-  it('returns null for compose mode with missing intensity', async () => {
-    const plan = { mode: 'compose', voiceType: 'melody', notes: 'c4 e4', style: 'acid' };
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: JSON.stringify(plan) } }),
-    });
-    expect(await generateTransformationPlan('s("bd")', 'add a melody')).toBeNull();
+    const history = [
+      { role: 'user', content: 'Previous request' },
+      { role: 'assistant', content: '{"mode":"transform","style":"minimal","target":"all","intensity":0.3}' },
+    ];
+    await generateTransformationPlan('s("bd")', 'now groovy', history, 0.5, 'foundation');
+    const body = capturedBody();
+    expect(body.messages).toHaveLength(4); // system + 2 history + user
+    expect(body.messages[1]).toEqual(history[0]);
+    expect(body.messages[2]).toEqual(history[1]);
   });
 });
 

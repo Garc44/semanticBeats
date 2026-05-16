@@ -1,5 +1,7 @@
 import { init, play, stop } from './src/strudel.js';
-import { classifyIntent, generateCode, autoFixCode } from './src/llm.js';
+import { generateTransformationPlan, autoFixCode } from './src/llm.js';
+import { applyTransformation, generateSeed } from './src/patchEngine.js';
+import { validateCode } from './src/validate.js';
 import {
   setStatus,
   updateCodePanel,
@@ -80,13 +82,29 @@ async function handleSend() {
   promptInput.value = '';
 
   addUserMessage(prompt);
-  setStatus('Interpreting...');
+  setStatus('Planning...');
   sendBtn.disabled = true;
 
   try {
-    const classification = await classifyIntent(currentCode, prompt);
-    setStatus('Thinking...');
-    const newCode = await generateCode(conversationHistory, currentCode, prompt, classification);
+    const plan = await generateTransformationPlan(currentCode, prompt);
+
+    if (!plan) {
+      addErrorMessage('Could not plan transformation. Try rephrasing.');
+      setStatus('Error');
+      return;
+    }
+
+    const newCode =
+      plan.mode === 'transform'
+        ? applyTransformation(currentCode, plan)
+        : generateSeed(plan);
+
+    const validation = validateCode(newCode);
+    if (!validation.valid) {
+      addErrorMessage(`Validation failed: ${validation.errors.join(', ')}`);
+      setStatus('Error');
+      return;
+    }
 
     addPreviewMessage(
       newCode,
@@ -115,9 +133,7 @@ async function handleSend() {
           }
         }
       },
-      () => {
-        setStatus('Ready');
-      }
+      () => setStatus('Ready')
     );
 
     setStatus('Preview ready');

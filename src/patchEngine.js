@@ -1,6 +1,6 @@
 import { ALLOWED_OPERATIONS, OPERATION_HANDLERS } from './operations.js';
 
-const DEFAULT_SEED = 's("bd ~ sn ~")';
+const DEFAULT_SEED = 's("bd ~ bd ~")';
 
 export function applyTransformation(code, plan) {
   const { operations = [] } = plan;

@@ -15,7 +15,7 @@ Transform mode schema:
 {"mode":"transform","style":"acid|groove|minimal|dub|breakcore","target":"bass|drums|melody|all","intensity":${intensityHint}}
 
 Generate mode schema:
-{"mode":"generate","seedCode":"s(\\"bd ~ sn ~\\")"}
+{"mode":"generate","seedCode":"s(\\"bd ~ bd ~\\")"}
 
 Rules:
 - style must be one of AVAILABLE STYLES

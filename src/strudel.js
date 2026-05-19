@@ -19,5 +19,7 @@ export function stop() {
 export function setcpm(cpm) {
   if (typeof window !== 'undefined' && typeof window.setcpm === 'function') {
     window.setcpm(cpm);
+  } else {
+    console.warn('setcpm: window.setcpm not available');
   }
 }

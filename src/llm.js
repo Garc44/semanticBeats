@@ -12,7 +12,7 @@ If currentCode is empty or "none" → mode = "generate".
 If currentCode exists → mode = "transform".
 
 Transform mode schema:
-{"mode":"transform","style":"acid|groove|minimal|dub|breakcore","target":"bass|drums|melody|all","intensity":${intensityHint}}
+{"mode":"transform","style":"acid|groove|minimal|dub|breakcore|ambient","target":"bass|drums|melody|all","intensity":${intensityHint}}
 
 Generate mode schema:
 {"mode":"generate","seedCode":"s(\\"bd ~ bd ~\\")"}

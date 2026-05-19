@@ -14,10 +14,10 @@ export const GENRE_NAMES = [
 ];
 
 export function getGenre(name) {
-  return STYLE_LIBRARY[name] ?? null;
+  return GENRE_LIBRARY[name] ?? null;
 }
 
-export const STYLE_LIBRARY = {
+export const GENRE_LIBRARY = {
   techno: {
     foundation:   `note("c1*4").s("sine").penv("4 0").decay(0.12).sustain(0).gain(0.82)`,
     bassline:     `note("c1 ~ c1 ~").s("sawtooth").decay(0.08).sustain(0).gain(0.75)`,

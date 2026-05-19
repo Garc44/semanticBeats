@@ -39,6 +39,10 @@ describe('change_waveform', () => {
     const code = `s("white").decay(0.08).hpf(5000)`;
     expect(OPERATION_HANDLERS.change_waveform(code, 1.0)).toBe(`s("white").decay(0.08).hpf(5000)`);
   });
+  it('uses floor-based zone mapping — 0.25 maps to triangle not sine', () => {
+    const code = `note("c1").s("sine").decay(0.1)`;
+    expect(OPERATION_HANDLERS.change_waveform(code, 0.25)).toBe(`note("c1").s("triangle").decay(0.1)`);
+  });
 });
 
 describe('adjust_decay', () => {
@@ -72,5 +76,9 @@ describe('adjust_lpq', () => {
   it('clamps to max 40', () => {
     const code = `note("c1").s("sine").lpq(39)`;
     expect(OPERATION_HANDLERS.adjust_lpq(code, 0.5)).toBe(`note("c1").s("sine").lpq(40)`);
+  });
+  it('clamps to min 0', () => {
+    const code = `note("c1").s("sine").lpq(1)`;
+    expect(OPERATION_HANDLERS.adjust_lpq(code, -0.5)).toBe(`note("c1").s("sine").lpq(0)`);
   });
 });

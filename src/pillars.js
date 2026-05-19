@@ -19,5 +19,5 @@ export function rebuildStack(pillars, globalState) {
     : `stack(\n${active.map(p => p.code).join(',\n')}\n)`;
 
   const filterHz = Math.round(masterFilter * 18000 + 200);
-  return `${inner}.cps(${tempo}).gain(${masterVolume}).lpf(${filterHz}).shape(${intensity})`;
+  return `${inner}.cps(${tempo}).gain(${masterVolume}).lpf(${filterHz}).shape(${intensity}).room(${Math.round(intensity * 0.4 * 100) / 100})`;
 }

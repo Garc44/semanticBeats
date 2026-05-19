@@ -2,7 +2,7 @@ export const ALLOWED_STRUDEL_FUNCTIONS = new Set([
   'sound', 's', 'note', 'n', 'stack', 'cat', 'seq',
   'lpf', 'hpf', 'delay', 'room', 'size', 'gain', 'pan',
   'fast', 'slow', 'speed', 'crush', 'shape', 'distort',
-  'resonance', 'cutoff', 'vowel',
+  'resonance', 'cutoff', 'vowel', 'decay', 'sustain', 'penv', 'lpq',
   'jux', 'rev', 'iter', 'every', 'sometimes', 'rarely', 'often',
   'degradeBy', 'degrade', 'segment', 'struct', 'mask', 'euclid',
   'palindrome', 'ply', 'press', 'zoom', 'linger', 'stretch',

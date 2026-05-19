@@ -1,7 +1,8 @@
-import { init, play, stop } from './src/strudel.js';
+import { init, play, stop, setcpm } from './src/strudel.js';
 import { generateTransformationPlan, autoFixCode } from './src/llm.js';
 import { applyTransformation, generateSeed } from './src/patchEngine.js';
 import { expandStyle } from './src/library/styles.js';
+import { GENRE_NAMES, getGenre } from './src/library/soundLibrary.js';
 import { validateCode } from './src/validate.js';
 import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
 import {
@@ -85,6 +86,7 @@ const debouncedRebuild = debounce(rebuildAndPlay, 50);
 
 renderGlobalControls(globalState, (key, value) => {
   globalState[key] = value;
+  if (key === 'tempo') { setcpm(value * 60); return; }
   debouncedRebuild();
 });
 
@@ -182,6 +184,28 @@ for (const pillar of pillars) {
     },
   });
   pillarsRow.appendChild(card);
+}
+
+// ── Genre Loader ──────────────────────────────────────
+
+function loadGenre(genreName) {
+  const genre = getGenre(genreName);
+  if (!genre) return;
+  for (const pillar of pillars) {
+    pillar.code = genre[pillar.name] ?? '';
+    updatePillarCode(pillar.name, pillar.code);
+  }
+  rebuildAndPlay();
+  setStatus(`Loaded: ${genreName}`);
+}
+
+const genreBar = document.getElementById('genre-bar');
+for (const name of GENRE_NAMES) {
+  const btn = document.createElement('button');
+  btn.className = 'btn-genre';
+  btn.textContent = name.replace('_', ' ');
+  btn.addEventListener('click', () => loadGenre(name));
+  genreBar.appendChild(btn);
 }
 
 // ── Init ──────────────────────────────────────────────────

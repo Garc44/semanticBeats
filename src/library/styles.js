@@ -9,10 +9,13 @@ export const STYLE_LIBRARY = {
       { type: 'decrease_cutoff', amount: 0.5 },
       { type: 'add_distortion', amount: 0.4 },
       { type: 'increase_filter_motion', amount: 0.5 },
+      { type: 'change_waveform', amount: 1.0 },
+      { type: 'adjust_lpq', amount: 0.6 },
     ],
     melody: [
       { type: 'increase_filter_motion', amount: 0.6 },
       { type: 'increase_resonance', amount: 0.5 },
+      { type: 'adjust_lpq', amount: 0.4 },
     ],
   },
 
@@ -50,6 +53,7 @@ export const STYLE_LIBRARY = {
     bass: [
       { type: 'add_delay', amount: 0.7 },
       { type: 'increase_reverb', amount: 0.6 },
+      { type: 'adjust_decay', amount: 0.3 },
     ],
     drums: [
       { type: 'add_delay', amount: 0.5 },
@@ -65,10 +69,23 @@ export const STYLE_LIBRARY = {
     drums: [
       { type: 'increase_density', amount: 0.9 },
       { type: 'add_distortion', amount: 0.4 },
+      { type: 'change_waveform', amount: 1.0 },
     ],
     all: [
       { type: 'increase_density', amount: 0.8 },
       { type: 'add_distortion', amount: 0.6 },
+    ],
+  },
+
+  ambient: {
+    global: [
+      { type: 'simplify_pattern', amount: 1 },
+      { type: 'increase_reverb', amount: 0.5 },
+      { type: 'adjust_decay', amount: 0.4 },
+    ],
+    atmosphere: [
+      { type: 'adjust_decay', amount: 0.6 },
+      { type: 'increase_reverb', amount: 0.4 },
     ],
   },
 };

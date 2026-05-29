@@ -1,96 +1,28 @@
 export const STYLE_LIBRARY = {
-  acid: {
+  techno: {
     global: [
-      { type: 'increase_resonance', amount: 0.8 },
-      { type: 'decrease_cutoff', amount: 0.5 },
+      { type: 'lock_to_scale',      amount: 1.0 },
+      { type: 'increase_resonance', amount: 0.4 },
+      { type: 'decrease_cutoff',    amount: 0.3 },
+    ],
+    drums: [
+      { type: 'increase_density', amount: 0.4 },
+      { type: 'add_distortion',   amount: 0.3 },
     ],
     bass: [
-      { type: 'increase_resonance', amount: 0.8 },
-      { type: 'decrease_cutoff', amount: 0.5 },
-      { type: 'add_distortion', amount: 0.4 },
-      { type: 'increase_filter_motion', amount: 0.5 },
-      { type: 'change_waveform', amount: 1.0 },
-      { type: 'adjust_lpq', amount: 0.6 },
+      { type: 'apply_sidechain',    amount: 0.8 },
+      { type: 'lock_to_scale',      amount: 1.0 },
+      { type: 'increase_resonance', amount: 0.5 },
+      { type: 'adjust_lpq',         amount: 0.4 },
     ],
     melody: [
-      { type: 'increase_filter_motion', amount: 0.6 },
-      { type: 'increase_resonance', amount: 0.5 },
-      { type: 'adjust_lpq', amount: 0.4 },
-    ],
-  },
-
-  groove: {
-    global: [
-      { type: 'increase_density', amount: 0.3 },
-      { type: 'add_delay', amount: 0.2 },
-    ],
-    drums: [
-      { type: 'increase_density', amount: 0.3 },
-      { type: 'add_delay', amount: 0.25 },
-    ],
-    bass: [
-      { type: 'add_delay', amount: 0.3 },
-      { type: 'increase_reverb', amount: 0.2 },
-    ],
-  },
-
-  minimal: {
-    global: [
-      { type: 'simplify_pattern', amount: 1 },
-      { type: 'reduce_reverb', amount: 0.4 },
-    ],
-    all: [
-      { type: 'simplify_pattern', amount: 1 },
-      { type: 'reduce_reverb', amount: 0.4 },
-    ],
-  },
-
-  dub: {
-    global: [
-      { type: 'add_delay', amount: 0.6 },
-      { type: 'increase_reverb', amount: 0.5 },
-    ],
-    bass: [
-      { type: 'add_delay', amount: 0.7 },
-      { type: 'increase_reverb', amount: 0.6 },
-      { type: 'adjust_decay', amount: 0.3 },
-    ],
-    drums: [
-      { type: 'add_delay', amount: 0.5 },
-      { type: 'reduce_reverb', amount: 0.2 },
-    ],
-  },
-
-  breakcore: {
-    global: [
-      { type: 'increase_density', amount: 0.8 },
-      { type: 'add_distortion', amount: 0.5 },
-    ],
-    drums: [
-      { type: 'increase_density', amount: 0.9 },
-      { type: 'add_distortion', amount: 0.4 },
-      { type: 'change_waveform', amount: 1.0 },
-    ],
-    all: [
-      { type: 'increase_density', amount: 0.8 },
-      { type: 'add_distortion', amount: 0.6 },
-    ],
-  },
-
-  ambient: {
-    global: [
-      { type: 'simplify_pattern', amount: 1 },
-      { type: 'increase_reverb', amount: 0.5 },
-      { type: 'adjust_decay', amount: 0.4 },
-    ],
-    atmosphere: [
-      { type: 'adjust_decay', amount: 0.6 },
-      { type: 'increase_reverb', amount: 0.4 },
+      { type: 'lock_to_scale',          amount: 1.0 },
+      { type: 'increase_filter_motion', amount: 0.5 },
     ],
   },
 };
 
-const DEFAULT_STYLE = 'minimal';
+const DEFAULT_STYLE = 'techno';
 const DEFAULT_INTENSITY = 0.5;
 
 export function expandStyle(style, target, intensity = DEFAULT_INTENSITY) {

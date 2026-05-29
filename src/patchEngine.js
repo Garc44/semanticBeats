@@ -2,12 +2,12 @@ import { ALLOWED_OPERATIONS, OPERATION_HANDLERS } from './operations.js';
 
 const DEFAULT_SEED = 's("bd ~ bd ~")';
 
-export function applyTransformation(code, plan) {
+export function applyTransformation(code, plan, harmonicState = null) {
   const { operations = [] } = plan;
   if (!Array.isArray(operations)) return code;
   return operations
     .filter((op) => ALLOWED_OPERATIONS.includes(op.type))
-    .reduce((acc, op) => applyOperation(acc, op), code);
+    .reduce((acc, op) => applyOperation(acc, op, harmonicState), code);
 }
 
 export function generateSeed(plan) {
@@ -15,8 +15,8 @@ export function generateSeed(plan) {
   return applyTransformation(seedCode, { operations });
 }
 
-function applyOperation(code, { type, amount = 0.3 }) {
+function applyOperation(code, { type, amount = 0.3 }, harmonicState) {
   const handler = OPERATION_HANDLERS[type];
   if (!handler) return code;
-  return handler(code, amount);
+  return handler(code, amount, harmonicState);
 }

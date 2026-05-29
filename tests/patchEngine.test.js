@@ -88,3 +88,55 @@ describe('generateSeed', () => {
   });
 });
 
+describe('lock_to_scale', () => {
+  it('appends quantise with harmonicState', () => {
+    const plan = { operations: [{ type: 'lock_to_scale', amount: 1.0 }] };
+    const harmonicState = { root: 'G', scale: 'aeolian' };
+    const result = applyTransformation(base, plan, harmonicState);
+    expect(result).toContain('.quantise(scale("G:aeolian"))');
+  });
+
+  it('is idempotent — no duplicate quantise on second call', () => {
+    const plan = { operations: [{ type: 'lock_to_scale', amount: 1.0 }] };
+    const harmonicState = { root: 'G', scale: 'aeolian' };
+    const once = applyTransformation(base, plan, harmonicState);
+    const twice = applyTransformation(once, plan, harmonicState);
+    expect((twice.match(/\.quantise\(/g) ?? []).length).toBe(1);
+    expect(twice).toContain('.quantise(scale("G:aeolian"))');
+    expect(twice).toBe(once);
+  });
+
+  it('returns code unchanged when harmonicState is null', () => {
+    const plan = { operations: [{ type: 'lock_to_scale', amount: 1.0 }] };
+    expect(applyTransformation(base, plan, null)).toBe(base);
+  });
+
+  it('returns code unchanged when harmonicState.root is null', () => {
+    const plan = { operations: [{ type: 'lock_to_scale', amount: 1.0 }] };
+    expect(applyTransformation(base, plan, { root: null, scale: 'aeolian' })).toBe(base);
+  });
+});
+
+describe('apply_sidechain', () => {
+  it('appends gain pattern ducked at intensity 0.8', () => {
+    // duckedVolume = round2(1 - 0.8 * 0.95) = round2(1 - 0.76) = 0.24
+    const plan = { operations: [{ type: 'apply_sidechain', amount: 0.8 }] };
+    const result = applyTransformation(base, plan);
+    expect(result).toContain('.gain("0.24 1 1 1")');
+  });
+
+  it('appends gain pattern ducked at intensity 0.5', () => {
+    // duckedVolume = round2(1 - 0.5 * 0.95) = round2(0.525) = 0.53
+    const plan = { operations: [{ type: 'apply_sidechain', amount: 0.5 }] };
+    const result = applyTransformation(base, plan);
+    expect(result).toContain('.gain("0.53 1 1 1")');
+  });
+
+  it('is idempotent — no duplicate gain on second call', () => {
+    const plan = { operations: [{ type: 'apply_sidechain', amount: 0.8 }] };
+    const once = applyTransformation(base, plan);
+    const twice = applyTransformation(once, plan);
+    expect((twice.match(/\.gain\(/g) ?? []).length).toBe(1);
+  });
+});
+

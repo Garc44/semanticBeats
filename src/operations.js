@@ -11,6 +11,8 @@ export const ALLOWED_OPERATIONS = [
   'change_waveform',
   'adjust_decay',
   'adjust_lpq',
+  'lock_to_scale',
+  'apply_sidechain',
 ];
 
 function clamp(v, min, max) {
@@ -63,4 +65,18 @@ export const OPERATION_HANDLERS = {
     adjustMethod(code, 'decay', amt, { min: 0.01, max: 4.0, defaultVal: 0.1 }),
   adjust_lpq: (code, amt) =>
     adjustMethod(code, 'lpq', amt * 10, { min: 0, max: 40, defaultVal: 0 }),
+
+  lock_to_scale: (code, _amt, context) => {
+    if (!context?.root || !context?.scale) return code;
+    const stripped = code
+      .replace(/\n?\s*\.scale\([^)]*\)/g, '')
+      .replace(/\n?\s*\.quantise\(scale\([^)]*\)\)/g, '');
+    return stripped.trimEnd() + `\n  .quantise(scale("${context.root}:${context.scale}"))`;
+  },
+
+  apply_sidechain: (code, amt) => {
+    const duckedVolume = round2(1 - amt * 0.95);
+    const stripped = code.replace(/\n?\s*\.gain\([^)]*\)/g, '');
+    return stripped.trimEnd() + `\n  .gain("${duckedVolume} 1 1 1")`;
+  },
 };

@@ -18,6 +18,8 @@ import {
 
 const pillars = makePillars();
 
+let harmonicState = { root: null, scale: null };
+
 const globalState = {
   tempo: 1.0,
   masterVolume: 0.8,
@@ -117,11 +119,15 @@ async function handlePillarSend(pillarName, prompt) {
     return;
   }
 
+  if (plan.mode === 'generate') {
+    harmonicState = { root: plan.root, scale: plan.scale };
+  }
+
   let newCode;
   if (plan.mode === 'transform') {
     newCode = applyTransformation(pillar.code, {
       operations: expandStyle(plan.style, plan.target, plan.intensity),
-    });
+    }, harmonicState);
   } else {
     newCode = generateSeed(plan);
   }
@@ -144,6 +150,9 @@ async function handlePillarSend(pillarName, prompt) {
         { role: 'user', content: `Current code:\n${prevCode}\n\nRequest: ${prompt}` },
         { role: 'assistant', content: newCode }
       );
+      if (plan.mode === 'generate' && typeof plan.tempo === 'number') {
+        setcpm(plan.tempo / 4);
+      }
       await rebuildAndPlay();
       setStatus('Applied');
     },

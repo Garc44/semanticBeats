@@ -1,26 +1,26 @@
-import { STYLE_LIBRARY } from './library/styles.js';
-
-const STYLES = Object.keys(STYLE_LIBRARY);
+const ALLOWED_SCALES = ['phrygian', 'aeolian', 'dorian', 'minorPentatonic'];
 
 function makeSystemPrompt(pillarName, intensityHint) {
-  return `You are editing the ${pillarName} layer of a Strudel live-coding track.
+  return `You are editing the ${pillarName} layer of a Strudel live-coding techno track.
 Return ONLY valid JSON. No prose. No markdown. No explanation.
-
-AVAILABLE STYLES: ${STYLES.join(', ')}
 
 If currentCode is empty or "none" → mode = "generate".
 If currentCode exists → mode = "transform".
 
 Transform mode schema:
-{"mode":"transform","style":"acid|groove|minimal|dub|breakcore|ambient","target":"bass|drums|melody|all","intensity":${intensityHint}}
+{"mode":"transform","style":"techno","target":"bass|drums|melody|all","intensity":${intensityHint}}
 
 Generate mode schema:
-{"mode":"generate","seedCode":"s(\\"bd ~ bd ~\\")"}
+{"mode":"generate","style":"techno","root":"A|B|C|D|E|F|G","scale":"phrygian|aeolian|dorian|minorPentatonic","tempo":128,"seedCode":"s(\\"bd ~ bd ~\\")"}
 
 Rules:
-- style must be one of AVAILABLE STYLES
-- target must be one of: bass, drums, melody, all
-- intensity must be ${intensityHint}
+- style must be "techno"
+- transform target must be one of: bass, drums, melody, all
+- transform intensity must be a number between 0.1 and 1.0
+- generate root must be a single uppercase letter A through G
+- generate scale must be one of: phrygian, aeolian, dorian, minorPentatonic
+- generate tempo must be an integer between 100 and 160
+- generate seedCode must be a valid Strudel expression containing parentheses
 - No extra keys, no comments, no markdown`;
 }
 
@@ -57,7 +57,7 @@ export async function generateTransformationPlan(
 
     if (plan.mode === 'transform') {
       if (typeof plan.style !== 'string') return null;
-      if (!STYLES.includes(plan.style)) return null;
+      if (plan.style !== 'techno') return null;
       if (typeof plan.intensity !== 'number') return null;
       if (plan.intensity < 0.1 || plan.intensity > 1.0) return null;
       if (!['bass', 'drums', 'melody', 'all'].includes(plan.target)) return null;
@@ -65,6 +65,15 @@ export async function generateTransformationPlan(
 
     if (plan.mode === 'generate') {
       if (typeof plan.seedCode !== 'string') return null;
+      if (!plan.seedCode.includes('(') || !plan.seedCode.includes(')')) return null;
+      if (typeof plan.root !== 'string' || !/^[A-G]$/.test(plan.root)) return null;
+      if (!ALLOWED_SCALES.includes(plan.scale)) return null;
+      if (
+        typeof plan.tempo !== 'number' ||
+        !Number.isInteger(plan.tempo) ||
+        plan.tempo < 100 ||
+        plan.tempo > 160
+      ) return null;
     }
 
     return plan;

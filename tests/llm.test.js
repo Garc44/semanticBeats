@@ -9,28 +9,33 @@ describe('generateTransformationPlan', () => {
   }
 
   it('returns transform plan for existing code', async () => {
-    const plan = {
-      mode: 'transform',
-      style: 'acid',
-      target: 'bass',
-      intensity: 0.7,
-    };
+    const plan = { mode: 'transform', style: 'techno', target: 'bass', intensity: 0.7 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
-    expect(await generateTransformationPlan('s("bd sd")', 'make it acid')).toEqual(plan);
+    expect(await generateTransformationPlan('s("bd sd")', 'make it techno')).toEqual(plan);
   });
 
   it('returns generate plan when code is empty', async () => {
-    const plan = { mode: 'generate', seedCode: 's("bd ~ sn ~")', operations: [] };
+    const plan = {
+      mode: 'generate',
+      style: 'techno',
+      root: 'G',
+      scale: 'aeolian',
+      tempo: 128,
+      seedCode: 's("bd ~ sn ~")',
+    };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
     const result = await generateTransformationPlan('', 'make a beat');
     expect(result.mode).toBe('generate');
-    expect(typeof result.seedCode).toBe('string');
+    expect(result.seedCode).toBe('s("bd ~ sn ~")');
+    expect(result.root).toBe('G');
+    expect(result.scale).toBe('aeolian');
+    expect(result.tempo).toBe(128);
   });
 
   it('returns null on invalid JSON', async () => {
@@ -59,10 +64,22 @@ describe('generateTransformationPlan', () => {
     expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
   });
 
-  it('returns null when transform mode lacks style string', async () => {
+  it('returns null when transform style is not techno', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ message: { content: '{"mode":"transform","target":"bass","intensity":0.5}' } }),
+      json: async () => ({
+        message: { content: '{"mode":"transform","style":"groove","target":"bass","intensity":0.5}' },
+      }),
+    });
+    expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
+  });
+
+  it('returns null when transform target is not a valid stem', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        message: { content: '{"mode":"transform","style":"techno","target":"synthesizer","intensity":0.5}' },
+      }),
     });
     expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
   });
@@ -70,7 +87,9 @@ describe('generateTransformationPlan', () => {
   it('returns null when transform mode lacks intensity number', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ message: { content: '{"mode":"transform","style":"acid","target":"bass"}' } }),
+      json: async () => ({
+        message: { content: '{"mode":"transform","style":"techno","target":"bass"}' },
+      }),
     });
     expect(await generateTransformationPlan('s("bd")', 'test')).toBeNull();
   });
@@ -78,13 +97,55 @@ describe('generateTransformationPlan', () => {
   it('returns null when generate mode lacks seedCode string', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ message: { content: '{"mode":"generate","operations":[]}' } }),
+      json: async () => ({
+        message: { content: '{"mode":"generate","style":"techno","root":"G","scale":"aeolian","tempo":128}' },
+      }),
+    });
+    expect(await generateTransformationPlan('', 'test')).toBeNull();
+  });
+
+  it('returns null when generate seedCode has no parentheses', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        message: { content: '{"mode":"generate","style":"techno","root":"G","scale":"aeolian","tempo":128,"seedCode":"bd ~ sn ~"}' },
+      }),
+    });
+    expect(await generateTransformationPlan('', 'test')).toBeNull();
+  });
+
+  it('returns null when generate root is invalid', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        message: { content: '{"mode":"generate","style":"techno","root":"Z","scale":"aeolian","tempo":128,"seedCode":"s(\\"bd~\\")"}' },
+      }),
+    });
+    expect(await generateTransformationPlan('', 'test')).toBeNull();
+  });
+
+  it('returns null when generate scale is not in allowed list', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        message: { content: '{"mode":"generate","style":"techno","root":"G","scale":"major","tempo":128,"seedCode":"s(\\"bd~\\")"}' },
+      }),
+    });
+    expect(await generateTransformationPlan('', 'test')).toBeNull();
+  });
+
+  it('returns null when generate tempo is out of range', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        message: { content: '{"mode":"generate","style":"techno","root":"G","scale":"aeolian","tempo":200,"seedCode":"s(\\"bd~\\")"}' },
+      }),
     });
     expect(await generateTransformationPlan('', 'test')).toBeNull();
   });
 
   it('strips markdown fences from response', async () => {
-    const plan = { mode: 'transform', style: 'groove', target: 'all', intensity: 0.5 };
+    const plan = { mode: 'transform', style: 'techno', target: 'all', intensity: 0.5 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -95,40 +156,40 @@ describe('generateTransformationPlan', () => {
   });
 
   it('includes pillarName in system message content', async () => {
-    const plan = { mode: 'transform', style: 'acid', target: 'bass', intensity: 0.7 };
+    const plan = { mode: 'transform', style: 'techno', target: 'bass', intensity: 0.7 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
-    await generateTransformationPlan('s("bd")', 'make it acid', [], 0.5, 'bassline');
+    await generateTransformationPlan('s("bd")', 'make it techno', [], 0.5, 'bassline');
     const body = capturedBody();
     expect(body.messages[0].content).toContain('bassline');
   });
 
   it('includes intensityHint in system message content', async () => {
-    const plan = { mode: 'transform', style: 'acid', target: 'bass', intensity: 0.8 };
+    const plan = { mode: 'transform', style: 'techno', target: 'bass', intensity: 0.8 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
-    await generateTransformationPlan('s("bd")', 'make it acid', [], 0.8, 'melody');
+    await generateTransformationPlan('s("bd")', 'make it techno', [], 0.8, 'melody');
     const body = capturedBody();
     expect(body.messages[0].content).toContain('0.8');
   });
 
   it('passes history as middle messages in fetch body', async () => {
-    const plan = { mode: 'transform', style: 'groove', target: 'all', intensity: 0.5 };
+    const plan = { mode: 'transform', style: 'techno', target: 'all', intensity: 0.5 };
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ message: { content: JSON.stringify(plan) } }),
     });
     const history = [
       { role: 'user', content: 'Previous request' },
-      { role: 'assistant', content: '{"mode":"transform","style":"minimal","target":"all","intensity":0.3}' },
+      { role: 'assistant', content: '{"mode":"transform","style":"techno","target":"all","intensity":0.3}' },
     ];
     await generateTransformationPlan('s("bd")', 'now groovy', history, 0.5, 'foundation');
     const body = capturedBody();
-    expect(body.messages).toHaveLength(4); // system + 2 history + user
+    expect(body.messages).toHaveLength(4);
     expect(body.messages[1]).toEqual(history[0]);
     expect(body.messages[2]).toEqual(history[1]);
   });
@@ -144,7 +205,6 @@ describe('autoFixCode', () => {
       ok: true,
       json: async () => ({ message: { content: 's("bd sd")' } }),
     });
-
     const result = await autoFixCode('s("bd sd"', 'Unexpected end of input');
     expect(result).toBe('s("bd sd")');
   });
@@ -156,14 +216,12 @@ describe('autoFixCode', () => {
         message: { content: '```javascript\ns("bd sd")\n```' },
       }),
     });
-
     const result = await autoFixCode('s("bd sd"', 'error');
     expect(result).toBe('s("bd sd")');
   });
 
   it('throws on non-ok response', async () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 });
-
     await expect(autoFixCode('bad code', 'error')).rejects.toThrow('Ollama HTTP 500');
   });
 });

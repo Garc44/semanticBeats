@@ -37,13 +37,12 @@ export const soundLibrary = {
 )` }
   ],
   groove: [
-    { id: "perc_minimal_hats",    name: "Minimal Hi-Hats",      tags: ["hats", "groove", "subtle", "minimal", "hypnotic"],    code: `note("c6*8").s("white").decay(0.03).sustain(0).hp(450).hpq(0.3).gain(0.25)` },
-    { id: "perc_acid_backbeat",   name: "Acid Backbeat",         tags: ["snare", "acid", "backbeat", "groove"],                code: `note("~ c6 ~ c6").s("white").decay(0.05).sustain(0).hp(450).hpq(0.3).gain(0.3)` },
-    { id: "perc_industrial_fast", name: "Industrial Rapid Hats", tags: ["hats", "industrial", "harsh", "aggressive", "fast"], code: `note("c6*16").s("white").decay(0.02).sustain(0).hp(450).hpq(0.3).gain(0.2)` },
-    // --- NEW EXPANSIONS ---
-    { id: "perc_dub_openhat",     name: "Classic Open Hi-Hat",   tags: ["hats", "groove", "open", "dub", "offbeat", "909"],    code: `note("~ c6").s("white").decay(0.14).sustain(0).hp(600).hpq(0.5).gain(0.24)` },
-    { id: "perc_hardgroove_ride", name: "Sizzling Rave Ride",    tags: ["hats", "groove", "ride", "cymbal", "hardgroove"],     code: `note("~ c6*4").s("white").decay(0.22).hp(1200).hpq(0.8).gain(0.15)` },
-    { id: "perc_schranz_shaker",  name: "Driving Rapid Shaker",  tags: ["percussion", "groove", "shaker", "schranz", "fast"], code: `note("c5*4").s("triangle").decay(0.02).gain(0.35).stack(note("~ c6*16").s("white").decay(0.01).hp(900).gain(0.1))` }
+    { id: "perc_minimal_hats",    name: "Minimal Hi-Hats",      tags: ["hats", "groove", "subtle", "minimal", "hypnotic"],    code: `s("hh*8").bank("RolandTR909").decay(0.03).gain(0.25)` },
+    { id: "perc_acid_backbeat",   name: "Acid Backbeat",         tags: ["snare", "acid", "backbeat", "groove"],                code: `s("~ sd ~ sd").bank("RolandTR909").decay(0.05).gain(0.3)` },
+    { id: "perc_industrial_fast", name: "Industrial Rapid Hats", tags: ["hats", "industrial", "harsh", "aggressive", "fast"], code: `s("hh*16").bank("RolandTR909").decay(0.02).gain(0.2)` },
+    { id: "perc_dub_openhat",     name: "Classic Open Hi-Hat",   tags: ["hats", "groove", "open", "dub", "offbeat", "909"],    code: `s("~ oh").bank("RolandTR808").decay(0.14).gain(0.24)` },
+    { id: "perc_hardgroove_ride", name: "Sizzling Rave Ride",    tags: ["hats", "groove", "ride", "cymbal", "hardgroove"],     code: `s("~ hh*4").bank("RolandTR909").decay(0.22).gain(0.15)` },
+    { id: "perc_schranz_shaker",  name: "Driving Rapid Shaker",  tags: ["percussion", "groove", "shaker", "schranz", "fast"], code: `s("cp*4").bank("RolandTR909").decay(0.02).gain(0.35).stack(s("~ hh*16").bank("RolandTR909").decay(0.01).gain(0.1))` }
   ],
   synth_fx: [
     { id: "synthfx_hypnotic",   name: "Hypnotic Synth FX",   tags: ["melody", "fx", "hypnotic", "minor", "accent", "subtle"],       code: `stack(

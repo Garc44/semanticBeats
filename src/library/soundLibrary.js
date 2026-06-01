@@ -41,7 +41,10 @@ export const soundLibrary = {
     { id: "perc_industrial_fast", name: "Industrial Rapid Hats", tags: ["hats", "industrial", "harsh", "aggressive", "fast"], code: `s("hh*16").bank("RolandTR909").decay(0.02).gain(0.2)` },
     { id: "perc_dub_openhat",     name: "Classic Open Hi-Hat",   tags: ["hats", "groove", "open", "dub", "offbeat", "909"],    code: `s("~ oh").bank("RolandTR808").decay(0.14).gain(0.24)` },
     { id: "perc_hardgroove_ride", name: "Sizzling Rave Ride",    tags: ["hats", "groove", "ride", "cymbal", "hardgroove"],     code: `s("~ hh*4").bank("RolandTR909").decay(0.22).gain(0.15)` },
-    { id: "perc_schranz_shaker",  name: "Driving Rapid Shaker",  tags: ["percussion", "groove", "shaker", "schranz", "fast"], code: `s("cp*4").bank("RolandTR909").decay(0.02).gain(0.35).stack(s("~ hh*16").bank("RolandTR909").decay(0.01).gain(0.1))` }
+    { id: "perc_schranz_shaker",  name: "Driving Rapid Shaker",  tags: ["percussion", "groove", "shaker", "schranz", "fast"], code: `stack(
+  s("cp*4").bank("RolandTR909").decay(0.02).gain(0.35),
+  s("~ hh*16").bank("RolandTR909").decay(0.01).gain(0.1)
+)` }
   ],
   synth_fx: [
     { id: "synthfx_hypnotic",   name: "Hypnotic Synth FX",   tags: ["melody", "fx", "hypnotic", "minor", "accent", "subtle"],       code: `stack(

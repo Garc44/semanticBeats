@@ -1,10 +1,21 @@
-import { initStrudel, evaluate as _evaluate, hush } from '@strudel/web';
+import { initStrudel, samples, evaluate as _evaluate, hush } from '@strudel/web';
 
 let initialized = false;
 
 export async function init() {
-  await initStrudel({});
-  initialized = true;
+  try {
+    await initStrudel({
+      prebake: () => Promise.all([
+        samples('https://raw.githubusercontent.com/felixroos/dough-samples/main/tidal-drum-machines.json'),
+        samples('github:tidalcycles/dirt-samples')
+      ])
+    });
+    initialized = true;
+    console.log("Strudel sample packs baked successfully.");
+  } catch (error) {
+    console.error("Failed to preload Strudel sample packs:", error);
+    throw error;
+  }
 }
 
 export async function play(code) {

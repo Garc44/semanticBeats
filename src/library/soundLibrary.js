@@ -11,28 +11,27 @@ export const soundLibrary = {
   ],
   rumble_bass: [
     { id: "rumble_hypnotic",    name: "Hypnotic Rumble",    tags: ["bass", "drone", "hypnotic", "minimal", "pad", "sidechain"], code: `stack(
-  note("c1 ~ c1 ~").s("sawtooth").decay(0.08).sustain(0).gain("0.1 1 1 1"),
-  note("[c2,g2,bb2]").s("sine").slow(4).decay(3).sustain(0).gain(0.2)
+  note("c1 ~ c1 ~").s("moog").decay(0.08).sustain(0).gain("0.1 1 1 1"),
+  note("[c2,g2,bb2]").s("bass").slow(4).decay(3).sustain(0).gain(0.2)
 )` },
     { id: "rumble_acid",        name: "Acid Rumble",        tags: ["bass", "drone", "acid", "303", "filter", "resonant"],      code: `stack(
-  note("c1 eb1 g1 ~").s("sawtooth").lpf(800).lpq(8).decay(0.15).sustain(0).gain("0.1 1 1 1"),
-  note("[c2,eb2]").s("sine").slow(4).decay(2).sustain(0).gain(0.15)
+  note("c1 eb1 g1 ~").s("bass").lpf(800).lpq(8).decay(0.15).sustain(0).gain("0.1 1 1 1"),
+  note("[c2,eb2]").s("bass").slow(4).decay(2).sustain(0).gain(0.15)
 )` },
     { id: "rumble_industrial",  name: "Industrial Rumble",  tags: ["bass", "drone", "industrial", "harsh", "distort"],         code: `stack(
-  note("c1 ~ ~ c1").s("sawtooth").distort(0.4).decay(0.1).sustain(0).gain("0.1 1 1 1"),
-  note("c2").s("sine").slow(8).decay(4).sustain(0).gain(0.1)
+  note("c1 ~ ~ c1").s("bass").distort(0.4).decay(0.1).sustain(0).gain("0.1 1 1 1"),
+  note("c2").s("bass").slow(8).decay(4).sustain(0).gain(0.1)
 )` },
-    // --- NEW EXPANSIONS ---
     { id: "rumble_dub",         name: "Deep Dub Chug",      tags: ["bass", "drone", "dub", "deep", "sub", "warm", "spacey"],   code: `stack(
-  note("c1 ~ ~ c1").s("sine").decay(0.25).sustain(0).gain(0.9),
-  note("[f2,c3]").s("sawtooth").lpf(350).lpq(3).slow(6).decay(2.5).gain(0.14)
+  note("c1 ~ ~ c1").s("bass").decay(0.25).sustain(0).gain(0.9),
+  note("[f2,c3]").s("moog").lpf(350).lpq(3).slow(6).decay(2.5).gain(0.14)
 )` },
     { id: "rumble_hardgroove",  name: "Rolling 16th Bass",  tags: ["bass", "drone", "rolling", "groove", "driving", "16th"],   code: `stack(
-  note("~ c1 c1 ~ c1 c1 ~ c1").s("sawtooth").lpf(160).decay(0.07).sustain(0).gain(0.85),
-  note("c1").s("sawtooth").lpf(110).slow(4).decay(2).gain(0.2)
+  note("~ c1 c1 ~ c1 c1 ~ c1").s("bass").lpf(160).decay(0.07).sustain(0).gain(0.85),
+  note("c1").s("bass").lpf(110).slow(4).decay(2).gain(0.2)
 )` },
     { id: "rumble_schranz",     name: "Schranz Noise Wall", tags: ["bass", "drone", "schranz", "distort", "heavy", "noisy"],   code: `stack(
-  note("c1*4").s("square").distort(0.6).decay(0.09).lpf(140).gain(0.8),
+  note("c1*4").s("fm").distort(0.6).decay(0.09).lpf(140).gain(0.8),
   note("c1*8").s("white").hp(120).lpf(300).gain(0.15)
 )` }
   ],

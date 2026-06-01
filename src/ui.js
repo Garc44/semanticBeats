@@ -55,7 +55,7 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit }) {
 
   const nameEl = document.createElement('span');
   nameEl.className = 'pillar-name';
-  nameEl.textContent = pillar.name.toUpperCase();
+  nameEl.textContent = pillar.name.replace(/_/g, ' ').toUpperCase();
 
   const controls = document.createElement('div');
   controls.className = 'pillar-controls';

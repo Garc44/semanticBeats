@@ -45,29 +45,28 @@ export const soundLibrary = {
   ],
   synth_fx: [
     { id: "synthfx_hypnotic",   name: "Hypnotic Synth FX",   tags: ["melody", "fx", "hypnotic", "minor", "accent", "subtle"],       code: `stack(
-  note("c3 eb3 g3 bb3").s("triangle").decay(0.3).sustain(0).slow(2).hp(450).hpq(0.3).gain(0.3),
-  note("~ ~ ~ c1").s("square").decay(0.08).sustain(0).distort(0.7).gain(0.35)
+  note("c3 eb3 g3 bb3").s("arpy").decay(0.3).sustain(0).slow(2).gain(0.3),
+  note("~ ~ ~ c1").s("fm").decay(0.08).sustain(0).distort(0.7).gain(0.35)
 )` },
     { id: "synthfx_acid",       name: "Acid Synth FX",       tags: ["melody", "fx", "acid", "303", "filter", "squelch", "burst"],   code: `stack(
-  note("c3 ~ eb3 ~ g3 ~ bb3 ~").s("sawtooth").lpf(1200).lpq(4).decay(0.2).sustain(0).hp(450).hpq(0.3).gain(0.35),
-  note("c2*2").s("square").decay(0.08).sustain(0).distort(0.7).gain(0.3)
+  note("c3 ~ eb3 ~ g3 ~ bb3 ~").s("bass").lpf(1200).lpq(4).decay(0.2).sustain(0).gain(0.35),
+  note("c2*2").s("fm").decay(0.08).sustain(0).distort(0.7).gain(0.3)
 )` },
     { id: "synthfx_industrial", name: "Industrial Synth FX", tags: ["melody", "fx", "industrial", "harsh", "distort", "slam"],      code: `stack(
-  note("c3 c3 eb3 c3").s("square").distort(0.5).decay(0.15).sustain(0).hp(450).hpq(0.3).gain(0.25),
-  note("~ ~ ~ c1").s("square").decay(0.08).sustain(0).distort(0.9).gain(0.4)
+  note("c3 c3 eb3 c3").s("fm").distort(0.5).decay(0.15).sustain(0).gain(0.25),
+  note("~ ~ ~ c1").s("fm").decay(0.08).sustain(0).distort(0.9).gain(0.4)
 )` },
-    // --- NEW EXPANSIONS ---
     { id: "synthfx_dub",        name: "Dub Echo Chord Stab", tags: ["melody", "fx", "dub", "chord", "stab", "echo", "spacey"],      code: `stack(
-  note("[c3,eb3,g3,bb3]*2").s("sawtooth").lpf(650).lpq(4).decay(0.08).sustain(0).slow(2).gain(0.4),
-  note("c6").s("white").slow(4).decay(1.8).hp(800).gain(0.1)
+  note("[c3,eb3,g3,bb3]*2").s("juno").lpf(650).lpq(4).decay(0.08).sustain(0).slow(2).gain(0.4),
+  note("c6").s("pad").slow(4).decay(1.8).gain(0.1)
 )` },
     { id: "synthfx_hardgroove", name: "Peak Time Rave Hook", tags: ["melody", "fx", "rave", "hardgroove", "energetic", "hook"],     code: `stack(
-  note("c4 g3 c4 eb4").s("square").decay(0.11).sustain(0).fast(2).gain(0.18),
-  note("~ ~ c3 ~").s("triangle").decay(0.05).gain(0.3)
+  note("c4 g3 c4 eb4").s("juno").decay(0.11).sustain(0).fast(2).gain(0.18),
+  note("~ ~ c3 ~").s("arpy").decay(0.05).gain(0.3)
 )` },
     { id: "synthfx_schranz",     name: "Talking Glitch Engine",tags: ["melody", "fx", "schranz", "glitch", "vocal", "talking"],     code: `stack(
-  note("c3*8").s("square").distort(0.7).decay(0.05).hp(500).lpf(2000).gain(0.2),
-  note("~ c2 ~ c2").s("sawtooth").lpq(10).lpf("800 1400").decay(0.08).gain(0.25)
+  note("c3*8").s("fm").distort(0.7).decay(0.05).lpf(2000).gain(0.2),
+  note("~ c2 ~ c2").s("bass").lpq(10).lpf("800 1400").decay(0.08).gain(0.25)
 )` }
   ],
 };

@@ -43,6 +43,34 @@ header {
 
 #status { color: var(--muted); font-size: 0.85rem; }
 
+/* ── Genre Bar ── */
+#genre-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.5rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.btn-genre {
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.btn-genre:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* ── Global Controls ── */
 #global-controls {
   display: flex;

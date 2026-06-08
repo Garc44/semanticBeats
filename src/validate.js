@@ -1,6 +1,6 @@
 import { soundLibrary } from './library/soundLibrary.js';
 
-export const ALLOWED_STRUDEL_FUNCTIONS = new Set([
+const ALLOWED_STRUDEL_FUNCTIONS = new Set([
   'sound', 's', 'note', 'n', 'stack', 'cat', 'seq',
   'bank', 'lpf', 'hpf', 'delay', 'room', 'size', 'gain', 'pan',
   'fast', 'slow', 'speed', 'crush', 'shape', 'distort',

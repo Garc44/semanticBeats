@@ -1,10 +1,7 @@
 import { init, play, stop, setcpm } from './src/strudel.js';
-import { generateTransformationPlan, autoFixCode } from './src/llm.js';
-import { applyTransformation, generateSeed } from './src/patchEngine.js';
-import { expandStyle } from './src/library/styles.js';
-import { GENRE_NAMES, getGenre } from './src/library/soundLibrary.js';
-import { validateCode } from './src/validate.js';
-import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
+import { generateTransformationPlan } from './src/llm.js';
+import { PILLAR_NAMES, makePillars, rebuildStack, assembleCode } from './src/pillars.js';
+import { GENRE_NAMES, getGenreCode } from './src/library/soundLibrary.js';
 import {
   setStatus,
   renderGlobalControls,
@@ -17,8 +14,6 @@ import {
 } from './src/ui.js';
 
 const pillars = makePillars();
-
-let harmonicState = { root: null, scale: null };
 
 const globalState = {
   tempo: 1.0,
@@ -42,18 +37,11 @@ async function rebuildAndPlay() {
   if (!globalState.isPlaying) return;
   try {
     await play(stack);
-  } catch (e) {
-    setStatus('Fixing...');
-    try {
-      const fixed = await autoFixCode(stack, e.message);
-      await play(fixed);
-      setStatus('Playing (auto-fixed)');
-    } catch {
-      stop();
-      globalState.isPlaying = false;
-      playBtn.textContent = '▶ Play';
-      setStatus('Error — stopped');
-    }
+  } catch {
+    stop();
+    globalState.isPlaying = false;
+    playBtn.textContent = '▶ Play';
+    setStatus('Play error — stopped');
   }
 }
 
@@ -97,44 +85,19 @@ renderGlobalControls(globalState, (key, value) => {
 async function handlePillarSend(pillarName, prompt) {
   const pillar = pillars.find(p => p.name === pillarName);
   addPillarMessage(pillarName, 'user', prompt);
-  setStatus('Planning...');
+  setStatus('Selecting...');
 
-  const plan = await generateTransformationPlan(
-    pillar.code,
-    prompt,
-    pillar.history,
-    globalState.intensity,
-    pillarName
-  );
+  const plan = await generateTransformationPlan(pillar.code, prompt, pillarName);
 
   if (!plan) {
-    addPillarMessage(pillarName, 'error', 'Could not plan transformation. Try rephrasing.');
+    addPillarMessage(pillarName, 'error', 'Could not select pattern. Try rephrasing.');
     setStatus('Error');
     return;
   }
 
-  if (plan.mode === 'generate' && pillar.code.trim()) {
-    addPillarMessage(pillarName, 'error', 'Generate mode returned for existing code. Try a more specific request.');
-    setStatus('Error');
-    return;
-  }
-
-  if (plan.mode === 'generate') {
-    harmonicState = { root: plan.root, scale: plan.scale };
-  }
-
-  let newCode;
-  if (plan.mode === 'transform') {
-    newCode = applyTransformation(pillar.code, {
-      operations: expandStyle(plan.style, plan.target, plan.intensity),
-    }, harmonicState);
-  } else {
-    newCode = generateSeed(plan);
-  }
-
-  const validation = validateCode(newCode);
-  if (!validation.valid) {
-    addPillarMessage(pillarName, 'error', `Validation failed: ${validation.errors.join(', ')}`);
+  const newCode = assembleCode(plan, pillarName);
+  if (!newCode) {
+    addPillarMessage(pillarName, 'error', 'Pattern assembly failed.');
     setStatus('Error');
     return;
   }
@@ -146,17 +109,21 @@ async function handlePillarSend(pillarName, prompt) {
     async () => {
       pillar.code = newCode;
       updatePillarCode(pillarName, newCode);
-      pillar.history.push(
-        { role: 'user', content: `Current code:\n${prevCode}\n\nRequest: ${prompt}` },
-        { role: 'assistant', content: newCode }
-      );
-      if (plan.mode === 'generate' && typeof plan.tempo === 'number') {
-        setcpm(plan.tempo / 4);
-      }
       await rebuildAndPlay();
+      if (!globalState.isPlaying) {
+        const stack = rebuildStack(pillars, globalState);
+        if (stack) {
+          await play(stack);
+          globalState.isPlaying = true;
+          playBtn.textContent = '■ Stop';
+        }
+      }
       setStatus('Applied');
     },
-    () => setStatus('Ready')
+    () => {
+      pillar.code = prevCode;
+      setStatus('Ready');
+    }
   );
 
   setStatus('Preview ready');
@@ -195,10 +162,10 @@ for (const pillar of pillars) {
   pillarsRow.appendChild(card);
 }
 
-// ── Genre Loader ──────────────────────────────────────
+// ── Genre Loader ──────────────────────────────────────────
 
 function loadGenre(genreName) {
-  const genre = getGenre(genreName);
+  const genre = getGenreCode(genreName);
   if (!genre) return;
   for (const pillar of pillars) {
     pillar.code = genre[pillar.name] ?? '';

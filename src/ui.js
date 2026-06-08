@@ -1,3 +1,27 @@
+const TRACK_KNOBS = {
+  drums: [
+    { key: 'gain',  label: 'Volume',     min: 0,    max: 1,   step: 0.01 },
+    { key: 'drive', label: 'Saturation', min: 0,    max: 1,   step: 0.01 },
+    { key: 'decay', label: 'Decay',      min: 0.01, max: 0.5, step: 0.01 },
+  ],
+  bass_percussion: [
+    { key: 'gain',    label: 'Volume',  min: 0, max: 1, step: 0.01 },
+    { key: 'cutoff',  label: 'Cutoff',  min: 0, max: 1, step: 0.01 },
+    { key: 'stutter', label: 'Stutter', min: 0, max: 1, step: 0.01 },
+  ],
+  melody: [
+    { key: 'gain',      label: 'Volume',    min: 0, max: 1, step: 0.01 },
+    { key: 'cutoff',    label: 'Cutoff',    min: 0, max: 1, step: 0.01 },
+    { key: 'resonance', label: 'Resonance', min: 0, max: 1, step: 0.01 },
+    { key: 'space',     label: 'Space',     min: 0, max: 1, step: 0.01 },
+  ],
+  transitions: [
+    { key: 'gain', label: 'Volume', min: 0, max: 1, step: 0.01 },
+    { key: 'hpf',  label: 'HPF',    min: 0, max: 1, step: 0.01 },
+    { key: 'size', label: 'Size',   min: 0, max: 1, step: 0.01 },
+  ],
+};
+
 const statusEl = () => document.getElementById('status');
 
 export function setStatus(text) {
@@ -45,7 +69,7 @@ export function renderGlobalControls(globalState, onChange) {
   }
 }
 
-export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit }) {
+export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onKnobChange }) {
   const card = document.createElement('div');
   card.className = 'pillar-card';
   card.dataset.pillar = pillar.name;
@@ -117,6 +141,48 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit }) {
   inputRow.appendChild(sendBtn);
 
   card.appendChild(header);
+
+  const knobSpecs = TRACK_KNOBS[pillar.name] ?? [];
+  if (knobSpecs.length) {
+    const knobSection = document.createElement('div');
+    knobSection.className = 'pillar-knobs';
+
+    for (const spec of knobSpecs) {
+      const group = document.createElement('div');
+      group.className = 'knob-group';
+
+      const label = document.createElement('label');
+      const valueSpan = document.createElement('span');
+      valueSpan.className = 'knob-value';
+
+      // CRITICAL: read live pillar state — pillar.knobs is always initialized by makePillars
+      // renderPillar is called on re-renders; do NOT use a hardcoded default here or knobs reset
+      const currentVal = pillar.knobs[spec.key];
+      valueSpan.textContent = currentVal.toFixed(2);
+      label.textContent = spec.label + ' ';
+      label.appendChild(valueSpan);
+
+      const input = document.createElement('input');
+      input.type = 'range';
+      input.min = spec.min;
+      input.max = spec.max;
+      input.step = spec.step;
+      input.value = currentVal;
+      input.dataset.key = spec.key;
+      input.addEventListener('input', () => {
+        const val = parseFloat(input.value);
+        valueSpan.textContent = val.toFixed(2);
+        onKnobChange(spec.key, val);
+      });
+
+      group.appendChild(label);
+      group.appendChild(input);
+      knobSection.appendChild(group);
+    }
+
+    card.appendChild(knobSection);
+  }
+
   card.appendChild(codeEl);
   card.appendChild(chatEl);
   card.appendChild(inputRow);

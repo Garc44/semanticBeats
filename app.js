@@ -1,6 +1,7 @@
 import { init, play, stop, setcpm } from './src/strudel.js';
 import { generateTransformationPlan } from './src/llm.js';
-import { PILLAR_NAMES, makePillars, rebuildStack, assembleCode } from './src/pillars.js';
+import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
+import { compileTrack } from './src/compiler.js';
 import { GENRE_NAMES, getGenreCode } from './src/library/soundLibrary.js';
 import {
   setStatus,
@@ -87,7 +88,11 @@ async function handlePillarSend(pillarName, prompt) {
   addPillarMessage(pillarName, 'user', prompt);
   setStatus('Selecting...');
 
-  const plan = await generateTransformationPlan(pillar.code, prompt, pillarName);
+  const currentTracksState = Object.fromEntries(
+    pillars.map(p => [p.name, p.selectedId ?? null])
+  );
+
+  const plan = await generateTransformationPlan(pillarName, prompt, currentTracksState);
 
   if (!plan) {
     addPillarMessage(pillarName, 'error', 'Could not select pattern. Try rephrasing.');
@@ -95,7 +100,7 @@ async function handlePillarSend(pillarName, prompt) {
     return;
   }
 
-  const newCode = assembleCode(plan, pillarName);
+  const newCode = compileTrack(plan, pillarName, pillar);
   if (!newCode) {
     addPillarMessage(pillarName, 'error', 'Pattern assembly failed.');
     setStatus('Error');
@@ -103,10 +108,15 @@ async function handlePillarSend(pillarName, prompt) {
   }
 
   const prevCode = pillar.code;
+  const prevSelectedId = pillar.selectedId;
+  const prevLastMods = pillar.lastMods;
+
   addPillarPreviewMessage(
     pillarName,
     newCode,
     async () => {
+      pillar.selectedId = plan.selectedId;
+      pillar.lastMods = plan.modifications ?? {};
       pillar.code = newCode;
       updatePillarCode(pillarName, newCode);
       await rebuildAndPlay();
@@ -122,6 +132,8 @@ async function handlePillarSend(pillarName, prompt) {
     },
     () => {
       pillar.code = prevCode;
+      pillar.selectedId = prevSelectedId;
+      pillar.lastMods = prevLastMods;
       setStatus('Ready');
     }
   );
@@ -157,6 +169,18 @@ for (const pillar of pillars) {
       if (newCode === pillar.code) return;
       pillar.code = newCode;
       rebuildAndPlay();
+    },
+    onKnobChange: (key, value) => {
+      pillar.knobs[key] = value;
+      if (pillar.selectedId) {
+        pillar.code = compileTrack(
+          { selectedId: pillar.selectedId, modifications: pillar.lastMods ?? {} },
+          pillar.name,
+          pillar
+        );
+        updatePillarCode(pillar.name, pillar.code);
+      }
+      debouncedRebuild();
     },
   });
   pillarsRow.appendChild(card);

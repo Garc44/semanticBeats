@@ -96,12 +96,12 @@ describe('validatePlan', () => {
     expect(r.errors[0]).toMatch(/slowdown/);
   });
 
-  it('validates bass_percussion IDs against bass_percussion catalog', () => {
-    const r = validatePlan({ selectedId: 'rumble_acid' }, 'bass_percussion');
+  it('validates bass IDs against bass catalog', () => {
+    const r = validatePlan({ selectedId: 'rumble_acid' }, 'bass');
     expect(r.valid).toBe(true);
   });
 
-  it('fails bass_percussion ID against wrong pillar catalog', () => {
+  it('fails bass ID against wrong pillar catalog', () => {
     const r = validatePlan({ selectedId: 'rumble_acid' }, 'drums');
     expect(r.valid).toBe(false);
   });

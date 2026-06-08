@@ -102,15 +102,18 @@ header {
 }
 
 .slider-group label {
-  font-size: 0.75rem;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 0.85rem;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.12em;
+  display: block;
+  margin-bottom: 2px;
 }
 
 .slider-value {
-  color: var(--accent);
-  font-family: 'Fira Code', 'Courier New', monospace;
+  color: var(--text);
+  font-family: 'Courier New', 'Fira Code', monospace;
 }
 
 .slider-group input[type="range"] {
@@ -131,8 +134,10 @@ header {
   background: var(--surface);
   color: var(--muted);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 0.75rem;
+  border-radius: 0;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
   cursor: pointer;
 }
 

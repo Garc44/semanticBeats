@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { soundLibrary, GENRE_PRESETS, GENRE_NAMES, getPatternById, getGenreCode } from '../src/library/soundLibrary.js';
 
-const PILLAR_NAMES = ['kick', 'rumble_bass', 'groove', 'synth_fx'];
+const PILLAR_NAMES = ['drums', 'bass_percussion', 'melody', 'transitions'];
 
 describe('soundLibrary', () => {
   it('exports all 4 pillars', () => {
@@ -100,13 +100,13 @@ describe('GENRE_NAMES', () => {
 
 describe('getPatternById', () => {
   it('returns pattern for valid id', () => {
-    const p = getPatternById('kick', 'kick_sine_44');
+    const p = getPatternById('drums', 'kick_sine_44');
     expect(p).not.toBeNull();
     expect(p.id).toBe('kick_sine_44');
   });
 
   it('returns pattern object with all required fields', () => {
-    const p = getPatternById('rumble_bass', 'rumble_acid');
+    const p = getPatternById('bass_percussion', 'rumble_acid');
     expect(p).toHaveProperty('id');
     expect(p).toHaveProperty('name');
     expect(p).toHaveProperty('tags');
@@ -114,7 +114,7 @@ describe('getPatternById', () => {
   });
 
   it('returns null for unknown id', () => {
-    expect(getPatternById('kick', 'nonexistent_id')).toBeNull();
+    expect(getPatternById('drums', 'nonexistent_id')).toBeNull();
   });
 
   it('returns null for unknown pillar', () => {

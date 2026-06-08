@@ -80,7 +80,7 @@ header {
   background: var(--surface);
   color: var(--muted);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 0;
   padding: 0.2rem 0.7rem;
   font-size: 0.78rem;
   cursor: pointer;

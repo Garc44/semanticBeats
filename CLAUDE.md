@@ -60,7 +60,7 @@ Compile chain:
 **`src/pillars.js`** — Pillar state management. Three exports:
 - `PILLAR_NAMES` — `['drums', 'bass_percussion', 'melody', 'transitions']`
 - `makePillars()` — creates pillar objects with `{ name, code, muted, history, selectedId, lastMods, knobs }`
-- `rebuildStack(pillars, globalState)` — stacks all active (non-empty) pillars. Muted tracks are NOT filtered here — filtering is via gain(0) compiled by compiler.js. Applies global cps/gain/lpf/shape/room.
+- `rebuildStack(pillars, globalState)` — stacks all active (non-empty, non-muted) pillars. Solo overrides mute. Applies global cps/gain/lpf/shape/room.
 
 **`src/validate.js`** — Two exports:
 - `validatePlan(plan, pillarName)` — validates selectedId against catalog, gain [0, 1.2], speed (positive), slowdown (integer >= 1)

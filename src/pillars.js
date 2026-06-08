@@ -25,7 +25,7 @@ export function rebuildStack(pillars, globalState) {
 
   const active = pillars.filter(p => {
     if (soloedPillar) return p.name === soloedPillar && p.code.trim();
-    return p.code.trim();
+    return !p.muted && p.code.trim();
   });
 
   if (!active.length) return null;

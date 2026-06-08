@@ -20,14 +20,14 @@ export async function init() {
 
 export async function play(code) {
   if (!initialized) throw new Error('Strudel not initialized');
-  await _evaluate(code, true);
+  await _evaluate(code, true, false);
 }
 
 export function stop() {
   hush();
 }
 
-export function setcpm(cpm) {
+function setcpm(cpm) {
   if (typeof window !== 'undefined' && typeof window.setcpm === 'function') {
     window.setcpm(cpm);
   } else {

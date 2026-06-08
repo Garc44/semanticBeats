@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #000;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* grain overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  /* header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1.5rem;
+    border-bottom: 2px solid #E8302A;
+    flex-shrink: 0;
+    background: #000;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.08em;
+    color: #f0f0f0;
+  }
+  .logo .accent { color: #E8302A; }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  #status {
+    font-size: 0.75rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+  }
+
+  #play-btn {
+    background: #E8302A;
+    color: #000;
+    border: none;
+    padding: 0.45rem 1.1rem;
+    border-radius: 0;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+  }
+
+  /* global controls */
+  #global-controls {
+    display: flex;
+    gap: 2rem;
+    padding: 0.5rem 1.5rem;
+    border-bottom: 1px solid #1a1a1a;
+    background: #0a0a0a;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .slider-group label {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 0.85rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .slider-value {
+    color: #f0f0f0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+  }
+
+  input[type="range"] {
+    width: 100px;
+    accent-color: #E8302A;
+    cursor: pointer;
+  }
+
+  .btn-bpc {
+    padding: 0.2rem 0.5rem;
+    background: #0a0a0a;
+    color: #555;
+    border: 1px solid #2a2a2a;
+    border-radius: 0;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+  .btn-bpc.active {
+    background: #E8302A;
+    color: #000;
+    border-color: #E8302A;
+  }
+
+  /* pillars row */
+  #pillars-row {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0;
+  }
+
+  /* pillar card */
+  .pillar-card {
+    min-width: 280px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #1a1a1a;
+    overflow: hidden;
+  }
+  .pillar-card:last-child { border-right: none; }
+
+  .pillar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0.75rem;
+    border-bottom: 2px solid #E8302A;
+    background: #0a0a0a;
+    flex-shrink: 0;
+    gap: 0.5rem;
+  }
+
+  .pillar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .pillar-name {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.12em;
+    color: #E8302A;
+  }
+
+  .pillar-controls { display: flex; gap: 0.35rem; }
+
+  .btn-mute, .btn-solo {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #555;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+  .btn-mute.active { background: #E8302A; color: #000; border-color: #E8302A; }
+  .btn-solo.active { background: #f0f0f0; color: #000; border-color: #f0f0f0; }
+
+  .pillar-code {
+    height: 110px;
+    padding: 0.6rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #f0f0f0;
+    white-space: pre;
+    overflow: auto;
+    outline: none;
+    border-bottom: 1px solid #1a1a1a;
+    background: #000;
+    flex-shrink: 0;
+  }
+  .pillar-code:focus { background: #050505; color: #fff; }
+
+  .pillar-chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: #000;
+  }
+
+  .pillar-input-row {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.5rem 0.6rem;
+    border-top: 1px solid #1a1a1a;
+    flex-shrink: 0;
+    background: #000;
+  }
+
+  .pillar-prompt {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    color: #f0f0f0;
+    padding: 0.4rem 0.65rem;
+    border-radius: 0;
+    font-size: 0.82rem;
+    min-width: 0;
+  }
+  .pillar-prompt:focus { outline: none; border-color: #E8302A; }
+  .pillar-prompt::placeholder { color: #333; }
+
+  .btn-send {
+    padding: 0.4rem 0.75rem;
+    flex-shrink: 0;
+    background: #E8302A;
+    color: #000;
+    border: none;
+    border-radius: 0;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+
+  /* messages */
+  .msg {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border-radius: 0;
+  }
+  .msg-user {
+    background: #100000;
+    border: 1px solid #2a0a0a;
+    align-self: flex-end;
+    color: #ccc;
+  }
+  .msg-error {
+    background: #0a0000;
+    border: 1px solid #E8302A;
+    color: #E8302A;
+    align-self: flex-start;
+  }
+  .msg-preview {
+    background: #0a0a0a;
+    border: 1px solid #E8302A33;
+    padding: 0.6rem;
+    align-self: flex-start;
+    width: 100%;
+  }
+
+  .preview-label {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 0.75rem;
+    color: #555;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .preview-code {
+    background: #000;
+    border: 1px solid #1a1a1a;
+    padding: 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: #f0f0f0;
+    overflow-x: auto;
+    white-space: pre;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn-apply {
+    background: #E8302A;
+    color: #000;
+    border: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+  .btn-dismiss {
+    background: transparent;
+    color: #444;
+    border: 1px solid #2a2a2a;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+
+  .preview-actions { display: flex; gap: 0.4rem; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <span class="logo">STRUDEL <span class="accent">AI</span></span>
+  <div class="header-right">
+    <span id="status">● READY</span>
+    <button id="play-btn">▶ PLAY</button>
+  </div>
+</header>
+
+<!-- GLOBAL CONTROLS -->
+<div id="global-controls">
+  <div class="slider-group">
+    <label>BPM <span class="slider-value">120</span></label>
+    <input type="range" min="60" max="200" value="120"/>
+  </div>
+  <div class="slider-group">
+    <label>GAIN <span class="slider-value">0.8</span></label>
+    <input type="range" min="0" max="100" value="80"/>
+  </div>
+  <div class="slider-group">
+    <label>BPC</label>
+    <div style="display:flex;gap:3px;margin-top:4px;">
+      <button class="btn-bpc">2</button>
+      <button class="btn-bpc active">4</button>
+      <button class="btn-bpc">8</button>
+    </div>
+  </div>
+</div>
+
+<!-- PILLARS -->
+<div id="pillars-row">
+
+  <!-- DRUMS -->
+  <div class="pillar-card">
+    <div class="pillar-header">
+      <div class="pillar-title">
+        <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="6" stroke="#E8302A" stroke-width="1.5"/><circle cx="7" cy="7" r="2.5" fill="#E8302A"/></svg>
+        <span class="pillar-name">DRUMS</span>
+      </div>
+      <div class="pillar-controls">
+        <button class="btn-mute">MUTE</button>
+        <button class="btn-solo">SOLO</button>
+      </div>
+    </div>
+    <div class="pillar-code">s("bd sd bd sd").gain(0.9)</div>
+    <div class="pillar-chat">
+      <div class="msg msg-user">make it harder</div>
+      <div class="msg msg-preview">
+        <div class="preview-label">SUGGESTED PATTERN</div>
+        <div class="preview-code">s("bd*2 sd").speed(1.5)</div>
+        <div class="preview-actions">
+          <button class="btn-apply">APPLY</button>
+          <button class="btn-dismiss">DISMISS</button>
+        </div>
+      </div>
+    </div>
+    <div class="pillar-input-row">
+      <input class="pillar-prompt" placeholder="transform drums..."/>
+      <button class="btn-send">GO</button>
+    </div>
+  </div>
+
+  <!-- BASS -->
+  <div class="pillar-card">
+    <div class="pillar-header">
+      <div class="pillar-title">
+        <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 10 Q3.5 2 7 7 Q10.5 12 13 4" stroke="#E8302A" stroke-width="1.5" fill="none"/></svg>
+        <span class="pillar-name">BASS</span>
+      </div>
+      <div class="pillar-controls">
+        <button class="btn-mute active">MUTE</button>
+        <button class="btn-solo">SOLO</button>
+      </div>
+    </div>
+    <div class="pillar-code" style="opacity:0.4;text-decoration:line-through;">note("c2 eb2").s("bass")</div>
+    <div class="pillar-chat"></div>
+    <div class="pillar-input-row">
+      <input class="pillar-prompt" placeholder="transform bass..."/>
+      <button class="btn-send">GO</button>
+    </div>
+  </div>
+
+  <!-- MELODY -->
+  <div class="pillar-card">
+    <div class="pillar-header">
+      <div class="pillar-title">
+        <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,13 1,13" stroke="#E8302A" stroke-width="1.5" fill="none"/></svg>
+        <span class="pillar-name">MELODY</span>
+      </div>
+      <div class="pillar-controls">
+        <button class="btn-mute">MUTE</button>
+        <button class="btn-solo">SOLO</button>
+      </div>
+    </div>
+    <div class="pillar-code">note("c4 eb4 g4").slow(2)</div>
+    <div class="pillar-chat">
+      <div class="msg msg-error">Pattern error: unexpected token</div>
+    </div>
+    <div class="pillar-input-row">
+      <input class="pillar-prompt" placeholder="transform melody..."/>
+      <button class="btn-send">GO</button>
+    </div>
+  </div>
+
+  <!-- TRANSITIONS -->
+  <div class="pillar-card">
+    <div class="pillar-header">
+      <div class="pillar-title">
+        <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="12" height="12" stroke="#E8302A" stroke-width="1.5" fill="none"/><line x1="1" y1="7" x2="13" y2="7" stroke="#E8302A" stroke-width="1"/><line x1="7" y1="1" x2="7" y2="13" stroke="#E8302A" stroke-width="1"/></svg>
+        <span class="pillar-name">TRANSITIONS</span>
+      </div>
+      <div class="pillar-controls">
+        <button class="btn-mute">MUTE</button>
+        <button class="btn-solo">SOLO</button>
+      </div>
+    </div>
+    <div class="pillar-code">s("reverbpad").room(0.8)</div>
+    <div class="pillar-chat"></div>
+    <div class="pillar-input-row">
+      <input class="pillar-prompt" placeholder="transform transitions..."/>
+      <button class="btn-send">GO</button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

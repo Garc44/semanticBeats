@@ -1,0 +1,72 @@
+<h2>Which direction fits?</h2>
+<p class="subtitle">All three use the black + red + condensed type aesthetic from your reference. Pick the intensity.</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#000;padding:12px;font-family:'Arial Black',Impact,sans-serif;border:2px solid #E8302A;">
+        <div style="color:#E8302A;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;border-bottom:1px solid #E8302A;padding-bottom:4px;margin-bottom:8px;">DRUMS</div>
+        <div style="color:#fff;font-size:9px;font-family:monospace;background:#111;border:1px solid #333;padding:6px;margin-bottom:8px;">note("c3").s("bd")<br/>.slow(2).gain(0.8)</div>
+        <div style="display:flex;gap:4px;margin-bottom:8px;">
+          <div style="flex:1;background:#E8302A;color:#000;font-size:9px;font-weight:900;text-align:center;padding:3px;text-transform:uppercase;letter-spacing:0.1em;">APPLY</div>
+          <div style="flex:1;background:#000;color:#666;font-size:9px;border:1px solid #333;text-align:center;padding:3px;text-transform:uppercase;letter-spacing:0.1em;">DISMISS</div>
+        </div>
+        <div style="background:#0a0a0a;border:1px solid #222;padding:5px;">
+          <div style="color:#555;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">USER</div>
+          <div style="background:#1a0a0a;border:1px solid #E8302A33;color:#ddd;font-size:8px;padding:4px;">make it harder</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Full Poster</h3>
+      <p>Max fidelity to reference. Red borders on ALL cards, noise texture overlay, Bebas Neue headings, grain on background. Most immersive, most intense.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;padding:12px;font-family:'Arial Black',Impact,sans-serif;border:1px solid #333;">
+        <div style="color:#E8302A;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;border-bottom:1px solid #333;padding-bottom:4px;margin-bottom:8px;">DRUMS</div>
+        <div style="color:#aaa;font-size:9px;font-family:monospace;background:#111;border:1px solid #222;padding:6px;margin-bottom:8px;">note("c3").s("bd")<br/>.slow(2).gain(0.8)</div>
+        <div style="display:flex;gap:4px;margin-bottom:8px;">
+          <div style="flex:1;background:#E8302A;color:#000;font-size:9px;font-weight:900;text-align:center;padding:3px;text-transform:uppercase;letter-spacing:0.1em;">APPLY</div>
+          <div style="flex:1;background:#0a0a0a;color:#555;font-size:9px;border:1px solid #222;text-align:center;padding:3px;text-transform:uppercase;letter-spacing:0.1em;">DISMISS</div>
+        </div>
+        <div style="background:#111;border:1px solid #222;padding:5px;">
+          <div style="color:#444;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">USER</div>
+          <div style="background:#1a0a0a;border:1px solid #E8302A22;color:#ccc;font-size:8px;padding:4px;">make it harder</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Restrained (Recommended)</h3>
+      <p>Red used selectively: accents, active states, pillar names, send button. Subtler texture. Cleaner for daily use — still unmistakably underground.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#000;padding:12px;font-family:'Arial Black',Impact,sans-serif;border:2px solid #fff;">
+        <div style="color:#fff;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;border-bottom:2px solid #E8302A;padding-bottom:4px;margin-bottom:8px;">DRUMS</div>
+        <div style="color:#ccc;font-size:9px;font-family:monospace;background:#000;border:1px solid #fff;padding:6px;margin-bottom:8px;">note("c3").s("bd")<br/>.slow(2).gain(0.8)</div>
+        <div style="display:flex;gap:4px;margin-bottom:8px;">
+          <div style="flex:1;background:#fff;color:#000;font-size:9px;font-weight:900;text-align:center;padding:3px;text-transform:uppercase;letter-spacing:0.1em;">APPLY</div>
+          <div style="flex:1;background:#000;color:#888;font-size:9px;border:1px solid #fff;text-align:center;padding:3px;text-transform:uppercase;letter-spacing:0.1em;">DISMISS</div>
+        </div>
+        <div style="background:#000;border:1px solid #333;padding:5px;">
+          <div style="color:#555;font-size:7px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">USER</div>
+          <div style="background:#0d0d0d;border:1px solid #333;color:#ddd;font-size:8px;padding:4px;">make it harder</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Black &amp; White + Red Slash</h3>
+      <p>Pure black/white base — red only appears on a single accent line (Berghain flyer energy). Most graphic, most editorial. Red feels like blood on marble.</p>
+    </div>
+  </div>
+
+</div>

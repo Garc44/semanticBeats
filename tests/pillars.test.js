@@ -103,13 +103,13 @@ describe('rebuildStack', () => {
     expect(result).toContain('s("hh*8")');
   });
 
-  it('muted pillar is still included in stack (mute handled via gain(0) in compiler)', () => {
+  it('muted pillar is excluded from stack', () => {
     const pillars = makePillars();
     pillars[0].code = 's("bd")';
     pillars[0].muted = true;
     pillars[1].code = 's("hh*8")';
     const result = rebuildStack(pillars, makeGlobal());
-    expect(result).toContain('s("bd")');
+    expect(result).not.toContain('s("bd")');
     expect(result).toContain('s("hh*8")');
   });
 

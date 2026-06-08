@@ -32,8 +32,8 @@ Return ONLY valid JSON. No prose. No markdown.
 Schema: {"selectedId":"string","explanation":"string","modifications":{"speed":1.0,"slowdown":1}}
 - selectedId: MUST be one of the IDs listed above
 - explanation: one sentence
-- speed: float 0.25–4.0 (default 1.0)
-- slowdown: integer >= 1 (default 1)`;
+- speed: float 0.25–4.0 — ALWAYS use 1.0 unless the user EXPLICITLY says to play faster or slower
+- slowdown: integer >= 1 — ALWAYS use 1 unless the user EXPLICITLY says to slow down`;
 
     const response = await fetch('http://localhost:11434/api/chat', {
       method: 'POST',
@@ -62,7 +62,10 @@ Schema: {"selectedId":"string","explanation":"string","modifications":{"speed":1
     if (mods.speed !== undefined && (typeof mods.speed !== 'number' || mods.speed < 0.25 || mods.speed > 4.0)) return null;
     if (mods.slowdown !== undefined && (!Number.isInteger(mods.slowdown) || mods.slowdown < 1)) return null;
 
-    return { selectedId: plan.selectedId, explanation: plan.explanation ?? '', modifications: mods };
+    const tempoRequested = /faster|slower|speed|slow|fast|half|double|tempo|bpm/i.test(userPrompt);
+    const safeMods = tempoRequested ? mods : { ...mods, speed: 1.0, slowdown: 1 };
+
+    return { selectedId: plan.selectedId, explanation: plan.explanation ?? '', modifications: safeMods };
   } catch {
     return null;
   }

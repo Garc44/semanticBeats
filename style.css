@@ -28,11 +28,17 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--accent);
   flex-shrink: 0;
+  background: var(--bg);
 }
 
-.logo { font-size: 1.3rem; font-weight: bold; }
+.logo {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
 .accent { color: var(--accent); }
 
 .header-right {
@@ -41,7 +47,13 @@ header {
   gap: 1rem;
 }
 
-#status { color: var(--muted); font-size: 0.85rem; }
+#status {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
 
 /* ── Genre Bar ── */
 #genre-bar {
@@ -324,8 +336,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   background: var(--accent);
   color: #000;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 0.9rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 0;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
 }

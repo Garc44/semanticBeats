@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rebuildStack, makePillars, PILLAR_NAMES, assembleCode } from '../src/pillars.js';
-import { soundLibrary } from '../src/library/soundLibrary.js';
+import { rebuildStack, makePillars, PILLAR_NAMES } from '../src/pillars.js';
 
 const makeGlobal = (overrides = {}) => ({
   tempo: 1.0,
@@ -13,7 +12,7 @@ const makeGlobal = (overrides = {}) => ({
 
 describe('PILLAR_NAMES', () => {
   it('has exactly 4 pillars in correct order', () => {
-    expect(PILLAR_NAMES).toEqual(['kick', 'rumble_bass', 'groove', 'synth_fx']);
+    expect(PILLAR_NAMES).toEqual(['drums', 'bass_percussion', 'melody', 'transitions']);
   });
 });
 
@@ -23,7 +22,7 @@ describe('makePillars', () => {
     expect(p).toHaveLength(4);
   });
 
-  it('each pillar has name, code, muted, history', () => {
+  it('each pillar has name, code, muted, history, selectedId, lastMods, knobs', () => {
     const p = makePillars();
     for (const pillar of p) {
       expect(pillar).toHaveProperty('name');
@@ -31,20 +30,53 @@ describe('makePillars', () => {
       expect(pillar).toHaveProperty('muted', false);
       expect(pillar).toHaveProperty('history');
       expect(Array.isArray(pillar.history)).toBe(true);
+      expect(pillar).toHaveProperty('selectedId', null);
+      expect(pillar).toHaveProperty('lastMods');
+      expect(pillar).toHaveProperty('knobs');
+      expect(typeof pillar.knobs).toBe('object');
     }
+  });
+
+  it('drums pillar has correct knob defaults', () => {
+    const drums = makePillars().find(p => p.name === 'drums');
+    expect(drums.knobs.gain).toBe(0.8);
+    expect(drums.knobs.drive).toBe(0.0);
+    expect(drums.knobs.decay).toBe(0.12);
+  });
+
+  it('bass_percussion pillar has correct knob defaults', () => {
+    const bp = makePillars().find(p => p.name === 'bass_percussion');
+    expect(bp.knobs.gain).toBe(0.7);
+    expect(bp.knobs.cutoff).toBe(1.0);
+    expect(bp.knobs.stutter).toBe(0.0);
+  });
+
+  it('melody pillar has correct knob defaults', () => {
+    const m = makePillars().find(p => p.name === 'melody');
+    expect(m.knobs.gain).toBe(0.5);
+    expect(m.knobs.cutoff).toBe(0.6);
+    expect(m.knobs.resonance).toBe(0.1);
+    expect(m.knobs.space).toBe(0.2);
+  });
+
+  it('transitions pillar has correct knob defaults', () => {
+    const t = makePillars().find(p => p.name === 'transitions');
+    expect(t.knobs.gain).toBe(0.4);
+    expect(t.knobs.hpf).toBe(0.0);
+    expect(t.knobs.size).toBe(0.5);
+  });
+
+  it('knobs objects are independent (not shared references)', () => {
+    const pillars = makePillars();
+    pillars[0].knobs.gain = 0.1;
+    const fresh = makePillars();
+    expect(fresh[0].knobs.gain).toBe(0.8);
   });
 });
 
 describe('rebuildStack', () => {
   it('returns null when all pillars are empty', () => {
     expect(rebuildStack(makePillars(), makeGlobal())).toBeNull();
-  });
-
-  it('returns null when all non-empty pillars are muted', () => {
-    const pillars = makePillars();
-    pillars[0].code = 's("bd")';
-    pillars[0].muted = true;
-    expect(rebuildStack(pillars, makeGlobal())).toBeNull();
   });
 
   it('single active pillar returns code without stack() wrapper', () => {
@@ -65,21 +97,21 @@ describe('rebuildStack', () => {
     expect(result).toContain('s("hh*8")');
   });
 
-  it('muted pillar excluded from stack', () => {
+  it('muted pillar is still included in stack (mute handled via gain(0) in compiler)', () => {
     const pillars = makePillars();
     pillars[0].code = 's("bd")';
+    pillars[0].muted = true;
     pillars[1].code = 's("hh*8")';
-    pillars[1].muted = true;
     const result = rebuildStack(pillars, makeGlobal());
-    expect(result).not.toContain('stack(');
-    expect(result).not.toContain('hh*8');
+    expect(result).toContain('s("bd")');
+    expect(result).toContain('s("hh*8")');
   });
 
   it('soloedPillar includes only that pillar', () => {
     const pillars = makePillars();
     pillars[0].code = 's("bd")';
     pillars[1].code = 's("hh*8")';
-    const result = rebuildStack(pillars, makeGlobal({ soloedPillar: 'kick' }));
+    const result = rebuildStack(pillars, makeGlobal({ soloedPillar: 'drums' }));
     expect(result).not.toContain('stack(');
     expect(result).toContain('s("bd")');
     expect(result).not.toContain('hh*8');
@@ -88,7 +120,7 @@ describe('rebuildStack', () => {
   it('soloed pillar with empty code returns null', () => {
     const pillars = makePillars();
     pillars[1].code = 's("hh*8")';
-    const result = rebuildStack(pillars, makeGlobal({ soloedPillar: 'kick' }));
+    const result = rebuildStack(pillars, makeGlobal({ soloedPillar: 'drums' }));
     expect(result).toBeNull();
   });
 
@@ -114,68 +146,5 @@ describe('rebuildStack', () => {
     pillars[0].code = 's("bd")';
     const result = rebuildStack(pillars, makeGlobal({ masterFilter: 0 }));
     expect(result).toContain('.lpf(200)');
-  });
-});
-
-describe('assembleCode', () => {
-  const basePlan = { selectedId: 'kick_sine_44', modifications: {} };
-
-  it('returns base pattern code for default modifications', () => {
-    const result = assembleCode(basePlan, 'kick');
-    expect(result).toBe(soundLibrary.kick.find(p => p.id === 'kick_sine_44').code);
-  });
-
-  it('appends .gain() when gain != 1.0', () => {
-    const plan = { selectedId: 'kick_sine_44', modifications: { gain: 0.5 } };
-    expect(assembleCode(plan, 'kick')).toContain('.gain(0.5)');
-  });
-
-  it('does not append .gain() when gain is 1.0', () => {
-    const plan = { selectedId: 'kick_sine_44', modifications: { gain: 1.0 } };
-    const base = soundLibrary.kick.find(p => p.id === 'kick_sine_44').code;
-    expect(assembleCode(plan, 'kick')).toBe(base);
-  });
-
-  it('appends .speed() when speed != 1.0', () => {
-    const plan = { selectedId: 'kick_sine_44', modifications: { speed: 1.5 } };
-    expect(assembleCode(plan, 'kick')).toContain('.speed(1.5)');
-  });
-
-  it('appends .slow() when slowdown > 1', () => {
-    const plan = { selectedId: 'kick_sine_44', modifications: { slowdown: 2 } };
-    expect(assembleCode(plan, 'kick')).toContain('.slow(2)');
-  });
-
-  it('does not append .slow() when slowdown is 1', () => {
-    const plan = { selectedId: 'kick_sine_44', modifications: { slowdown: 1 } };
-    const base = soundLibrary.kick.find(p => p.id === 'kick_sine_44').code;
-    expect(assembleCode(plan, 'kick')).toBe(base);
-  });
-
-  it('appends multiple modifiers in order: slow, speed, gain', () => {
-    const plan = { selectedId: 'kick_sine_44', modifications: { gain: 0.8, speed: 1.2, slowdown: 2 } };
-    const result = assembleCode(plan, 'kick');
-    const slowIdx = result.indexOf('.slow(');
-    const speedIdx = result.indexOf('.speed(');
-    const gainIdx = result.indexOf('.gain(0.8)');
-    expect(slowIdx).toBeLessThan(speedIdx);
-    expect(speedIdx).toBeLessThan(gainIdx);
-  });
-
-  it('falls back to first catalog entry when selectedId not found', () => {
-    const plan = { selectedId: 'nonexistent_id', modifications: {} };
-    const fallback = soundLibrary.kick[0].code;
-    expect(assembleCode(plan, 'kick')).toBe(fallback);
-  });
-
-  it('returns empty string when pillar has no entries', () => {
-    const plan = { selectedId: 'any', modifications: {} };
-    expect(assembleCode(plan, 'unknown_pillar')).toBe('');
-  });
-
-  it('works for rumble_bass pillar', () => {
-    const plan = { selectedId: 'rumble_acid', modifications: {} };
-    const result = assembleCode(plan, 'rumble_bass');
-    expect(result).toBe(soundLibrary.rumble_bass.find(p => p.id === 'rumble_acid').code);
   });
 });

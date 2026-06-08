@@ -44,14 +44,14 @@ describe('generateTransformationPlan', () => {
 
   it('includes pillar catalog in system prompt', async () => {
     mockFetch(mockPlan({ selectedId: 'rumble_hypnotic' }));
-    await generateTransformationPlan('bass_percussion', 'deep bass', {});
+    await generateTransformationPlan('bass', 'deep bass', {});
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
     expect(body.messages[0].content).toContain('rumble_hypnotic');
   });
 
   it('includes other channels in system prompt as cohesion context', async () => {
     mockFetch(mockPlan());
-    const currentTracksState = { drums: 'kick_sine_44', bass_percussion: 'rumble_acid', transitions: null };
+    const currentTracksState = { drums: 'kick_sine_44', bass: 'rumble_acid', transitions: null };
     await generateTransformationPlan('melody', 'add synth', currentTracksState);
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
     expect(body.messages[0].content).toContain('kick_sine_44');

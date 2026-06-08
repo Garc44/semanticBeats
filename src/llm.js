@@ -1,10 +1,11 @@
 import { soundLibrary } from './library/soundLibrary.js';
 
 const TRACK_ROLES = {
-  drums:           'rhythmic foundation — kicks, claps, hats',
-  bass_percussion: 'low-end movement — bass lines, sub, perc hits',
-  melody:          'harmonic content — synths, arps, leads',
-  transitions:     'atmosphere and tension — sweeps, fx, build/drop triggers',
+  drums:       'rhythmic foundation — kicks, claps, hats',
+  bass:        'low-end movement — bass lines, sub, rumble',
+  percussion:  'rhythmic texture — hi-hats, rides, shakers',
+  melody:      'harmonic content — synths, arps, leads',
+  transitions: 'atmosphere and tension — sweeps, fx, build/drop triggers',
 };
 
 export async function generateTransformationPlan(pillarName, userPrompt, currentTracksState = {}) {

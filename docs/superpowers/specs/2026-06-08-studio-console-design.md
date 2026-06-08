@@ -135,23 +135,24 @@ export function compileTrack(plan, pillarName, pillar) {
   // Outer layer — per-track knob state
   // Muted tracks compile to gain(0) rather than being filtered from the stack
   const effectiveGain = pillar.muted ? 0 : pillar.knobs.gain;
-  code += applyKnobs(code, pillarName, pillar.knobs, effectiveGain);
+  code = applyKnobs(code, pillarName, pillar.knobs, effectiveGain);
 
   return code;
 }
 
+// code is already wrapped in parens — applyKnobs only appends, never re-wraps
 function applyKnobs(code, pillarName, knobs, effectiveGain) {
   switch (pillarName) {
     case 'drums':
-      return `(${code}).gain(${effectiveGain}).distort(${knobs.drive * 0.4}).decay(${knobs.decay})`;
+      return `${code}.gain(${effectiveGain}).distort(${knobs.drive * 0.4}).decay(${knobs.decay})`;
     case 'bass_percussion':
-      return `(${code}).gain(${effectiveGain}).lpf(${Math.max(80, knobs.cutoff * 1200)}).degradeBy(${knobs.stutter * 0.4})`;
+      return `${code}.gain(${effectiveGain}).lpf(${Math.max(80, knobs.cutoff * 1200)}).degradeBy(${knobs.stutter * 0.4})`;
     case 'melody':
-      return `(${code}).gain(${effectiveGain}).lpf(${Math.max(150, knobs.cutoff * 4000)}).lpq(${knobs.resonance * 15}).room(${knobs.space * 0.85}).delay(${knobs.space * 0.5})`;
+      return `${code}.gain(${effectiveGain}).lpf(${Math.max(150, knobs.cutoff * 4000)}).lpq(${knobs.resonance * 15}).room(${knobs.space * 0.85}).delay(${knobs.space * 0.5})`;
     case 'transitions':
-      return `(${code}).gain(${effectiveGain}).hpf(${knobs.hpf * 2500}).room(0.7).size(${knobs.size})`;
+      return `${code}.gain(${effectiveGain}).hpf(${knobs.hpf * 2500}).room(0.7).size(${knobs.size})`;
     default:
-      return `(${code}).gain(${effectiveGain})`;
+      return `${code}.gain(${effectiveGain})`;
   }
 }
 ```

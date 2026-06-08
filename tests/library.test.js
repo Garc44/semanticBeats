@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { soundLibrary, GENRE_PRESETS, GENRE_NAMES, getPatternById, getGenreCode } from '../src/library/soundLibrary.js';
+import { soundLibrary, getPatternById } from '../src/library/soundLibrary.js';
 
-const PILLAR_NAMES = ['drums', 'bass_percussion', 'melody', 'transitions'];
+const PILLAR_NAMES = ['drums', 'bass', 'percussion', 'melody', 'transitions'];
 
 describe('soundLibrary', () => {
-  it('exports all 4 pillars', () => {
+  it('exports all 5 pillars', () => {
     for (const pillar of PILLAR_NAMES) {
       expect(Array.isArray(soundLibrary[pillar])).toBe(true);
     }
@@ -59,42 +59,17 @@ describe('soundLibrary', () => {
       }
     }
   });
-});
 
-describe('GENRE_PRESETS', () => {
-  it('has at least one genre', () => {
-    expect(Object.keys(GENRE_PRESETS).length).toBeGreaterThan(0);
-  });
-
-  it('techno preset exists', () => {
-    expect(GENRE_PRESETS.techno).toBeDefined();
-  });
-
-  it('each genre preset has all 4 pillars', () => {
-    for (const [, preset] of Object.entries(GENRE_PRESETS)) {
-      for (const pillar of PILLAR_NAMES) {
-        expect(typeof preset[pillar]).toBe('string');
-      }
+  it('bass pillar contains only rumble_* patterns', () => {
+    for (const p of soundLibrary.bass) {
+      expect(p.id).toMatch(/^rumble_/);
     }
   });
 
-  it('all preset IDs reference existing soundLibrary entries', () => {
-    for (const [, preset] of Object.entries(GENRE_PRESETS)) {
-      for (const [pillar, id] of Object.entries(preset)) {
-        const found = soundLibrary[pillar]?.find(p => p.id === id);
-        expect(found).toBeDefined();
-      }
+  it('percussion pillar contains only perc_* patterns', () => {
+    for (const p of soundLibrary.percussion) {
+      expect(p.id).toMatch(/^perc_/);
     }
-  });
-});
-
-describe('GENRE_NAMES', () => {
-  it('matches keys of GENRE_PRESETS', () => {
-    expect(GENRE_NAMES).toEqual(Object.keys(GENRE_PRESETS));
-  });
-
-  it('includes techno', () => {
-    expect(GENRE_NAMES).toContain('techno');
   });
 });
 
@@ -106,7 +81,7 @@ describe('getPatternById', () => {
   });
 
   it('returns pattern object with all required fields', () => {
-    const p = getPatternById('bass_percussion', 'rumble_acid');
+    const p = getPatternById('bass', 'rumble_acid');
     expect(p).toHaveProperty('id');
     expect(p).toHaveProperty('name');
     expect(p).toHaveProperty('tags');
@@ -119,29 +94,5 @@ describe('getPatternById', () => {
 
   it('returns null for unknown pillar', () => {
     expect(getPatternById('unknown_pillar', 'kick_sine_44')).toBeNull();
-  });
-});
-
-describe('getGenreCode', () => {
-  it('returns code strings for all 4 pillars for techno genre', () => {
-    const result = getGenreCode('techno');
-    expect(result).not.toBeNull();
-    for (const pillar of PILLAR_NAMES) {
-      expect(typeof result[pillar]).toBe('string');
-      expect(result[pillar].length).toBeGreaterThan(0);
-    }
-  });
-
-  it('returns null for unknown genre', () => {
-    expect(getGenreCode('unknown_genre')).toBeNull();
-  });
-
-  it('returned code strings match base pattern code', () => {
-    const result = getGenreCode('techno');
-    const preset = GENRE_PRESETS.techno;
-    for (const pillar of PILLAR_NAMES) {
-      const expected = getPatternById(pillar, preset[pillar])?.code;
-      expect(result[pillar]).toBe(expected);
-    }
   });
 });

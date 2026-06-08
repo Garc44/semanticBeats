@@ -1,5 +1,3 @@
-import { soundLibrary } from './library/soundLibrary.js';
-
 export const PILLAR_NAMES = ['drums', 'bass_percussion', 'melody', 'transitions'];
 
 const KNOB_DEFAULTS = {

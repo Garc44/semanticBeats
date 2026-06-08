@@ -1,8 +1,7 @@
-import { init, play, stop, setcpm } from './src/strudel.js';
+import { init, play, stop } from './src/strudel.js';
 import { generateTransformationPlan } from './src/llm.js';
 import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
 import { compileTrack } from './src/compiler.js';
-import { GENRE_NAMES, getGenreCode } from './src/library/soundLibrary.js';
 import {
   setStatus,
   renderGlobalControls,
@@ -17,7 +16,8 @@ import {
 const pillars = makePillars();
 
 const globalState = {
-  tempo: 1.0,
+  tempo: 120,
+  beatsPerCycle: 4,
   masterVolume: 0.8,
   masterFilter: 1.0,
   intensity: 0.5,
@@ -77,7 +77,6 @@ const debouncedRebuild = debounce(rebuildAndPlay, 50);
 
 renderGlobalControls(globalState, (key, value) => {
   globalState[key] = value;
-  if (key === 'tempo') { setcpm(value * 60); return; }
   debouncedRebuild();
 });
 
@@ -170,42 +169,8 @@ for (const pillar of pillars) {
       pillar.code = newCode;
       rebuildAndPlay();
     },
-    onKnobChange: (key, value) => {
-      pillar.knobs[key] = value;
-      if (pillar.selectedId) {
-        pillar.code = compileTrack(
-          { selectedId: pillar.selectedId, modifications: pillar.lastMods ?? {} },
-          pillar.name,
-          pillar
-        );
-        updatePillarCode(pillar.name, pillar.code);
-      }
-      debouncedRebuild();
-    },
   });
   pillarsRow.appendChild(card);
-}
-
-// ── Genre Loader ──────────────────────────────────────────
-
-function loadGenre(genreName) {
-  const genre = getGenreCode(genreName);
-  if (!genre) return;
-  for (const pillar of pillars) {
-    pillar.code = genre[pillar.name] ?? '';
-    updatePillarCode(pillar.name, pillar.code);
-  }
-  rebuildAndPlay();
-  setStatus(`Loaded: ${genreName}`);
-}
-
-const genreBar = document.getElementById('genre-bar');
-for (const name of GENRE_NAMES) {
-  const btn = document.createElement('button');
-  btn.className = 'btn-genre';
-  btn.textContent = name.replace('_', ' ');
-  btn.addEventListener('click', () => loadGenre(name));
-  genreBar.appendChild(btn);
 }
 
 // ── Init ──────────────────────────────────────────────────

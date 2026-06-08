@@ -21,8 +21,10 @@ function applyKnobs(code, pillarName, knobs, effectiveGain) {
   switch (pillarName) {
     case 'drums':
       return `${code}.gain(${effectiveGain}).distort(${round(knobs.drive * 0.4)}).decay(${knobs.decay})`;
-    case 'bass_percussion':
+    case 'bass':
       return `${code}.gain(${effectiveGain}).lpf(${Math.max(80, round(knobs.cutoff * 1200))}).degradeBy(${round(knobs.stutter * 0.4)})`;
+    case 'percussion':
+      return `${code}.gain(${effectiveGain}).decay(${knobs.decay})`;
     case 'melody':
       return `${code}.gain(${effectiveGain}).lpf(${Math.max(150, round(knobs.cutoff * 4000))}).lpq(${round(knobs.resonance * 15)}).room(${round(knobs.space * 0.85)}).delay(${round(knobs.space * 0.5)})`;
     case 'transitions':

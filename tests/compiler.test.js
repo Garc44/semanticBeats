@@ -3,10 +3,11 @@ import { compileTrack } from '../src/compiler.js';
 
 function makePillar(name, knobOverrides = {}, muted = false) {
   const defaults = {
-    drums:           { gain: 0.8, drive: 0.0, decay: 0.12 },
-    bass_percussion: { gain: 0.7, cutoff: 1.0, stutter: 0.0 },
-    melody:          { gain: 0.5, cutoff: 0.6, resonance: 0.1, space: 0.2 },
-    transitions:     { gain: 0.4, hpf: 0.0, size: 0.5 },
+    drums:       { gain: 0.8, drive: 0.0, decay: 0.12 },
+    bass:        { gain: 0.7, cutoff: 1.0, stutter: 0.0 },
+    percussion:  { gain: 0.6, decay: 0.12 },
+    melody:      { gain: 0.5, cutoff: 0.6, resonance: 0.1, space: 0.2 },
+    transitions: { gain: 0.4, hpf: 0.0, size: 0.5 },
   };
   return { name, muted, knobs: { ...defaults[name], ...knobOverrides }, selectedId: null, lastMods: {} };
 }
@@ -59,19 +60,42 @@ describe('compileTrack — drums', () => {
   });
 });
 
-describe('compileTrack — bass_percussion', () => {
+describe('compileTrack — bass', () => {
   it('appends gain, lpf, degradeBy from knobs', () => {
-    const pillar = makePillar('bass_percussion', { gain: 0.7, cutoff: 0.5, stutter: 0.5 });
-    const result = compileTrack({ selectedId: 'rumble_hypnotic', modifications: {} }, 'bass_percussion', pillar);
+    const pillar = makePillar('bass', { gain: 0.7, cutoff: 0.5, stutter: 0.5 });
+    const result = compileTrack({ selectedId: 'rumble_hypnotic', modifications: {} }, 'bass', pillar);
     expect(result).toContain('.gain(0.7)');
     expect(result).toContain('.lpf(600)');
     expect(result).toContain('.degradeBy(0.2)');
   });
 
   it('clamps lpf to minimum 80Hz when cutoff is 0', () => {
-    const pillar = makePillar('bass_percussion', { cutoff: 0.0 });
-    const result = compileTrack({ selectedId: 'rumble_hypnotic', modifications: {} }, 'bass_percussion', pillar);
+    const pillar = makePillar('bass', { cutoff: 0.0 });
+    const result = compileTrack({ selectedId: 'rumble_hypnotic', modifications: {} }, 'bass', pillar);
     expect(result).toContain('.lpf(80)');
+  });
+
+  it('muted bass compiles to gain(0)', () => {
+    const pillar = makePillar('bass', { gain: 0.7 }, true);
+    const result = compileTrack({ selectedId: 'rumble_hypnotic', modifications: {} }, 'bass', pillar);
+    expect(result).toContain('.gain(0)');
+    expect(result).not.toContain('.gain(0.7)');
+  });
+});
+
+describe('compileTrack — percussion', () => {
+  it('appends gain and decay from knobs', () => {
+    const pillar = makePillar('percussion', { gain: 0.6, decay: 0.2 });
+    const result = compileTrack({ selectedId: 'perc_minimal_hats', modifications: {} }, 'percussion', pillar);
+    expect(result).toContain('.gain(0.6)');
+    expect(result).toContain('.decay(0.2)');
+  });
+
+  it('muted percussion compiles to gain(0)', () => {
+    const pillar = makePillar('percussion', { gain: 0.6 }, true);
+    const result = compileTrack({ selectedId: 'perc_minimal_hats', modifications: {} }, 'percussion', pillar);
+    expect(result).toContain('.gain(0)');
+    expect(result).not.toContain('.gain(0.6)');
   });
 });
 

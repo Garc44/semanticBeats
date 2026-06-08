@@ -1,25 +1,10 @@
-const TRACK_KNOBS = {
-  drums: [
-    { key: 'gain',  label: 'Volume',     min: 0,    max: 1,   step: 0.01 },
-    { key: 'drive', label: 'Saturation', min: 0,    max: 1,   step: 0.01 },
-    { key: 'decay', label: 'Decay',      min: 0.01, max: 0.5, step: 0.01 },
-  ],
-  bass_percussion: [
-    { key: 'gain',    label: 'Volume',  min: 0, max: 1, step: 0.01 },
-    { key: 'cutoff',  label: 'Cutoff',  min: 0, max: 1, step: 0.01 },
-    { key: 'stutter', label: 'Stutter', min: 0, max: 1, step: 0.01 },
-  ],
-  melody: [
-    { key: 'gain',      label: 'Volume',    min: 0, max: 1, step: 0.01 },
-    { key: 'cutoff',    label: 'Cutoff',    min: 0, max: 1, step: 0.01 },
-    { key: 'resonance', label: 'Resonance', min: 0, max: 1, step: 0.01 },
-    { key: 'space',     label: 'Space',     min: 0, max: 1, step: 0.01 },
-  ],
-  transitions: [
-    { key: 'gain', label: 'Volume', min: 0, max: 1, step: 0.01 },
-    { key: 'hpf',  label: 'HPF',    min: 0, max: 1, step: 0.01 },
-    { key: 'size', label: 'Size',   min: 0, max: 1, step: 0.01 },
-  ],
+
+const PILLAR_ICONS = {
+  drums:       `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="6" stroke="#E8302A" stroke-width="1.5"/><circle cx="7" cy="7" r="2.5" fill="#E8302A"/></svg>`,
+  bass:        `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 10 Q3.5 2 7 7 Q10.5 12 13 4" stroke="#E8302A" stroke-width="1.5" fill="none"/></svg>`,
+  percussion:  `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="3" y1="2" x2="3" y2="12" stroke="#E8302A" stroke-width="1.5"/><line x1="7" y1="4" x2="7" y2="12" stroke="#E8302A" stroke-width="1.5"/><line x1="11" y1="2" x2="11" y2="12" stroke="#E8302A" stroke-width="1.5"/></svg>`,
+  melody:      `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,13 1,13" stroke="#E8302A" stroke-width="1.5" fill="none"/></svg>`,
+  transitions: `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="12" height="12" stroke="#E8302A" stroke-width="1.5" fill="none"/><line x1="1" y1="7" x2="13" y2="7" stroke="#E8302A" stroke-width="1"/><line x1="7" y1="1" x2="7" y2="13" stroke="#E8302A" stroke-width="1"/></svg>`,
 };
 
 const statusEl = () => document.getElementById('status');
@@ -33,10 +18,10 @@ export function renderGlobalControls(globalState, onChange) {
   container.innerHTML = '';
 
   const sliders = [
-    { key: 'tempo',        label: 'Tempo',    min: 0.2, max: 3.0, step: 0.05, value: globalState.tempo },
-    { key: 'masterVolume', label: 'Volume',   min: 0,   max: 1,   step: 0.05, value: globalState.masterVolume },
-    { key: 'masterFilter', label: 'Filter',   min: 0,   max: 1,   step: 0.01, value: globalState.masterFilter },
-    { key: 'intensity',    label: 'Intensity', min: 0,  max: 1,   step: 0.05, value: globalState.intensity },
+    { key: 'tempo',        label: 'BPM',       min: 40,  max: 200, step: 1,    value: globalState.tempo,        decimals: 0 },
+    { key: 'masterVolume', label: 'Volume',     min: 0,   max: 1,   step: 0.05, value: globalState.masterVolume, decimals: 2 },
+    { key: 'masterFilter', label: 'Filter',     min: 0,   max: 1,   step: 0.01, value: globalState.masterFilter, decimals: 2 },
+    { key: 'intensity',    label: 'Intensity',  min: 0,   max: 1,   step: 0.05, value: globalState.intensity,    decimals: 2 },
   ];
 
   for (const s of sliders) {
@@ -46,7 +31,7 @@ export function renderGlobalControls(globalState, onChange) {
     const label = document.createElement('label');
     const valueSpan = document.createElement('span');
     valueSpan.className = 'slider-value';
-    valueSpan.textContent = s.value.toFixed(2);
+    valueSpan.textContent = s.value.toFixed(s.decimals);
     label.textContent = s.label + ' ';
     label.appendChild(valueSpan);
 
@@ -59,7 +44,7 @@ export function renderGlobalControls(globalState, onChange) {
     input.dataset.key = s.key;
     input.addEventListener('input', () => {
       const val = parseFloat(input.value);
-      valueSpan.textContent = val.toFixed(2);
+      valueSpan.textContent = val.toFixed(s.decimals);
       onChange(s.key, val);
     });
 
@@ -67,9 +52,31 @@ export function renderGlobalControls(globalState, onChange) {
     group.appendChild(input);
     container.appendChild(group);
   }
+
+  const bpcGroup = document.createElement('div');
+  bpcGroup.className = 'slider-group';
+  const bpcLabel = document.createElement('label');
+  bpcLabel.textContent = 'Beats/Cycle';
+  bpcGroup.appendChild(bpcLabel);
+
+  const bpcBtns = document.createElement('div');
+  bpcBtns.className = 'bpc-buttons';
+  for (const n of [2, 4, 8]) {
+    const btn = document.createElement('button');
+    btn.textContent = n;
+    btn.className = 'btn-bpc' + (globalState.beatsPerCycle === n ? ' active' : '');
+    btn.addEventListener('click', () => {
+      bpcBtns.querySelectorAll('.btn-bpc').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      onChange('beatsPerCycle', n);
+    });
+    bpcBtns.appendChild(btn);
+  }
+  bpcGroup.appendChild(bpcBtns);
+  container.appendChild(bpcGroup);
 }
 
-export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onKnobChange }) {
+export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit }) {
   const card = document.createElement('div');
   card.className = 'pillar-card';
   card.dataset.pillar = pillar.name;
@@ -77,9 +84,14 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onKno
   const header = document.createElement('div');
   header.className = 'pillar-header';
 
+  const titleEl = document.createElement('div');
+  titleEl.className = 'pillar-title';
+  titleEl.innerHTML = PILLAR_ICONS[pillar.name] ?? '';
+
   const nameEl = document.createElement('span');
   nameEl.className = 'pillar-name';
   nameEl.textContent = pillar.name.replace(/_/g, ' ').toUpperCase();
+  titleEl.appendChild(nameEl);
 
   const controls = document.createElement('div');
   controls.className = 'pillar-controls';
@@ -98,7 +110,7 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onKno
 
   controls.appendChild(muteBtn);
   controls.appendChild(soloBtn);
-  header.appendChild(nameEl);
+  header.appendChild(titleEl);
   header.appendChild(controls);
 
   const codeEl = document.createElement('div');
@@ -141,48 +153,6 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onKno
   inputRow.appendChild(sendBtn);
 
   card.appendChild(header);
-
-  const knobSpecs = TRACK_KNOBS[pillar.name] ?? [];
-  if (knobSpecs.length) {
-    const knobSection = document.createElement('div');
-    knobSection.className = 'pillar-knobs';
-
-    for (const spec of knobSpecs) {
-      const group = document.createElement('div');
-      group.className = 'knob-group';
-
-      const label = document.createElement('label');
-      const valueSpan = document.createElement('span');
-      valueSpan.className = 'knob-value';
-
-      // CRITICAL: read live pillar state — pillar.knobs is always initialized by makePillars
-      // renderPillar is called on re-renders; do NOT use a hardcoded default here or knobs reset
-      const currentVal = pillar.knobs[spec.key];
-      valueSpan.textContent = currentVal.toFixed(2);
-      label.textContent = spec.label + ' ';
-      label.appendChild(valueSpan);
-
-      const input = document.createElement('input');
-      input.type = 'range';
-      input.min = spec.min;
-      input.max = spec.max;
-      input.step = spec.step;
-      input.value = currentVal;
-      input.dataset.key = spec.key;
-      input.addEventListener('input', () => {
-        const val = parseFloat(input.value);
-        valueSpan.textContent = val.toFixed(2);
-        onKnobChange(spec.key, val);
-      });
-
-      group.appendChild(label);
-      group.appendChild(input);
-      knobSection.appendChild(group);
-    }
-
-    card.appendChild(knobSection);
-  }
-
   card.appendChild(codeEl);
   card.appendChild(chatEl);
   card.appendChild(inputRow);

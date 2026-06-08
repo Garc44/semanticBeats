@@ -11,15 +11,15 @@ const makeGlobal = (overrides = {}) => ({
 });
 
 describe('PILLAR_NAMES', () => {
-  it('has exactly 4 pillars in correct order', () => {
-    expect(PILLAR_NAMES).toEqual(['drums', 'bass_percussion', 'melody', 'transitions']);
+  it('has exactly 5 pillars in correct order', () => {
+    expect(PILLAR_NAMES).toEqual(['drums', 'bass', 'percussion', 'melody', 'transitions']);
   });
 });
 
 describe('makePillars', () => {
-  it('returns 4 pillar objects', () => {
+  it('returns 5 pillar objects', () => {
     const p = makePillars();
-    expect(p).toHaveLength(4);
+    expect(p).toHaveLength(5);
   });
 
   it('each pillar has name, code, muted, history, selectedId, lastMods, knobs', () => {
@@ -44,11 +44,17 @@ describe('makePillars', () => {
     expect(drums.knobs.decay).toBe(0.12);
   });
 
-  it('bass_percussion pillar has correct knob defaults', () => {
-    const bp = makePillars().find(p => p.name === 'bass_percussion');
-    expect(bp.knobs.gain).toBe(0.7);
-    expect(bp.knobs.cutoff).toBe(1.0);
-    expect(bp.knobs.stutter).toBe(0.0);
+  it('bass pillar has correct knob defaults', () => {
+    const bass = makePillars().find(p => p.name === 'bass');
+    expect(bass.knobs.gain).toBe(0.7);
+    expect(bass.knobs.cutoff).toBe(1.0);
+    expect(bass.knobs.stutter).toBe(0.0);
+  });
+
+  it('percussion pillar has correct knob defaults', () => {
+    const perc = makePillars().find(p => p.name === 'percussion');
+    expect(perc.knobs.gain).toBe(0.6);
+    expect(perc.knobs.decay).toBe(0.12);
   });
 
   it('melody pillar has correct knob defaults', () => {
@@ -127,8 +133,8 @@ describe('rebuildStack', () => {
   it('appends global effects chain', () => {
     const pillars = makePillars();
     pillars[0].code = 's("bd")';
-    const result = rebuildStack(pillars, makeGlobal({ tempo: 1.5, masterVolume: 0.6, masterFilter: 0.5, intensity: 0.3 }));
-    expect(result).toContain('.cps(1.5)');
+    const result = rebuildStack(pillars, makeGlobal({ tempo: 120, beatsPerCycle: 4, masterVolume: 0.6, masterFilter: 0.5, intensity: 0.3 }));
+    expect(result).toContain('.cps(0.5)');
     expect(result).toContain('.gain(0.6)');
     expect(result).toContain('.lpf(');
     expect(result).toContain('.shape(0.3)');

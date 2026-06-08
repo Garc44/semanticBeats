@@ -1,30 +1,33 @@
 import { soundLibrary } from './library/soundLibrary.js';
 
-export const PILLAR_NAMES = ['kick', 'rumble_bass', 'groove', 'synth_fx'];
+export const PILLAR_NAMES = ['drums', 'bass_percussion', 'melody', 'transitions'];
+
+const KNOB_DEFAULTS = {
+  drums:           { gain: 0.8, drive: 0.0, decay: 0.12 },
+  bass_percussion: { gain: 0.7, cutoff: 1.0, stutter: 0.0 },
+  melody:          { gain: 0.5, cutoff: 0.6, resonance: 0.1, space: 0.2 },
+  transitions:     { gain: 0.4, hpf: 0.0, size: 0.5 },
+};
 
 export function makePillars() {
-  return PILLAR_NAMES.map(name => ({ name, code: '', muted: false, history: [] }));
-}
-
-export function assembleCode(plan, pillarName) {
-  const catalog = soundLibrary[pillarName] ?? [];
-  const pattern = catalog.find(p => p.id === plan.selectedId) ?? catalog[0];
-  if (!pattern) return '';
-
-  const mods = plan.modifications ?? {};
-  let code = pattern.code;
-  if (mods.slowdown !== undefined && mods.slowdown > 1) code += `.slow(${mods.slowdown})`;
-  if (mods.speed !== undefined && mods.speed !== 1.0) code += `.speed(${mods.speed})`;
-  if (mods.gain !== undefined && mods.gain !== 1.0) code += `.gain(${mods.gain})`;
-  return code;
+  return PILLAR_NAMES.map(name => ({
+    name,
+    code: '',
+    muted: false,
+    history: [],
+    selectedId: null,
+    lastMods: {},
+    knobs: { ...KNOB_DEFAULTS[name] },
+  }));
 }
 
 export function rebuildStack(pillars, globalState) {
   const { soloedPillar, tempo, masterVolume, masterFilter, intensity } = globalState;
 
+  // Muted tracks compile to gain(0) — only filter by solo and empty code
   const active = pillars.filter(p => {
     if (soloedPillar) return p.name === soloedPillar && p.code.trim();
-    return !p.muted && p.code.trim();
+    return p.code.trim();
   });
 
   if (!active.length) return null;

@@ -27,8 +27,8 @@ Single-page Vite app. No framework. `app.js` wires seven ES modules together.
 
 **Pipeline (handleSend flow):**
 ```
-generateTransformationPlan()  →  expandStyle() / generateSeed()  →  applyTransformation()  →  validateCode()  →  addPreviewMessage()
-         llm.js                  library/styles.js / patchEngine.js      patchEngine.js           validate.js          ui.js
+generateTransformationPlan()  →  compileTrack()  →  rebuildStack()
+         llm.js                    compiler.js         pillars.js
 ```
 
 On apply: `play()` → if throws → `autoFixCode()` one retry → revert on second failure.
@@ -36,34 +36,34 @@ On apply: `play()` → if throws → `autoFixCode()` one retry → revert on sec
 ---
 
 **`src/llm.js`** — Ollama interaction. Two exports:
-- `generateTransformationPlan(currentCode, prompt)` — Single LLM call. Returns a plan object or `null` on any failure (never throws). When `currentCode` is empty, LLM returns `generate` mode; otherwise `transform` mode.
+- `generateTransformationPlan(pillarName, userPrompt, currentTracksState)` — Single LLM call. Returns a plan object or `null` on any failure (never throws). Builds cohesion context from `currentTracksState` (other channels' active pattern IDs). Uses `TRACK_ROLES` to inject track role description into system prompt.
 - `autoFixCode(brokenCode, errorMsg)` — Fired only when `play()` throws. Throws on HTTP error.
 
 Plan shape:
 ```js
-// transform mode — LLM selects style, NOT operations
-{ mode: "transform", style: "acid|groove|minimal|dub|breakcore", target: "bass|drums|melody|all", intensity: 0.7 }
-// generate mode
-{ mode: "generate", seedCode: "s(\"bd ~ sn ~\")" }
+{ selectedId: "string", explanation: "string", modifications: { speed: 1.0, slowdown: 1 } }
+// speed: float 0.25–4.0; slowdown: integer >= 1
 ```
 
-Validation in `llm.js`: style must be a key in `STYLE_LIBRARY`, intensity must be 0.1–1.0, target must be bass/drums/melody/all. Returns `null` on any violation.
+Validation: selectedId must be in `soundLibrary[pillarName]`; speed in [0.25, 4.0]; slowdown integer >= 1. `gain` is NOT in the schema. Returns `null` on any violation.
 
-**`src/library/styles.js`** — Musical source of truth. Two exports:
-- `STYLE_LIBRARY` — map of style name → target → `[{type, amount}]` operation arrays. Every style must have a `global` key as fallback target.
-- `expandStyle(style, target, intensity)` — looks up style (fallback: `minimal`) → target (fallback: `global`) → scales amounts by intensity. Returns `[{type, amount}]`.
+**`src/library/soundLibrary.js`** — Musical source of truth. Four pillars: `drums`, `bass_percussion`, `melody`, `transitions`. Exports `soundLibrary`, `GENRE_PRESETS`, `GENRE_NAMES`, `getPatternById`, `getGenreCode`. Pattern code strings are the hardcoded Strudel source — LLM never outputs code, only selects IDs.
 
-To add a new style: add a key to `STYLE_LIBRARY` with at least a `global` target. Only use types from `ALLOWED_OPERATIONS`.
+**`src/compiler.js`** — NEW. One export:
+- `compileTrack(plan, pillarName, pillar)` — Full compile chain: wraps `pattern.code` in parens, appends LLM structural mods (`.slow()` / `.fast()`), then appends per-track knob layer. Muted tracks compile to `.gain(0)`. Returns `''` on missing pattern.
 
-**`src/operations.js`** — Operation vocabulary. Two exports:
-- `ALLOWED_OPERATIONS` — array of 9 allowed operation type strings
-- `OPERATION_HANDLERS` — map of `type → (code, amount) => string`. Each handler deterministically modifies a Strudel code string.
+Compile chain:
+```
+(pattern.code) → +LLM mods (slow/fast) → +knob layer (gain/drive/decay/etc.) → final code
+```
 
-**`src/patchEngine.js`** — Applies operations to code. Two exports:
-- `applyTransformation(code, plan)` — reduces `plan.operations` over `code` using `OPERATION_HANDLERS`. Skips unknown ops. Returns original code if operations is empty or non-array.
-- `generateSeed(plan)` — uses `plan.seedCode` (or a hardcoded default) and applies operations to it.
+**`src/pillars.js`** — Pillar state management. Three exports:
+- `PILLAR_NAMES` — `['drums', 'bass_percussion', 'melody', 'transitions']`
+- `makePillars()` — creates pillar objects with `{ name, code, muted, history, selectedId, lastMods, knobs }`
+- `rebuildStack(pillars, globalState)` — stacks all active (non-empty) pillars. Muted tracks are NOT filtered here — filtering is via gain(0) compiled by compiler.js. Applies global cps/gain/lpf/shape/room.
 
-**`src/validate.js`** — Guards before `play()`. One export:
+**`src/validate.js`** — Two exports:
+- `validatePlan(plan, pillarName)` — validates selectedId against catalog, gain [0, 1.2], speed (positive), slowdown (integer >= 1)
 - `validateCode(code)` → `{ valid: bool, errors: string[] }`. Checks: non-empty, no markdown fences, balanced parentheses, only allowed Strudel method names (against `ALLOWED_STRUDEL_FUNCTIONS` set).
 
 **`src/strudel.js`** — Thin wrapper around `@strudel/web`. Exports `init()`, `play(code)`, `stop()`. `play()` calls `evaluate(code, true)` which hot-patches the running audio without stopping transport.
@@ -76,15 +76,16 @@ To add a new style: add a key to `STYLE_LIBRARY` with at least a `global` target
 - `autoFixCode` throws on HTTP error — caller catches and reverts
 - Both strip markdown fences from LLM output
 - Model hardcoded to `llama3:latest`; endpoint hardcoded to `http://localhost:11434/api/chat`
-- If `plan.mode === 'generate'` but `currentCode` is non-empty, `app.js` rejects it and shows an error
-- LLM does NOT output operations — `expandStyle()` owns all musical logic
+- LLM does NOT output code — only selectedId + structural mods (speed/slowdown)
+- `compileTrack` owns all code generation; knob layer is appended after LLM mods
 
 ## Tests
 
-Four test files, 40 tests total, all using `global.fetch` mocks via `vi.fn()`:
-- `tests/llm.test.js` — `generateTransformationPlan` (10 cases) and `autoFixCode` (3 cases)
-- `tests/validate.test.js` — `validateCode` (8 cases)
-- `tests/patchEngine.test.js` — `applyTransformation` and `generateSeed` (13 cases)
-- `tests/library.test.js` — `expandStyle` (6 cases)
+Five test files, 85 tests total:
+- `tests/library.test.js` — soundLibrary, GENRE_PRESETS, getPatternById, getGenreCode (19 cases)
+- `tests/compiler.test.js` — compileTrack: all 4 pillars, muted state, slow/fast, edge cases (15 cases)
+- `tests/llm.test.js` — generateTransformationPlan (14 cases) and autoFixCode (2 cases)
+- `tests/validate.test.js` — validateCode (8 cases) and validatePlan (10 cases)
+- `tests/pillars.test.js` — PILLAR_NAMES, makePillars, rebuildStack (14 cases)
 
 Strudel and UI are not tested. No integration tests.

@@ -1,4 +1,4 @@
-import { init, play, stop } from './src/strudel.js';
+import { init, play, stop, stopViz } from './src/strudel.js';
 import { generateTransformationPlan } from './src/llm.js';
 import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
 import { compileTrack } from './src/compiler.js';
@@ -11,6 +11,7 @@ import {
   setPillarSoloed,
   addPillarMessage,
   addPillarPreviewMessage,
+  updatePillarViz,
 } from './src/ui.js';
 
 const pillars = makePillars();
@@ -140,6 +141,19 @@ async function handlePillarSend(pillarName, prompt) {
   setStatus('Preview ready');
 }
 
+// ── Viz Toggle ────────────────────────────────────────────
+
+function handleVizToggle(pillarName) {
+  const pillar = pillars.find(p => p.name === pillarName);
+  const next = pillar.vizType === null ? 'grid'
+             : pillar.vizType === 'grid' ? 'spectrum'
+             : null;
+  if (!next) stopViz(pillarName);
+  pillar.vizType = next;
+  updatePillarViz(pillarName, next);
+  rebuildAndPlay();
+}
+
 // ── Mute / Solo ───────────────────────────────────────────
 
 function handleMute(pillarName) {
@@ -159,11 +173,14 @@ function handleSolo(pillarName) {
 
 const pillarsRow = document.getElementById('pillars-row');
 
+window.__pillarVizCtx = {};
+
 for (const pillar of pillars) {
   const card = renderPillar(pillar, {
     onSend: (prompt) => handlePillarSend(pillar.name, prompt),
     onMute: () => handleMute(pillar.name),
     onSolo: () => handleSolo(pillar.name),
+    onVizToggle: () => handleVizToggle(pillar.name),
     onCodeEdit: (newCode) => {
       if (newCode === pillar.code) return;
       pillar.code = newCode;
@@ -171,6 +188,18 @@ for (const pillar of pillars) {
     },
   });
   pillarsRow.appendChild(card);
+  const canvas = document.getElementById(`viz-canvas-${pillar.name}`);
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    window.__pillarVizCtx[pillar.name] = ctx;
+    const ro = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      const parent = canvas.parentElement;
+      canvas.width = (parent?.offsetWidth || canvas.offsetWidth) * dpr;
+      canvas.height = (parent?.offsetHeight || canvas.offsetHeight) * dpr;
+    });
+    ro.observe(canvas.parentElement ?? canvas);
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────

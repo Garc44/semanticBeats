@@ -76,7 +76,7 @@ export function renderGlobalControls(globalState, onChange) {
   container.appendChild(bpcGroup);
 }
 
-export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit }) {
+export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onVizToggle }) {
   const card = document.createElement('div');
   card.className = 'pillar-card';
   card.dataset.pillar = pillar.name;
@@ -108,8 +108,15 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit }) {
   soloBtn.title = 'Solo';
   soloBtn.addEventListener('click', onSolo);
 
+  const vizBtn = document.createElement('button');
+  vizBtn.className = 'btn-viz';
+  vizBtn.textContent = 'OFF';
+  vizBtn.title = 'Toggle visualization';
+  vizBtn.addEventListener('click', onVizToggle);
+
   controls.appendChild(muteBtn);
   controls.appendChild(soloBtn);
+  controls.appendChild(vizBtn);
   header.appendChild(titleEl);
   header.appendChild(controls);
 
@@ -122,6 +129,11 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit }) {
 
   const chatEl = document.createElement('div');
   chatEl.className = 'pillar-chat';
+
+  const vizCanvas = document.createElement('canvas');
+  vizCanvas.className = 'pillar-viz-canvas';
+  vizCanvas.id = `viz-canvas-${pillar.name}`;
+  vizCanvas.style.display = 'none';
 
   const inputRow = document.createElement('div');
   inputRow.className = 'pillar-input-row';
@@ -151,6 +163,8 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit }) {
 
   inputRow.appendChild(promptInput);
   inputRow.appendChild(sendBtn);
+
+  chatEl.appendChild(vizCanvas);
 
   card.appendChild(header);
   card.appendChild(codeEl);
@@ -182,6 +196,26 @@ export function setPillarSoloed(soloedName, allNames) {
     card.classList.toggle('pillar--soloed', isSoloed);
     card.classList.toggle('pillar--dimmed', soloedName !== null && !isSoloed);
     card.querySelector('.btn-solo').classList.toggle('active', isSoloed);
+  }
+}
+
+const VIZ_LABELS = { grid: 'GRID', spectrum: 'SPEC' };
+
+export function updatePillarViz(name, vizType) {
+  const card = document.querySelector(`.pillar-card[data-pillar="${name}"]`);
+  if (!card) return;
+  const canvas = card.querySelector('.pillar-viz-canvas');
+  const btn = card.querySelector('.btn-viz');
+  btn.classList.toggle('active', !!vizType);
+  btn.textContent = VIZ_LABELS[vizType] ?? 'OFF';
+  if (vizType) {
+    const chat = canvas.parentElement;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = (chat?.offsetWidth || 280) * dpr;
+    canvas.height = (chat?.offsetHeight || 300) * dpr;
+    canvas.style.display = '';
+  } else {
+    canvas.style.display = 'none';
   }
 }
 

@@ -17,6 +17,7 @@ export function makePillars() {
     selectedId: null,
     lastMods: {},
     knobs: { ...KNOB_DEFAULTS[name] },
+    vizType: null,
   }));
 }
 
@@ -30,9 +31,21 @@ export function rebuildStack(pillars, globalState) {
 
   if (!active.length) return null;
 
+  const withViz = (p) => {
+    if (!p.vizType) return p.code;
+    const colored = `${p.code}.color('#E8302A')`;
+    if (p.vizType === 'spectrum') {
+      return `${colored}.spectrum({ctx:window.__pillarVizCtx['${p.name}'],id:'spec-${p.name}'})`;
+    }
+    if (p.vizType === 'scope') {
+      return `${colored}.analyze('scop-${p.name}').draw(window.__vizDraw('${p.name}','scope'),{id:'scop-${p.name}'})`;
+    }
+    return `${colored}.draw(window.__vizDraw('${p.name}','grid'),{id:'viz-${p.name}',lookbehind:1,lookahead:1})`;
+  };
+
   const inner = active.length === 1
-    ? active[0].code
-    : `stack(\n${active.map(p => p.code).join(',\n')}\n)`;
+    ? withViz(active[0])
+    : `stack(\n${active.map(p => withViz(p)).join(',\n')}\n)`;
 
   const filterHz = Math.round(masterFilter * 18000 + 200);
   const cps = Math.round((tempo / (60 * beatsPerCycle)) * 1000) / 1000;

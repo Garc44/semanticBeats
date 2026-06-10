@@ -15,19 +15,6 @@ export const soundLibrary = {
       code: `note("c1 [~ eb1] c1 [g1 bb1]").s("sawtooth").lpf(sine.range(200, 3000).fast(0.5)).lpq(4)` 
     },
 
-    { 
-      id: "bass_berghain_rolling_16th",
-      name: "Ostgut Rolling 16th Groove",
-      tags: ["bass", "techno", "rolling", "hypnotic", "16th"], 
-      code: `note("e1*16").struct("t f t t f t f t t f t f t t f f").s("saw").decay(0.12).lpf("<250 350 200 450>").lpq(4).gain(1.1)`
-    },
-
-    { 
-      id: "bass_berlin_modular",
-      name: "Hypnotic Modular Roller", 
-      tags: ["bass", "sub", "modular", "hypnotic"], 
-      code: `note("c1 [~ c1] c1 [~ c1*2]").s("sawtooth").lpf(sine.range(90, 280).fast(0.25)).lpq(3).decay(0.15).gain(0.9)`
-    },
 
     { 
       id: "bass_rolling_hypnotic", 
@@ -52,7 +39,63 @@ export const soundLibrary = {
       name: "Tribal Tom-Bass Groove", 
       tags: ["bass", "tribal", "tom", "groove", "percussive"], 
       code: `note("[~ g1] [g1 ~ g1 ~] [~ bb1] [g1 ~ f1 ~]").scale("G:minor").s("triangle").decay(0.18).lpf(350).resonance(0.3)`
-    }
+    },
+
+    { 
+      id: "bass_rolling_saw_driver", 
+      name: "Rolling Saw Driver", 
+      tags: ["bass", "saw", "techno", "rolling", "classic"], 
+      code: `note("[~ ~ c2 ~] [c2 ~ ~ c2] [~ ~ c2 ~] [c2 ~ c3 ~]")
+              .s("saw")
+              .lpf(400)
+              .decay(0.15).sustain(0.05)`
+    },
+
+    { 
+      id: "bass_stereo_groove_saw", 
+      name: "Stereo Groove Saw", 
+      tags: ["bass", "saw", "groove", "hypnotic", "stereo"], 
+      code: `note("[~ c2 ~ c2] [~ c2 eb2 ~] [~ c2 ~ c2] [~ bb1 ~ c2]")
+              .s("saw")
+              .lpf(400)
+              .decay(0.15).sustain(0.05)
+              .pan("0.4 0.6")`
+    },
+
+     { 
+      id: "bass_accented_offbeat_sub", 
+      name: "Accented Offbeat Sub", 
+      tags: ["bass", "sub", "sine", "offbeat", "deep"], 
+      code: `note("[~ c3]*4") 
+              .s("sine")
+              .gain("[1 1.1 1 1.2]*2") 
+              .attack(0.02).decay(0.2).sustain(0) 
+              .lpf(200)`
+  },
+  { 
+    id: "bass_resonant_acid_stepper", 
+    name: "Resonant Acid Stepper", 
+    tags: ["bass", "saw", "acid", "resonance", "driving"], 
+    code: `note("c2 c2 c3 c2  eb2 ~ c2 g2  ~ c2 c3 c2  f2 c2 ~ eb2")
+            .s("saw | sawtooth")
+            .decay(0.08).sustain(0.05)
+            .resonance(10) 
+            .lpf("300 450 600 400")`
+  },
+
+  { 
+    id: "bass_dub_cavern_chord", 
+    name: "Dub Cavern Chord", 
+    tags: ["bass", "chord", "dub", "delay", "atmospheric"], 
+    code: `note("[~ [c2,eb2,g2] ~ ~]*2")
+            .s("triangle")
+            .lpf(280)                
+            .decay(0.15).sustain(0)
+            .delay(0.6)              
+            .delaytime(0.375)`
+  }
+
+
 
 
   ],
@@ -116,9 +159,10 @@ export const soundLibrary = {
     code: `stack(
             s("~ cp ~ cp").gain(0.8), 
             s("~ oh ~ oh ~ oh ~ oh").gain(0.7), 
-            s("lt ~ mt ~ ~ ht lt ~").gain("[0.7 0.5]*4").room(0.3).every(4, x => x.speed(1.05))),
+            s("lt ~ mt ~ ~ ht lt ~").gain("[0.7 0.5]*4").room(0.3)),
           )`
   }
+ 
 
   ],
 

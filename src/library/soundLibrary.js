@@ -214,12 +214,7 @@ export const soundLibrary = {
     tags: ["melody", "synth", "polyrhythmic", "psychedelic", "complex"], 
     code: `note("[fs4 ~ a4 fs4] [~ b4 ~ cs5] [~ ~ ~ ~] [~ ~ ~ ~]").scale("F#:minor").s("square").decay(0.1).pan(sine.range(0, 1)).delay(0.3).room(0.3)`
   },
-  { 
-    id: "melody_berlin_monolith", 
-    name: "Berlin Monolith", 
-    tags: ["melody", "synth", "techno", "berlin", "industrial", "dark"], 
-    code: `note("[b4 ~ b4 ~] [~ d5 ~ b4] [cs5 ~ b4 ~] [~ e5 ~ d5]").scale("B:minor").s("saw").shape(0.4).decay(0.12).lpf(900).room(0.5).delay(0.25)`
-  },
+  
   { 
     id: "melody_modular_bleep", 
     name: "Modular Bleep-Shower", 

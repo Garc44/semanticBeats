@@ -39,7 +39,7 @@ Schema: {"selectedId":"string","explanation":"string","modifications":{"speed":1
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama3:latest',
+        model: 'llama3.2:3b',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -76,7 +76,7 @@ export async function autoFixCode(brokenCode, errorMsg) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama3:latest',
+      model: 'llama3.2:3b',
       messages: [
         { role: 'system', content: 'Fix the Strudel code. Return only the corrected code, no markdown.' },
         { role: 'user', content: `Error: ${errorMsg}\n\nCode:\n${brokenCode}` },

@@ -18,6 +18,7 @@ export function makePillars() {
     lastMods: {},
     knobs: { ...KNOB_DEFAULTS[name] },
     vizType: null,
+    transforms: {},
   }));
 }
 

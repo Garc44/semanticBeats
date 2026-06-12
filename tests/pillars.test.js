@@ -78,6 +78,16 @@ describe('makePillars', () => {
     const fresh = makePillars();
     expect(fresh[0].knobs.gain).toBe(0.8);
   });
+
+  it('each pillar has an empty transforms object', () => {
+    const pillars = makePillars();
+    for (const p of pillars) {
+      expect(p).toHaveProperty('transforms');
+      expect(typeof p.transforms).toBe('object');
+      expect(p.transforms).not.toBeNull();
+      expect(Object.keys(p.transforms).length).toBe(0);
+    }
+  });
 });
 
 describe('rebuildStack', () => {

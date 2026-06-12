@@ -1,7 +1,9 @@
 import { init, play, stop, stopViz } from './src/strudel.js';
 import { generateTransformationPlan } from './src/llm.js';
+import { generateTransformPatch } from './src/llm.js';
 import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
 import { compileTrack } from './src/compiler.js';
+import { mergeLlmTransformPatch } from './src/library/transformationsLibrary.js';
 import {
   setStatus,
   renderGlobalControls,
@@ -12,9 +14,13 @@ import {
   addPillarMessage,
   addPillarPreviewMessage,
   updatePillarViz,
+  updatePillarMode,
 } from './src/ui.js';
 
 const pillars = makePillars();
+const pillarModes = Object.fromEntries(
+  PILLAR_NAMES.map(name => [name, 'generation'])
+);
 
 const globalState = {
   tempo: 120,
@@ -86,8 +92,53 @@ renderGlobalControls(globalState, (key, value) => {
 async function handlePillarSend(pillarName, prompt) {
   const pillar = pillars.find(p => p.name === pillarName);
   addPillarMessage(pillarName, 'user', prompt);
-  setStatus('Selecting...');
+  setStatus('Thinking...');
 
+  const mode = pillarModes[pillarName];
+
+  if (mode === 'transformation') {
+    const patch = await generateTransformPatch(pillarName, prompt, pillar);
+    if (!patch) {
+      addPillarMessage(pillarName, 'error', 'Could not generate transform. Try rephrasing.');
+      setStatus('Error');
+      return;
+    }
+    const prevTransforms = { ...pillar.transforms };
+    mergeLlmTransformPatch(pillar, patch);
+    const newCode = compileTrack({ selectedId: pillar.selectedId, modifications: pillar.lastMods }, pillarName, pillar);
+    if (!newCode) {
+      pillar.transforms = prevTransforms;
+      addPillarMessage(pillarName, 'error', 'Pattern assembly failed.');
+      setStatus('Error');
+      return;
+    }
+    addPillarPreviewMessage(
+      pillarName,
+      newCode,
+      async () => {
+        pillar.code = newCode;
+        updatePillarCode(pillarName, newCode);
+        await rebuildAndPlay();
+        if (!globalState.isPlaying) {
+          const stack = rebuildStack(pillars, globalState);
+          if (stack) {
+            await play(stack);
+            globalState.isPlaying = true;
+            playBtn.textContent = '■ Stop';
+          }
+        }
+        setStatus('Applied');
+      },
+      () => {
+        pillar.transforms = prevTransforms;
+        setStatus('Ready');
+      }
+    );
+    setStatus('Preview ready');
+    return;
+  }
+
+  // generation mode (existing flow)
   const currentTracksState = Object.fromEntries(
     pillars.map(p => [p.name, p.selectedId ?? null])
   );
@@ -181,6 +232,10 @@ for (const pillar of pillars) {
     onMute: () => handleMute(pillar.name),
     onSolo: () => handleSolo(pillar.name),
     onVizToggle: () => handleVizToggle(pillar.name),
+    onModeToggle: () => {
+      pillarModes[pillar.name] = pillarModes[pillar.name] === 'generation' ? 'transformation' : 'generation';
+      updatePillarMode(pillar.name, pillarModes[pillar.name]);
+    },
     onCodeEdit: (newCode) => {
       if (newCode === pillar.code) return;
       pillar.code = newCode;

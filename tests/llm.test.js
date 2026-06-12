@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { generateTransformationPlan } from '../src/llm.js';
+import { generateTransformationPlan, generateTransformPatch } from '../src/llm.js';
 
 function mockPlan(overrides = {}) {
   return {
@@ -118,6 +118,83 @@ describe('generateTransformationPlan', () => {
       json: async () => ({ message: { content: 'not json at all' } }),
     });
     await expect(generateTransformationPlan('drums', 'kick', {})).resolves.toBeNull();
+  });
+});
+
+function mockPatchFetch(patch) {
+  global.fetch = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ message: { content: JSON.stringify(patch) } }),
+  });
+}
+
+describe('generateTransformPatch', () => {
+  beforeEach(() => { vi.restoreAllMocks(); });
+
+  it('returns parsed patch object on valid response', async () => {
+    mockPatchFetch({ reverb: 0.7, crush: 4 });
+    const patch = await generateTransformPatch(
+      'drums', 'make it gritty',
+      { selectedId: 'kick_berghain_rumble', transforms: {} }
+    );
+    expect(patch).toEqual({ reverb: 0.7, crush: 4 });
+  });
+
+  it('returns null when fetch response is not ok', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) });
+    const patch = await generateTransformPatch(
+      'drums', 'test', { selectedId: 'kick_berghain_rumble', transforms: {} }
+    );
+    expect(patch).toBeNull();
+  });
+
+  it('returns null when response is an array (not object)', async () => {
+    mockPatchFetch([1, 2, 3]);
+    const patch = await generateTransformPatch(
+      'drums', 'test', { selectedId: 'kick_berghain_rumble', transforms: {} }
+    );
+    expect(patch).toBeNull();
+  });
+
+  it('returns null on invalid JSON', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: 'not json at all' } }),
+    });
+    const patch = await generateTransformPatch(
+      'drums', 'test', { selectedId: 'kick_berghain_rumble', transforms: {} }
+    );
+    expect(patch).toBeNull();
+  });
+
+  it('strips markdown fences before parsing', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: '```json\n{"reverb": 0.5}\n```' } }),
+    });
+    const patch = await generateTransformPatch(
+      'drums', 'test', { selectedId: 'kick_berghain_rumble', transforms: {} }
+    );
+    expect(patch).toEqual({ reverb: 0.5 });
+  });
+
+  it('includes currentTransforms in system prompt', async () => {
+    mockPatchFetch({});
+    await generateTransformPatch(
+      'drums', 'test',
+      { selectedId: 'kick_berghain_rumble', transforms: { crush: 4 } }
+    );
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body.messages[0].content).toContain('"crush": 4');
+  });
+
+  it('null patch value passes through (removal intent preserved for mergeLlmTransformPatch)', async () => {
+    mockPatchFetch({ crush: null });
+    const patch = await generateTransformPatch(
+      'drums', 'remove the grit',
+      { selectedId: 'kick_berghain_rumble', transforms: { crush: 4 } }
+    );
+    expect(patch).toEqual({ crush: null });
   });
 });
 

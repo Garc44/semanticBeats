@@ -1,4 +1,6 @@
 import { soundLibrary } from './library/soundLibrary.js';
+import { getTransformsForPillar } from './library/transformationsLibrary.js';
+import { getPatternById } from './library/soundLibrary.js';
 
 const TRACK_ROLES = {
   drums:       'rhythmic foundation — kicks, claps, hats',
@@ -66,6 +68,62 @@ Schema: {"selectedId":"string","explanation":"string","modifications":{"speed":1
     const safeMods = tempoRequested ? mods : { ...mods, speed: 1.0, slowdown: 1 };
 
     return { selectedId: plan.selectedId, explanation: plan.explanation ?? '', modifications: safeMods };
+  } catch {
+    return null;
+  }
+}
+
+export async function generateTransformPatch(pillarName, userPrompt, pillar) {
+  try {
+    const available = getTransformsForPillar(pillarName);
+    const pattern = getPatternById(pillarName, pillar.selectedId);
+
+    const systemPrompt = `You are controlling live audio effects for a techno track's ${pillarName} channel.
+
+Active pattern: ${pattern?.name ?? 'unknown'} — tags: ${(pattern?.tags ?? []).join(', ')}
+
+Current active transforms:
+${JSON.stringify(pillar.transforms ?? {}, null, 2)}
+
+Available transforms for this channel:
+${JSON.stringify(available.map(t => ({
+  id: t.id,
+  method: t.method,
+  type: t.type,
+  ...(t.type === 'numeric' ? { min: t.min, max: t.max } : {}),
+  ...(t.type === 'enum' ? { values: t.values } : {}),
+  description: t.description,
+})), null, 2)}
+
+Return ONLY valid JSON — a flat object of { transformId: value } pairs.
+- Set a value within its valid range to activate/update a transform
+- Set a value to null to deactivate a transform
+- Omit transforms you don't want to change
+- No prose. No markdown.`;
+
+    const response = await fetch('http://localhost:11434/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama3.2:3b',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        stream: false,
+      }),
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const raw = data.message?.content ?? '';
+    const cleaned = raw.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
+    const patch = JSON.parse(cleaned);
+
+    if (typeof patch !== 'object' || Array.isArray(patch) || patch === null) return null;
+
+    return patch;
   } catch {
     return null;
   }

@@ -76,7 +76,8 @@ Schema: {"selectedId":"string","explanation":"string","modifications":{"speed":1
 export async function generateTransformPatch(pillarName, userPrompt, pillar) {
   try {
     const available = getTransformsForPillar(pillarName);
-    const pattern = getPatternById(pillarName, pillar.selectedId);
+    const lookupName = pillarName === 'bass_percussion' ? 'bass' : pillarName;
+    const pattern = getPatternById(lookupName, pillar.selectedId);
 
     const systemPrompt = `You are controlling live audio effects for a techno track's ${pillarName} channel.
 

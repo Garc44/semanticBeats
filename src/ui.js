@@ -76,7 +76,7 @@ export function renderGlobalControls(globalState, onChange) {
   container.appendChild(bpcGroup);
 }
 
-export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onVizToggle }) {
+export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onVizToggle, onModeToggle }) {
   const card = document.createElement('div');
   card.className = 'pillar-card';
   card.dataset.pillar = pillar.name;
@@ -114,9 +114,16 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onViz
   vizBtn.title = 'Toggle visualization';
   vizBtn.addEventListener('click', onVizToggle);
 
+  const modeBtn = document.createElement('button');
+  modeBtn.className = 'btn-mode';
+  modeBtn.textContent = 'GEN';
+  modeBtn.title = 'Toggle Generation / Transformation mode';
+  modeBtn.addEventListener('click', onModeToggle);
+
   controls.appendChild(muteBtn);
   controls.appendChild(soloBtn);
   controls.appendChild(vizBtn);
+  controls.appendChild(modeBtn);
   header.appendChild(titleEl);
   header.appendChild(controls);
 
@@ -216,6 +223,21 @@ export function updatePillarViz(name, vizType) {
     canvas.style.display = '';
   } else {
     canvas.style.display = 'none';
+  }
+}
+
+export function updatePillarMode(name, mode) {
+  const card = document.querySelector(`.pillar-card[data-pillar="${name}"]`);
+  if (!card) return;
+  const btn = card.querySelector('.btn-mode');
+  if (!btn) return;
+  btn.textContent = mode === 'transformation' ? 'TRX' : 'GEN';
+  btn.classList.toggle('active', mode === 'transformation');
+  const prompt = card.querySelector('.pillar-prompt');
+  if (prompt) {
+    prompt.placeholder = mode === 'transformation'
+      ? 'add reverb, make it glitchy...'
+      : 'describe changes...';
   }
 }
 

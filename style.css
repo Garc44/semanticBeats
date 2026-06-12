@@ -241,6 +241,20 @@ header {
 }
 .btn-viz:hover { color: var(--accent); border-color: var(--accent); }
 .btn-viz.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.btn-mode {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.2rem 0.45rem;
+  border-radius: 0;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-mode:hover { color: var(--accent); border-color: var(--accent); }
+.btn-mode.active { color: #E8302A; border-color: #E8302A; }
 
 /* ── Pillar Viz Canvas ── */
 .pillar-viz-canvas {

@@ -29,7 +29,7 @@ describe('TRANSFORMS registry', () => {
 });
 
 describe('PILLAR_TRANSFORMS manifest', () => {
-  const PILLAR_NAMES = ['drums', 'bass', 'percussion', 'melody', 'transitions'];
+  const PILLAR_NAMES = ['drums', 'bass', 'percussion', 'bass_percussion', 'melody', 'transitions'];
 
   it('has an entry for each pillar', () => {
     for (const name of PILLAR_NAMES) {

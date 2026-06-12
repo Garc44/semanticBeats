@@ -30,11 +30,12 @@ export const TRANSFORMS = {
 };
 
 export const PILLAR_TRANSFORMS = {
-  drums:       ['crush', 'distort', 'shape', 'reverb', 'degrade', 'iter', 'ply', 'reverse', 'palindrome', 'jux_rev', 'press'],
-  bass:        ['lopass', 'lopass_q', 'reverb', 'room_size', 'echo', 'degrade', 'speed_up', 'slow_down', 'shape', 'distort', 'crush'],
-  percussion:  ['crush', 'distort', 'reverb', 'degrade', 'iter', 'ply', 'reverse', 'jux_rev'],
-  melody:      ['lopass', 'lopass_q', 'hipass', 'reverb', 'room_size', 'echo', 'vowel', 'jux_rev', 'speed_up', 'slow_down', 'shape', 'degrade'],
-  transitions: ['lopass', 'hipass', 'reverb', 'room_size', 'echo', 'speed_up', 'slow_down', 'iter', 'reverse'],
+  drums:            ['crush', 'distort', 'shape', 'reverb', 'degrade', 'iter', 'ply', 'reverse', 'palindrome', 'jux_rev', 'press'],
+  bass:             ['lopass', 'lopass_q', 'reverb', 'room_size', 'echo', 'degrade', 'speed_up', 'slow_down', 'shape', 'distort', 'crush'],
+  percussion:       ['crush', 'distort', 'reverb', 'degrade', 'iter', 'ply', 'reverse', 'jux_rev'],
+  bass_percussion:  ['lopass', 'lopass_q', 'reverb', 'room_size', 'echo', 'degrade', 'speed_up', 'slow_down', 'shape', 'distort', 'crush', 'iter', 'ply', 'reverse', 'jux_rev'],
+  melody:           ['lopass', 'lopass_q', 'hipass', 'reverb', 'room_size', 'echo', 'vowel', 'jux_rev', 'speed_up', 'slow_down', 'shape', 'degrade'],
+  transitions:      ['lopass', 'hipass', 'reverb', 'room_size', 'echo', 'speed_up', 'slow_down', 'iter', 'reverse'],
 };
 
 export function getTransformsForPillar(pillarName) {

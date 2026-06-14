@@ -7,6 +7,29 @@ const PILLAR_ICONS = {
   transitions: `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="12" height="12" stroke="#E8302A" stroke-width="1.5" fill="none"/><line x1="1" y1="7" x2="13" y2="7" stroke="#E8302A" stroke-width="1"/><line x1="7" y1="1" x2="7" y2="13" stroke="#E8302A" stroke-width="1"/></svg>`,
 };
 
+const TRX_CHIPS = {
+  drums:           [{ label: '+ reverb',   prompt: 'add reverb'            },
+                   { label: '+ glitchy',   prompt: 'make it glitchy'       },
+                   { label: '+ darker',    prompt: 'make it darker'        },
+                   { label: '+ widen',     prompt: 'widen the stereo'      },
+                   { label: '+ crush',     prompt: 'add bit crush'         }],
+  bass_percussion: [{ label: '+ darker',   prompt: 'make it darker'        },
+                   { label: '+ reverb',    prompt: 'add reverb'            },
+                   { label: '+ stutter',   prompt: 'add stutter'           },
+                   { label: '+ distort',   prompt: 'add distortion'        },
+                   { label: '+ slow down', prompt: 'slow it down'          }],
+  melody:          [{ label: '+ reverb',   prompt: 'add reverb'            },
+                   { label: '+ echo',      prompt: 'add echo'              },
+                   { label: '+ filter',    prompt: 'darken the filter'     },
+                   { label: '+ widen',     prompt: 'widen the stereo'      },
+                   { label: '+ vowel',     prompt: 'add vowel filter'      }],
+  transitions:     [{ label: '+ reverb',   prompt: 'add reverb'            },
+                   { label: '+ faster',    prompt: 'speed it up'           },
+                   { label: '+ reverse',   prompt: 'reverse the pattern'   },
+                   { label: '+ filter',    prompt: 'add high pass filter'  },
+                   { label: '+ echo',      prompt: 'add echo'              }],
+};
+
 const statusEl = () => document.getElementById('status');
 
 export function setStatus(text) {
@@ -173,9 +196,25 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onViz
 
   chatEl.appendChild(vizCanvas);
 
+  const chipsEl = document.createElement('div');
+  chipsEl.className = 'pillar-chips';
+  chipsEl.style.display = 'none';
+
+  for (const chip of TRX_CHIPS[pillar.name] ?? []) {
+    const btn = document.createElement('button');
+    btn.className = 'chip-btn';
+    btn.textContent = chip.label;
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      onSend(chip.prompt).finally(() => { btn.disabled = false; });
+    });
+    chipsEl.appendChild(btn);
+  }
+
   card.appendChild(header);
   card.appendChild(codeEl);
   card.appendChild(chatEl);
+  card.appendChild(chipsEl);
   card.appendChild(inputRow);
 
   return card;

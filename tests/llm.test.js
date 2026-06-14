@@ -1,6 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { generateTransformationPlan, generateTransformPatch } from '../src/llm.js';
 
+// Wrap text the way Ollama's /api/chat response nests it.
+function ollamaResponse(text) {
+  return { ok: true, json: async () => ({ message: { content: text } }) };
+}
+
+// Pull the system prompt out of a captured Ollama request body.
+function systemTextOf(call) {
+  return JSON.parse(call[1].body).messages[0].content;
+}
+
 function mockPlan(overrides = {}) {
   return {
     selectedId: 'basic_kick',
@@ -11,10 +21,7 @@ function mockPlan(overrides = {}) {
 }
 
 function mockFetch(plan) {
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: true,
-    json: async () => ({ message: { content: JSON.stringify(plan) } }),
-  });
+  global.fetch = vi.fn().mockResolvedValue(ollamaResponse(JSON.stringify(plan)));
 }
 
 describe('generateTransformationPlan', () => {
@@ -38,25 +45,23 @@ describe('generateTransformationPlan', () => {
   it('includes track role in system prompt', async () => {
     mockFetch(mockPlan());
     await generateTransformationPlan('drums', 'make a kick', {});
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(body.messages[0].content).toContain('rhythmic foundation');
+    expect(systemTextOf(global.fetch.mock.calls[0])).toContain('rhythmic foundation');
   });
 
   it('includes pillar catalog in system prompt', async () => {
     mockFetch(mockPlan({ selectedId: 'bass_rolling_hypnotic' }));
     await generateTransformationPlan('bass', 'deep bass', {});
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(body.messages[0].content).toContain('bass_rolling_hypnotic');
+    expect(systemTextOf(global.fetch.mock.calls[0])).toContain('bass_rolling_hypnotic');
   });
 
   it('includes other channels in system prompt as cohesion context', async () => {
     mockFetch(mockPlan());
     const currentTracksState = { drums: 'basic_kick', bass: 'rumble_acid', transitions: null };
     await generateTransformationPlan('melody', 'add synth', currentTracksState);
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(body.messages[0].content).toContain('basic_kick');
-    expect(body.messages[0].content).toContain('rumble_acid');
-    expect(body.messages[0].content).not.toContain('melody:');
+    const systemText = systemTextOf(global.fetch.mock.calls[0]);
+    expect(systemText).toContain('basic_kick');
+    expect(systemText).toContain('rumble_acid');
+    expect(systemText).not.toContain('melody:');
   });
 
   it('returns null when fetch fails', async () => {
@@ -103,29 +108,20 @@ describe('generateTransformationPlan', () => {
 
   it('strips markdown fences from LLM output', async () => {
     const wrapped = '```json\n' + JSON.stringify(mockPlan()) + '\n```';
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: wrapped } }),
-    });
+    global.fetch = vi.fn().mockResolvedValue(ollamaResponse(wrapped));
     const result = await generateTransformationPlan('drums', 'kick', {});
     expect(result).not.toBeNull();
     expect(result.selectedId).toBe('basic_kick');
   });
 
   it('never throws — returns null on JSON parse error', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: 'not json at all' } }),
-    });
+    global.fetch = vi.fn().mockResolvedValue(ollamaResponse('not json at all'));
     await expect(generateTransformationPlan('drums', 'kick', {})).resolves.toBeNull();
   });
 });
 
 function mockPatchFetch(patch) {
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: true,
-    json: async () => ({ message: { content: JSON.stringify(patch) } }),
-  });
+  global.fetch = vi.fn().mockResolvedValue(ollamaResponse(JSON.stringify(patch)));
 }
 
 describe('generateTransformPatch', () => {
@@ -157,10 +153,7 @@ describe('generateTransformPatch', () => {
   });
 
   it('returns null on invalid JSON', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: 'not json at all' } }),
-    });
+    global.fetch = vi.fn().mockResolvedValue(ollamaResponse('not json at all'));
     const patch = await generateTransformPatch(
       'drums', 'test', { selectedId: 'kick_berghain_rumble', transforms: {} }
     );
@@ -168,10 +161,7 @@ describe('generateTransformPatch', () => {
   });
 
   it('strips markdown fences before parsing', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: '```json\n{"reverb": 0.5}\n```' } }),
-    });
+    global.fetch = vi.fn().mockResolvedValue(ollamaResponse('```json\n{"reverb": 0.5}\n```'));
     const patch = await generateTransformPatch(
       'drums', 'test', { selectedId: 'kick_berghain_rumble', transforms: {} }
     );
@@ -184,8 +174,7 @@ describe('generateTransformPatch', () => {
       'drums', 'test',
       { selectedId: 'kick_berghain_rumble', transforms: { crush: 4 } }
     );
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(body.messages[0].content).toContain('"crush": 4');
+    expect(systemTextOf(global.fetch.mock.calls[0])).toContain('"crush": 4');
   });
 
   it('null patch value passes through (removal intent preserved for mergeLlmTransformPatch)', async () => {
@@ -202,10 +191,7 @@ describe('autoFixCode', () => {
   beforeEach(() => vi.restoreAllMocks());
 
   it('returns fixed code string on success', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ message: { content: 's("bd*4")' } }),
-    });
+    global.fetch = vi.fn().mockResolvedValue(ollamaResponse('s("bd*4")'));
     const { autoFixCode } = await import('../src/llm.js');
     const result = await autoFixCode('broken code', 'SyntaxError');
     expect(typeof result).toBe('string');

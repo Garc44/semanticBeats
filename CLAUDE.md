@@ -16,10 +16,13 @@ Run a single test file:
 npx vitest run tests/llm.test.js
 ```
 
-Ollama must be running for LLM features to work:
+LLM features use local Ollama (free, unlimited, offline). Pull a 7-8B instruct model and
+run the server:
 ```bash
+ollama pull qwen2.5:7b
 OLLAMA_ORIGINS="*" ollama serve
 ```
+Override the model/endpoint via `VITE_OLLAMA_MODEL` / `VITE_OLLAMA_URL` (see `.env.example`).
 
 ## Architecture
 
@@ -35,7 +38,7 @@ On apply: `play()` → if throws → `autoFixCode()` one retry → revert on sec
 
 ---
 
-**`src/llm.js`** — Ollama interaction. Two exports:
+**`src/llm.js`** — Ollama interaction (via `callOllama` helper using `format` JSON-Schema structured output). Exports:
 - `generateTransformationPlan(pillarName, userPrompt, currentTracksState)` — Single LLM call. Returns a plan object or `null` on any failure (never throws). Builds cohesion context from `currentTracksState` (other channels' active pattern IDs). Uses `TRACK_ROLES` to inject track role description into system prompt.
 - `autoFixCode(brokenCode, errorMsg)` — Fired only when `play()` throws. Throws on HTTP error.
 
@@ -75,7 +78,8 @@ Compile chain:
 - `generateTransformationPlan` returns `null` on all failures — caller must handle null (shows error, returns early)
 - `autoFixCode` throws on HTTP error — caller catches and reverts
 - Both strip markdown fences from LLM output
-- Model hardcoded to `llama3:latest`; endpoint hardcoded to `http://localhost:11434/api/chat`
+- Model defaults to `qwen2.5:7b` (override via `VITE_OLLAMA_MODEL`); endpoint is Ollama `/api/chat`. Calls use `options.temperature: 0` + `seed: 42` for determinism and `format` (full JSON Schema: enums, ranges, `additionalProperties:false`) for constrained output. `callOllama` throws on HTTP error (plan/patch degrade to `null`, autoFix propagates). Both system prompts use producer-role framing + few-shot examples
+- `generateTransformPatch` first tries `parseDirectCommand` (deterministic, offline) and only calls Gemini if no explicit command matched
 - LLM does NOT output code — only selectedId + structural mods (speed/slowdown)
 - `compileTrack` owns all code generation; knob layer is appended after LLM mods
 

@@ -4,6 +4,7 @@ import {
   PILLAR_TRANSFORMS,
   getTransformsForPillar,
   mergeLlmTransformPatch,
+  parseDirectCommand,
 } from '../src/library/transformationsLibrary.js';
 
 describe('TRANSFORMS registry', () => {
@@ -104,5 +105,75 @@ describe('mergeLlmTransformPatch', () => {
     mergeLlmTransformPatch(pillar, { reverb: 0.8 });
     expect(pillar.transforms.crush).toBe(4);
     expect(pillar.transforms.reverb).toBe(0.8);
+  });
+
+  // B: model pads patches with `0`; treat as removal so it never emits .x(0) or clobbers.
+  it('drops zero-padded keys instead of writing them (no .distort(0) junk)', () => {
+    const pillar = { name: 'drums', transforms: {} };
+    mergeLlmTransformPatch(pillar, { crush: 16, distort: 0, reverb: 0 });
+    expect(pillar.transforms.crush).toBe(16);
+    expect(pillar.transforms.distort).toBeUndefined();
+    expect(pillar.transforms.reverb).toBeUndefined();
+  });
+
+  it('zero value removes an already-active effect (turn it off)', () => {
+    const pillar = { name: 'drums', transforms: { reverb: 0.8 } };
+    mergeLlmTransformPatch(pillar, { reverb: 0 });
+    expect(pillar.transforms.reverb).toBeUndefined();
+  });
+
+  it('keeps dj_filter at 0 — its zero is meaningful (full mud)', () => {
+    const pillar = { name: 'percussion', transforms: {} };
+    mergeLlmTransformPatch(pillar, { dj_filter: 0 });
+    expect(pillar.transforms.dj_filter).toBe(0);
+  });
+
+  it('explicit crush:16 survives the merge (not mistaken for padding)', () => {
+    const pillar = { name: 'drums', transforms: {} };
+    mergeLlmTransformPatch(pillar, { crush: 16 });
+    expect(pillar.transforms.crush).toBe(16);
+  });
+});
+
+describe('parseDirectCommand (A: deterministic explicit commands)', () => {
+  it('parses "set the crush to 16"', () => {
+    expect(parseDirectCommand('drums', 'set the crush to 16')).toEqual({ crush: 16 });
+  });
+
+  it('parses bare "crush 16"', () => {
+    expect(parseDirectCommand('drums', 'crush 16')).toEqual({ crush: 16 });
+  });
+
+  it('parses decimals "reverb to 0.8"', () => {
+    expect(parseDirectCommand('drums', 'reverb to 0.8')).toEqual({ reverb: 0.8 });
+  });
+
+  it('resolves layman aliases ("space" -> reverb)', () => {
+    expect(parseDirectCommand('drums', 'set space to 0.5')).toEqual({ reverb: 0.5 });
+  });
+
+  it('clamps to the transform range', () => {
+    expect(parseDirectCommand('drums', 'crush 999')).toEqual({ crush: 16 });
+    expect(parseDirectCommand('drums', 'set crush to 0')).toEqual({ crush: 1 });
+  });
+
+  it('parses removal "remove reverb" -> null', () => {
+    expect(parseDirectCommand('drums', 'remove the reverb')).toEqual({ reverb: null });
+  });
+
+  it('parses "turn off echo" on a pillar that allows it', () => {
+    expect(parseDirectCommand('bass', 'turn off echo')).toEqual({ echo: null });
+  });
+
+  it('returns null for effect not allowed on the pillar', () => {
+    expect(parseDirectCommand('drums', 'set vowel to 2')).toBeNull();
+  });
+
+  it('returns null for vibe prompts with no explicit command (defer to LLM)', () => {
+    expect(parseDirectCommand('melody', 'make it sound spooky and far away')).toBeNull();
+  });
+
+  it('does not false-trigger on numbers without an effect name', () => {
+    expect(parseDirectCommand('drums', 'give me 4 on the floor')).toBeNull();
   });
 });

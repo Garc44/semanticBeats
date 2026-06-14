@@ -87,6 +87,18 @@ renderGlobalControls(globalState, (key, value) => {
   debouncedRebuild();
 });
 
+// ── Intent Detection ──────────────────────────────────────
+
+const TRX_INTENT_RE = /\b(shape|reverb|filter|crush|distort|echo|delay|lopass|hipass|compress|bit.?crush|saturat|darker|brighter|warmer|wetter|drier|crisper|muddier|thinner|fatter|heavier|lighter|add|apply|remove|take off|turn (up|down)|boost|cut|more|less|no more|without|kill the|strip)\b/i;
+
+function detectMode(prompt, pillarName, pillar) {
+  // If no pattern selected yet, always generate
+  if (!pillar.selectedId) return 'generation';
+  // Effect/transform intent → TRX regardless of mode toggle
+  if (TRX_INTENT_RE.test(prompt)) return 'transformation';
+  return pillarModes[pillarName];
+}
+
 // ── Per-Pillar Send ───────────────────────────────────────
 
 async function handlePillarSend(pillarName, prompt) {
@@ -94,7 +106,7 @@ async function handlePillarSend(pillarName, prompt) {
   addPillarMessage(pillarName, 'user', prompt);
   setStatus('Thinking...');
 
-  const mode = pillarModes[pillarName];
+  const mode = detectMode(prompt, pillarName, pillar);
 
   if (mode === 'transformation') {
     const patch = await generateTransformPatch(pillarName, prompt, pillar);

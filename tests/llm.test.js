@@ -3,7 +3,7 @@ import { generateTransformationPlan, generateTransformPatch } from '../src/llm.j
 
 function mockPlan(overrides = {}) {
   return {
-    selectedId: 'kick_sine_44',
+    selectedId: 'basic_kick',
     explanation: 'Solid 4/4 kick for the foundation.',
     modifications: { speed: 1.0, slowdown: 1 },
     ...overrides,
@@ -24,7 +24,7 @@ describe('generateTransformationPlan', () => {
     mockFetch(mockPlan());
     const result = await generateTransformationPlan('drums', 'make a kick', {});
     expect(result).not.toBeNull();
-    expect(result.selectedId).toBe('kick_sine_44');
+    expect(result.selectedId).toBe('basic_kick');
     expect(typeof result.explanation).toBe('string');
   });
 
@@ -43,18 +43,18 @@ describe('generateTransformationPlan', () => {
   });
 
   it('includes pillar catalog in system prompt', async () => {
-    mockFetch(mockPlan({ selectedId: 'rumble_hypnotic' }));
+    mockFetch(mockPlan({ selectedId: 'bass_rolling_hypnotic' }));
     await generateTransformationPlan('bass', 'deep bass', {});
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(body.messages[0].content).toContain('rumble_hypnotic');
+    expect(body.messages[0].content).toContain('bass_rolling_hypnotic');
   });
 
   it('includes other channels in system prompt as cohesion context', async () => {
     mockFetch(mockPlan());
-    const currentTracksState = { drums: 'kick_sine_44', bass: 'rumble_acid', transitions: null };
+    const currentTracksState = { drums: 'basic_kick', bass: 'rumble_acid', transitions: null };
     await generateTransformationPlan('melody', 'add synth', currentTracksState);
     const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(body.messages[0].content).toContain('kick_sine_44');
+    expect(body.messages[0].content).toContain('basic_kick');
     expect(body.messages[0].content).toContain('rumble_acid');
     expect(body.messages[0].content).not.toContain('melody:');
   });
@@ -109,7 +109,7 @@ describe('generateTransformationPlan', () => {
     });
     const result = await generateTransformationPlan('drums', 'kick', {});
     expect(result).not.toBeNull();
-    expect(result.selectedId).toBe('kick_sine_44');
+    expect(result.selectedId).toBe('basic_kick');
   });
 
   it('never throws — returns null on JSON parse error', async () => {

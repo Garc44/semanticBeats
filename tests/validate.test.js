@@ -47,7 +47,7 @@ describe('validateCode', () => {
 
 describe('validatePlan', () => {
   const validPlan = {
-    selectedId: 'kick_sine_44',
+    selectedId: 'basic_kick',
     explanation: 'Solid kick.',
     modifications: { gain: 1.0 },
   };
@@ -59,7 +59,7 @@ describe('validatePlan', () => {
   });
 
   it('passes plan with no modifications', () => {
-    expect(validatePlan({ selectedId: 'kick_sine_44', explanation: 'x' }, 'drums').valid).toBe(true);
+    expect(validatePlan({ selectedId: 'basic_kick', explanation: 'x' }, 'drums').valid).toBe(true);
   });
 
   it('fails when plan is null', () => {
@@ -79,30 +79,30 @@ describe('validatePlan', () => {
   });
 
   it('fails when gain is above 1.2', () => {
-    const r = validatePlan({ selectedId: 'kick_sine_44', modifications: { gain: 2.0 } }, 'drums');
+    const r = validatePlan({ selectedId: 'basic_kick', modifications: { gain: 2.0 } }, 'drums');
     expect(r.valid).toBe(false);
     expect(r.errors[0]).toMatch(/gain/);
   });
 
   it('fails when speed is zero', () => {
-    const r = validatePlan({ selectedId: 'kick_sine_44', modifications: { speed: 0 } }, 'drums');
+    const r = validatePlan({ selectedId: 'basic_kick', modifications: { speed: 0 } }, 'drums');
     expect(r.valid).toBe(false);
     expect(r.errors[0]).toMatch(/speed/);
   });
 
   it('fails when slowdown is not integer', () => {
-    const r = validatePlan({ selectedId: 'kick_sine_44', modifications: { slowdown: 2.5 } }, 'drums');
+    const r = validatePlan({ selectedId: 'basic_kick', modifications: { slowdown: 2.5 } }, 'drums');
     expect(r.valid).toBe(false);
     expect(r.errors[0]).toMatch(/slowdown/);
   });
 
   it('validates bass IDs against bass catalog', () => {
-    const r = validatePlan({ selectedId: 'rumble_acid' }, 'bass');
+    const r = validatePlan({ selectedId: 'basic_bass' }, 'bass');
     expect(r.valid).toBe(true);
   });
 
   it('fails bass ID against wrong pillar catalog', () => {
-    const r = validatePlan({ selectedId: 'rumble_acid' }, 'drums');
+    const r = validatePlan({ selectedId: 'basic_bass' }, 'drums');
     expect(r.valid).toBe(false);
   });
 });

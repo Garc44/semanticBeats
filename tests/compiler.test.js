@@ -18,12 +18,10 @@ describe('compileTrack — drums', () => {
     expect(result).toMatch(/^\(/);
   });
 
-  it('appends gain, distort, decay from knobs', () => {
-    const pillar = makePillar('drums', { gain: 0.8, drive: 0.5, decay: 0.2 });
+  it('appends gain from knobs', () => {
+    const pillar = makePillar('drums', { gain: 0.8 });
     const result = compileTrack({ selectedId: 'kick_berghain_rumble', modifications: {} }, 'drums', pillar);
     expect(result).toContain('.gain(0.8)');
-    expect(result).toContain('.distort(0.2)');
-    expect(result).toContain('.decay(0.2)');
   });
 
   it('muted track compiles to gain(0)', () => {
@@ -60,18 +58,10 @@ describe('compileTrack — drums', () => {
 });
 
 describe('compileTrack — bass_percussion', () => {
-  it('appends gain, lpf, degradeBy from knobs', () => {
-    const pillar = makePillar('bass_percussion', { gain: 0.7, cutoff: 0.5, stutter: 0.5 });
+  it('appends gain from knobs', () => {
+    const pillar = makePillar('bass_percussion', { gain: 0.7 });
     const result = compileTrack({ selectedId: 'bass_acid_squelch', modifications: {} }, 'bass_percussion', pillar);
     expect(result).toContain('.gain(0.7)');
-    expect(result).toContain('.lpf(600)');
-    expect(result).toContain('.degradeBy(0.2)');
-  });
-
-  it('clamps lpf to minimum 80Hz when cutoff is 0', () => {
-    const pillar = makePillar('bass_percussion', { cutoff: 0.0 });
-    const result = compileTrack({ selectedId: 'bass_acid_squelch', modifications: {} }, 'bass_percussion', pillar);
-    expect(result).toContain('.lpf(80)');
   });
 
   it('muted bass_percussion compiles to gain(0)', () => {
@@ -83,31 +73,18 @@ describe('compileTrack — bass_percussion', () => {
 });
 
 describe('compileTrack — melody', () => {
-  it('appends gain, lpf, lpq, room, delay from knobs', () => {
-    const pillar = makePillar('melody', { gain: 0.5, cutoff: 0.5, resonance: 0.4, space: 0.4 });
+  it('appends gain from knobs', () => {
+    const pillar = makePillar('melody', { gain: 0.5 });
     const result = compileTrack({ selectedId: 'melody_ostgut_synth', modifications: {} }, 'melody', pillar);
     expect(result).toContain('.gain(0.5)');
-    expect(result).toContain('.lpf(2000)');
-    expect(result).toContain('.lpq(6)');
-    expect(result).toContain('.room(0.34)');
-    expect(result).toContain('.delay(0.2)');
-  });
-
-  it('clamps lpf to minimum 150Hz when cutoff is 0', () => {
-    const pillar = makePillar('melody', { cutoff: 0.0 });
-    const result = compileTrack({ selectedId: 'melody_ostgut_synth', modifications: {} }, 'melody', pillar);
-    expect(result).toContain('.lpf(150)');
   });
 });
 
 describe('compileTrack — transitions', () => {
-  it('appends gain, hpf, room, size from knobs', () => {
-    const pillar = makePillar('transitions', { gain: 0.4, hpf: 0.5, size: 0.7 });
+  it('appends gain from knobs', () => {
+    const pillar = makePillar('transitions', { gain: 0.4 });
     const result = compileTrack({ selectedId: 'arp_strobe_bleep', modifications: {} }, 'transitions', pillar);
     expect(result).toContain('.gain(0.4)');
-    expect(result).toContain('.hpf(1250)');
-    expect(result).toContain('.room(0.7)');
-    expect(result).toContain('.size(0.7)');
   });
 });
 
@@ -191,5 +168,20 @@ describe('compileTrack — transforms layer', () => {
     const roomIdx = code.indexOf('.room(0.6)');
     expect(gainIdx).toBeGreaterThan(-1);
     expect(gainIdx).toBeLessThan(roomIdx);
+  });
+
+  it('pattern initialTransforms applied when pillar transforms empty', () => {
+    const pillar = makePillar('drums', {}, false, {});
+    const code = compileTrack(drumPlan, 'drums', pillar);
+    // kick_berghain_rumble has initialTransforms: { shape: 0.4, reverb: 0.5, ... }
+    expect(code).toContain('.shape(0.4)');
+    expect(code).toContain('.room(0.5)');
+  });
+
+  it('pillar transforms override pattern initialTransforms', () => {
+    const pillar = makePillar('drums', {}, false, { reverb: 0.9 });
+    const code = compileTrack(drumPlan, 'drums', pillar);
+    expect(code).toContain('.room(0.9)');
+    expect(code).not.toContain('.room(0.5)');
   });
 });

@@ -16,7 +16,7 @@ describe('soundLibrary', () => {
     }
   });
 
-  it('each pattern has id, name, tags, code', () => {
+  it('each pattern has id, name, tags, code, initialTransforms', () => {
     for (const pillar of PILLAR_NAMES) {
       for (const p of soundLibrary[pillar]) {
         expect(typeof p.id).toBe('string');
@@ -26,6 +26,8 @@ describe('soundLibrary', () => {
         expect(p.tags.length).toBeGreaterThan(0);
         expect(typeof p.code).toBe('string');
         expect(p.code.length).toBeGreaterThan(0);
+        expect(typeof p.initialTransforms).toBe('object');
+        expect(p.initialTransforms).not.toBeNull();
       }
     }
   });
@@ -60,9 +62,9 @@ describe('soundLibrary', () => {
     }
   });
 
-  it('bass pillar contains only rumble_* patterns', () => {
+  it('bass pillar contains only bass_* patterns', () => {
     for (const p of soundLibrary.bass) {
-      expect(p.id).toMatch(/^rumble_/);
+      expect(p.id).toMatch(/^(basic_bass|bass_)/);
     }
   });
 
@@ -75,17 +77,18 @@ describe('soundLibrary', () => {
 
 describe('getPatternById', () => {
   it('returns pattern for valid id', () => {
-    const p = getPatternById('drums', 'kick_sine_44');
+    const p = getPatternById('drums', 'basic_kick');
     expect(p).not.toBeNull();
-    expect(p.id).toBe('kick_sine_44');
+    expect(p.id).toBe('basic_kick');
   });
 
   it('returns pattern object with all required fields', () => {
-    const p = getPatternById('bass', 'rumble_acid');
+    const p = getPatternById('bass', 'basic_bass');
     expect(p).toHaveProperty('id');
     expect(p).toHaveProperty('name');
     expect(p).toHaveProperty('tags');
     expect(p).toHaveProperty('code');
+    expect(p).toHaveProperty('initialTransforms');
   });
 
   it('returns null for unknown id', () => {
@@ -93,6 +96,6 @@ describe('getPatternById', () => {
   });
 
   it('returns null for unknown pillar', () => {
-    expect(getPatternById('unknown_pillar', 'kick_sine_44')).toBeNull();
+    expect(getPatternById('unknown_pillar', 'basic_kick')).toBeNull();
   });
 });

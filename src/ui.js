@@ -278,6 +278,10 @@ export function updatePillarMode(name, mode) {
       ? 'add reverb, make it glitchy...'
       : 'describe changes...';
   }
+  const chips = card.querySelector('.pillar-chips');
+  if (chips) {
+    chips.style.display = mode === 'transformation' ? 'flex' : 'none';
+  }
 }
 
 export function addPillarMessage(name, type, text) {

@@ -209,16 +209,20 @@ header {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  min-width: 0; /* allow the title to shrink so controls never clip */
 }
 
 .pillar-name {
   font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 1.6rem;
-  letter-spacing: 0.12em;
+  font-size: 1.45rem;
+  letter-spacing: 0.08em;
   color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.pillar-controls { display: flex; gap: 0.35rem; }
+.pillar-controls { display: flex; gap: 0.35rem; flex-shrink: 0; }
 
 .btn-mute,
 .btn-solo {
@@ -336,6 +340,7 @@ header {
 /* ── Pillar Chat ── */
 .pillar-chat {
   flex: 1;
+  min-height: 0; /* allow the chat to shrink so the chip row + input stay in view */
   overflow-y: auto;
   padding: 0.6rem;
   display: flex;
@@ -346,12 +351,37 @@ header {
 
 /* ── Pillar Input ── */
 .pillar-chips {
-  display: none;
+  display: flex;
   flex-wrap: wrap;
   gap: 6px;
   padding: 6px 10px;
   border-top: 1px solid #1a1a1a;
+  flex-shrink: 0; /* keep its size; the chat above yields space instead */
 }
+
+/* Each mode's chips live in their own wrapping flex box; mode toggling swaps
+   which group is shown (flex) vs hidden (none). The GEN list can be long, so
+   it scrolls within a fixed height — cohesion-first order keeps the best-
+   fitting sounds at the top, visible without scrolling. */
+.chips-gen {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: flex-start;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.chips-trx {
+  display: none;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chips-gen::-webkit-scrollbar { width: 6px; }
+.chips-gen::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+.chips-gen::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
 
 .chip-btn {
   background: #1a1a1a;
@@ -368,6 +398,19 @@ header {
 .chip-btn:hover {
   border-color: #E8302A;
   color: #E8302A;
+}
+
+.chip--fits {
+  border-color: var(--accent-dim);
+  color: #bbb;
+}
+
+.chip--fits::before {
+  content: '●';
+  color: var(--accent);
+  font-size: 8px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .chip-btn:disabled {

@@ -93,7 +93,12 @@ export async function generateTransformationPlan(pillarName, userPrompt, current
 
     const otherTracks = Object.entries(currentTracksState)
       .filter(([name]) => name !== pillarName)
-      .map(([name, id]) => `- ${name}: ${id || '(empty)'}`)
+      .map(([name, id]) => {
+        if (!id) return `- ${name}: (empty)`;
+        const pat = getPatternById(name, id);
+        if (!pat) return `- ${name}: ${id}`;
+        return `- ${name}: ${pat.name} [${pat.tags.join(', ')}]`;
+      })
       .join('\n');
 
     const systemPrompt = `You are a techno producer choosing the ${TRACK_ROLES[pillarName] ?? pillarName} pattern for a live set.

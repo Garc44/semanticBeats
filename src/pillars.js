@@ -50,5 +50,7 @@ export function rebuildStack(pillars, globalState) {
 
   const filterHz = Math.round(masterFilter * 18000 + 200);
   const cps = Math.round((tempo / (60 * beatsPerCycle)) * 1000) / 1000;
-  return `${inner}.cps(${cps}).gain(${masterVolume}).lpf(${filterHz}).shape(${intensity}).room(${Math.round(intensity * 0.4 * 100) / 100})`;
+  // Master uses .postgain (a separate downstream gain node) so it multiplies with each
+  // pillar's inner .gain() instead of overriding it — Strudel's .gain() is last-wins.
+  return `${inner}.cps(${cps}).postgain(${masterVolume}).lpf(${filterHz}).shape(${intensity}).room(${Math.round(intensity * 0.4 * 100) / 100})`;
 }

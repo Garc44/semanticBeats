@@ -79,7 +79,7 @@ export function renderGlobalControls(globalState, onChange) {
   container.appendChild(bpcGroup);
 }
 
-export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onVizToggle, onModeToggle, onEmotion }) {
+export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onVizToggle, onModeToggle, onEmotion, onVolume }) {
   const card = document.createElement('div');
   card.className = 'pillar-card';
   if (!pillar.code || !pillar.code.trim()) card.classList.add('pillar--empty');
@@ -138,6 +138,33 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onViz
   codeEl.textContent = pillar.code;
   codeEl.addEventListener('blur', () => onCodeEdit(codeEl.textContent.trim()));
 
+  const volRow = document.createElement('div');
+  volRow.className = 'pillar-vol-row';
+
+  const volLabel = document.createElement('label');
+  volLabel.className = 'pillar-vol-label';
+  const volValue = document.createElement('span');
+  volValue.className = 'slider-value';
+  volValue.textContent = pillar.knobs.gain.toFixed(2);
+  volLabel.textContent = 'VOL ';
+  volLabel.appendChild(volValue);
+
+  const volInput = document.createElement('input');
+  volInput.type = 'range';
+  volInput.className = 'pillar-vol-slider';
+  volInput.min = 0;
+  volInput.max = 1;
+  volInput.step = 0.05;
+  volInput.value = pillar.knobs.gain;
+  volInput.addEventListener('input', () => {
+    const val = parseFloat(volInput.value);
+    volValue.textContent = val.toFixed(2);
+    onVolume(val);
+  });
+
+  volRow.appendChild(volLabel);
+  volRow.appendChild(volInput);
+
   const chatEl = document.createElement('div');
   chatEl.className = 'pillar-chat';
 
@@ -195,6 +222,7 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onViz
 
   card.appendChild(header);
   card.appendChild(codeEl);
+  card.appendChild(volRow);
   card.appendChild(chatEl);
   card.appendChild(chipsEl);
   card.appendChild(inputRow);

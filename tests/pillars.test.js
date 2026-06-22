@@ -145,9 +145,20 @@ describe('rebuildStack', () => {
     pillars[0].code = 's("bd")';
     const result = rebuildStack(pillars, makeGlobal({ tempo: 120, beatsPerCycle: 4, masterVolume: 0.6, masterFilter: 0.5, intensity: 0.3 }));
     expect(result).toContain('.cps(0.5)');
-    expect(result).toContain('.gain(0.6)');
+    expect(result).toContain('.postgain(0.6)');
     expect(result).toContain('.lpf(');
     expect(result).toContain('.shape(0.3)');
+  });
+
+  it('master volume is postgain so per-pillar gain is not overridden', () => {
+    const pillars = makePillars();
+    pillars[0].code = 's("bd").gain(0.4)';
+    pillars[1].code = 's("hh*8").gain(0.7)';
+    const result = rebuildStack(pillars, makeGlobal({ masterVolume: 0.8 }));
+    // per-pillar gains must survive (Strudel .gain() overrides, so master can't use .gain())
+    expect(result).toContain('.gain(0.4)');
+    expect(result).toContain('.gain(0.7)');
+    expect(result).toContain('.postgain(0.8)');
   });
 
   it('masterFilter 1.0 maps to ~18200 Hz lpf', () => {

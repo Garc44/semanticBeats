@@ -302,6 +302,37 @@ header {
 .pillar--muted .pillar-code { text-decoration: line-through; opacity: 0.4; }
 .pillar-code:focus { background: #050505; color: #fff; }
 
+/* ── Pillar Volume Fader ── */
+.pillar-vol-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.pillar-vol-label {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.pillar-vol-label .slider-value {
+  color: var(--text);
+  font-family: 'Courier New', 'Fira Code', monospace;
+}
+
+.pillar-vol-slider {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
 /* ── Pillar Chat ── */
 .pillar-chat {
   flex: 1;

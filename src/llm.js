@@ -27,7 +27,8 @@ async function callOllama(systemPrompt, userPrompt, { schema = null } = {}) {
       { role: 'user', content: userPrompt },
     ],
     stream: false,
-    options: { temperature: 0, seed: 42 }, // deterministic: same prompt → same output
+    keep_alive: '30m',                                   // pin model in RAM — no cold reload between prompts
+    options: { temperature: 0, seed: 42, num_predict: 200 }, // deterministic + cap output (JSON is small)
   };
   if (schema) body.format = schema;
 
@@ -73,6 +74,16 @@ function buildPatchSchema(available) {
     else if (t.type === 'boolean') properties[t.id] = { type: ['boolean', 'null'] };
   }
   return { type: 'object', properties, additionalProperties: false };
+}
+
+// Fire-and-forget on app boot: loads model into RAM so the first real prompt is warm.
+// keep_alive holds it; empty messages just triggers the load.
+export function warmUpModel() {
+  fetch(OLLAMA_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: OLLAMA_MODEL, messages: [], keep_alive: '30m' }),
+  }).catch(() => {}); // best-effort — ignore failures (Ollama not running yet, etc.)
 }
 
 export async function generateTransformationPlan(pillarName, userPrompt, currentTracksState = {}) {

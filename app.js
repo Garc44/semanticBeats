@@ -1,6 +1,7 @@
 import { init, play, stop, stopViz } from './src/strudel.js';
 import { generateTransformationPlan } from './src/llm.js';
 import { generateTransformPatch } from './src/llm.js';
+import { warmUpModel } from './src/llm.js';
 import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
 import { compileTrack } from './src/compiler.js';
 import { mergeLlmTransformPatch, applyEmotionRecipe } from './src/library/transformationsLibrary.js';
@@ -265,6 +266,20 @@ async function handleEmotion(pillarName, recipeId) {
   setStatus('Preview ready');
 }
 
+// ── Per-Pillar Volume ─────────────────────────────────────
+// Live mixer fader: writes the gain knob and recompiles the pillar code so the
+// baked .gain(...) updates, then rebuilds the running stack (debounced).
+function handleVolume(pillarName, val) {
+  const pillar = pillars.find(p => p.name === pillarName);
+  pillar.knobs.gain = val;
+  if (!pillar.code.trim()) return;
+  const newCode = compileTrack({ selectedId: pillar.selectedId, modifications: pillar.lastMods }, pillarName, pillar);
+  if (!newCode) return;
+  pillar.code = newCode;
+  updatePillarCode(pillarName, newCode);
+  debouncedRebuild();
+}
+
 // ── Viz Toggle ────────────────────────────────────────────
 
 function handleVizToggle(pillarName) {
@@ -315,6 +330,7 @@ for (const pillar of pillars) {
       rebuildAndPlay();
     },
     onEmotion: (recipeId) => handleEmotion(pillar.name, recipeId),
+    onVolume: (val) => handleVolume(pillar.name, val),
   });
   pillarsRow.appendChild(card);
   const canvas = document.getElementById(`viz-canvas-${pillar.name}`);
@@ -342,6 +358,7 @@ maybeStartOnboarding();
   setStatus('Loading...');
   try {
     await init();
+    warmUpModel(); // preload LLM into RAM so first generative prompt is warm
     setStatus('Ready');
   } catch (e) {
     setStatus('Engine failed');

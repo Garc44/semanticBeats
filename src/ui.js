@@ -82,6 +82,7 @@ export function renderGlobalControls(globalState, onChange) {
 export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onVizToggle, onModeToggle, onEmotion }) {
   const card = document.createElement('div');
   card.className = 'pillar-card';
+  if (!pillar.code || !pillar.code.trim()) card.classList.add('pillar--empty');
   card.dataset.pillar = pillar.name;
 
   const header = document.createElement('div');
@@ -206,6 +207,7 @@ export function updatePillarCode(name, code) {
   if (!card) return;
   const codeEl = card.querySelector('.pillar-code');
   codeEl.textContent = code;
+  card.classList.toggle('pillar--empty', !code || !code.trim());
 }
 
 export function setPillarMuted(name, muted) {

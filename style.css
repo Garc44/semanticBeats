@@ -353,10 +353,29 @@ header {
   border-top: 1px solid #1a1a1a;
 }
 
-/* Groups use display:contents so chips flow as direct flex items of the row,
-   wrapping naturally; mode toggling swaps which group is contents vs none. */
-.chips-gen { display: contents; }
-.chips-trx { display: none; }
+/* Each mode's chips live in their own wrapping flex box; mode toggling swaps
+   which group is shown (flex) vs hidden (none). The GEN list can be long, so
+   it scrolls within a fixed height — cohesion-first order keeps the best-
+   fitting sounds at the top, visible without scrolling. */
+.chips-gen {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: flex-start;
+  max-height: 150px;
+  overflow-y: auto;
+}
+.chips-trx {
+  display: none;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chips-gen::-webkit-scrollbar { width: 6px; }
+.chips-gen::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+.chips-gen::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
 
 .chip-btn {
   background: #1a1a1a;

@@ -33,11 +33,10 @@ function tracksSnapshot() {
   return Object.fromEntries(pillars.map(p => [p.name, p.selectedId ?? null]));
 }
 
-// Cap GEN chips so the browse menu stays scannable; ranking is cohesion-first,
-// so the top slice surfaces the sounds that fit the current mix.
-const GEN_CHIP_COUNT = 5;
+// Ranking is cohesion-first, so the best-fitting sounds sit at the top of the
+// (scrollable) browse list. Returns the full ranked catalog.
 function genChipsFor(name) {
-  return rankSoundsByCohesion(name, tracksSnapshot()).slice(0, GEN_CHIP_COUNT);
+  return rankSoundsByCohesion(name, tracksSnapshot());
 }
 
 // Recompute every pillar's GEN chips so cohesion marks/order reflect the

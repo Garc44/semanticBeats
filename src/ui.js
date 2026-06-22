@@ -304,8 +304,8 @@ export function updatePillarMode(name, mode) {
   if (chips) {
     const gen = chips.querySelector('.chips-gen');
     const trx = chips.querySelector('.chips-trx');
-    if (gen) gen.style.display = mode === 'transformation' ? 'none' : 'contents';
-    if (trx) trx.style.display = mode === 'transformation' ? 'contents' : 'none';
+    if (gen) gen.style.display = mode === 'transformation' ? 'none' : 'flex';
+    if (trx) trx.style.display = mode === 'transformation' ? 'flex' : 'none';
   }
 }
 

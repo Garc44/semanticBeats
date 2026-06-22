@@ -204,9 +204,17 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onViz
 
   chatEl.appendChild(vizCanvas);
 
+  // Mode-aware chip row: GEN shows sound chips (populated by setGenChips from
+  // app.js so cohesion marks stay live), TRX shows emotion chips.
   const chipsEl = document.createElement('div');
   chipsEl.className = 'pillar-chips';
-  chipsEl.style.display = 'none';
+
+  const genChips = document.createElement('div');
+  genChips.className = 'chips-gen'; // visible by default (mode starts as generation)
+
+  const trxChips = document.createElement('div');
+  trxChips.className = 'chips-trx';
+  trxChips.style.display = 'none';
 
   for (const recipe of getEmotionsForPillar(pillar.name)) {
     const btn = document.createElement('button');
@@ -217,8 +225,11 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onViz
       btn.disabled = true;
       Promise.resolve(onEmotion(recipe.id)).finally(() => { btn.disabled = false; });
     });
-    chipsEl.appendChild(btn);
+    trxChips.appendChild(btn);
   }
+
+  chipsEl.appendChild(genChips);
+  chipsEl.appendChild(trxChips);
 
   card.appendChild(header);
   card.appendChild(codeEl);
@@ -291,7 +302,10 @@ export function updatePillarMode(name, mode) {
   }
   const chips = card.querySelector('.pillar-chips');
   if (chips) {
-    chips.style.display = mode === 'transformation' ? 'flex' : 'none';
+    const gen = chips.querySelector('.chips-gen');
+    const trx = chips.querySelector('.chips-trx');
+    if (gen) gen.style.display = mode === 'transformation' ? 'none' : 'contents';
+    if (trx) trx.style.display = mode === 'transformation' ? 'contents' : 'none';
   }
 }
 
@@ -357,4 +371,26 @@ export function addPillarPreviewMessage(name, code, onApply, onDismiss) {
   wrapper.appendChild(actions);
   chatEl.appendChild(wrapper);
   chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+// Populate a pillar's GEN sound chips from a cohesion-ranked list.
+// ranked: [{ pattern, fits }] from rankSoundsByCohesion. Clicking a chip seeds
+// the pillar's prompt with the pattern name (LLM still runs on send).
+export function setGenChips(pillarName, ranked) {
+  const card = document.querySelector(`.pillar-card[data-pillar="${pillarName}"]`);
+  if (!card) return;
+  const gen = card.querySelector('.chips-gen');
+  if (!gen) return;
+  gen.innerHTML = '';
+  for (const { pattern, fits } of ranked) {
+    const btn = document.createElement('button');
+    btn.className = 'chip-btn' + (fits ? ' chip--fits' : '');
+    btn.textContent = pattern.name;
+    btn.title = pattern.tags.join(', ');
+    btn.addEventListener('click', () => {
+      const input = card.querySelector('.pillar-prompt');
+      if (input) { input.value = pattern.name; input.focus(); }
+    });
+    gen.appendChild(btn);
+  }
 }

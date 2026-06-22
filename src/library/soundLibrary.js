@@ -193,7 +193,7 @@ export const soundLibrary = {
       initialTransforms: { lopass_q: 4, shape: 0.3 } },
 
     { id: "melody_shimmering_trance", name: "Shimmering Trance-Inducer", tags: ["melody", "synth", "trance", "shimmer", "hypnotic"],
-      code: `note("[e4 ~ b4 ~] [g4 ~ e4 ~] [b4 ~ c5 ~] [b4 ~ g4 ~]").scale("E:minor").s("supercomb").decay(0.25).lpf(sine.range(1000, 3000))`,
+      code: `note("[e4 ~ b4 ~] [g4 ~ e4 ~] [b4 ~ c5 ~] [b4 ~ g4 ~]").scale("E:minor").decay(0.25).lpf(sine.range(1000, 3000))`,
       initialTransforms: { echo: 0.4, reverb: 0.6 } },
 
     { id: "melody_acid_chirp", name: "Minimalist Acid Chirp", tags: ["melody", "synth", "acid", "minimal", "squelch"],

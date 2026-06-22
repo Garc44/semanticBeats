@@ -126,23 +126,26 @@ Examples (ids are illustrative — always pick a real id from the catalog above)
 }
 
 export async function generateTransformPatch(pillarName, userPrompt, pillar) {
-  // A: explicit command ("set crush to 16") → deterministic parse, skip the LLM entirely.
-  const direct = parseDirectCommand(pillarName, userPrompt);
-  if (direct) return direct;
+  const lookupName = pillarName === 'bass_percussion' ? 'bass' : pillarName;
+  const pattern = getPatternById(lookupName, pillar.selectedId);
+  // Live effective effect values: pattern defaults overlaid with the user's tweaks.
+  // Both the deterministic parser (relative tweaks) and the LLM need these to know
+  // where each effect currently sits — not just what the user has manually changed.
+  const effective = { ...(pattern?.initialTransforms ?? {}), ...(pillar.transforms ?? {}) };
+  const available = getTransformsForPillar(pillarName);
 
+  // LLM leads. It reads the live effect values and decides what to change. The
+  // deterministic parser is only an airbag (below) for when the local model whiffs.
+  let llmPatch = null;
   try {
-    const available = getTransformsForPillar(pillarName);
-    const lookupName = pillarName === 'bass_percussion' ? 'bass' : pillarName;
-    const pattern = getPatternById(lookupName, pillar.selectedId);
-
     const systemPrompt = `You are a techno producer tweaking live audio effects on the ${pillarName} channel.
 
 The user describes a feeling or change in plain, non-technical language. Translate it into the SMALLEST set of effect changes that delivers it — usually ONE, occasionally two. Producers are surgical: a single well-chosen effect beats a pile of them.
 
 Active pattern: ${pattern?.name ?? 'unknown'} — tags: ${(pattern?.tags ?? []).join(', ')}
 
-Currently active effects (already on — only touch these if the request implies changing/removing them):
-${JSON.stringify(pillar.transforms ?? {}, null, 2)}
+Currently active effects with their live values (already on — only touch these if the request implies changing/removing them):
+${JSON.stringify(effective, null, 2)}
 
 Available effects on THIS channel — use ONLY these ids, respect each [min, max]:
 ${JSON.stringify(available.map(t => ({
@@ -166,18 +169,28 @@ Examples (illustrative — map to ids that actually exist on THIS channel):
 "more aggressive"         -> {"distort": 0.6}
 "underwater / muffled"    -> {"lopass": 400}
 "add a little grit"       -> {"shape": 0.3}
+"make it talk / a vowel"  -> {"vowel": "a"}
+"a bit more reverb"       -> nudge UP from its live value (e.g. 0.5 -> 0.7)
 "take the reverb off"     -> {"reverb": null}
 "make it sound higher"    -> {}`;
 
     const cleaned = await callOllama(systemPrompt, userPrompt, { schema: buildPatchSchema(available) });
     const patch = JSON.parse(cleaned);
-
-    if (typeof patch !== 'object' || Array.isArray(patch) || patch === null) return null;
-
-    return patch;
+    if (patch && typeof patch === 'object' && !Array.isArray(patch)) llmPatch = patch;
   } catch {
-    return null;
+    llmPatch = null;
   }
+
+  // LLM produced a usable change → it wins.
+  if (llmPatch && Object.keys(llmPatch).length > 0) return llmPatch;
+
+  // Airbag: LLM errored or returned {}. Catch clear named/numeric/relative requests
+  // the model whiffed on ("add vowel", "reverb 0.9", "more reverb").
+  const direct = parseDirectCommand(pillarName, userPrompt, effective);
+  if (direct) return direct;
+
+  // Nothing maps (e.g. "make it higher") → null so the caller surfaces an error.
+  return null;
 }
 
 export async function autoFixCode(brokenCode, errorMsg) {

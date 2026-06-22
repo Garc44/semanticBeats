@@ -185,6 +185,35 @@ describe('generateTransformPatch', () => {
     );
     expect(patch).toEqual({ crush: null });
   });
+
+  // airbag: LLM leads, but if it returns {} on a clearly-named request, the
+  // deterministic parser catches it instead of producing a dead no-op.
+  it('falls back to the parser when the LLM returns an empty object', async () => {
+    mockPatchFetch({});
+    const patch = await generateTransformPatch(
+      'drums', 'add reverb',
+      { selectedId: 'kick_berghain_rumble', transforms: {} }
+    );
+    expect(patch).toEqual({ reverb: 0.4 });
+  });
+
+  it('falls back to the parser when the LLM call errors', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) });
+    const patch = await generateTransformPatch(
+      'drums', 'reverb 0.9',
+      { selectedId: 'kick_berghain_rumble', transforms: {} }
+    );
+    expect(patch).toEqual({ reverb: 0.9 });
+  });
+
+  it('returns null when both the LLM and the parser find nothing', async () => {
+    mockPatchFetch({});
+    const patch = await generateTransformPatch(
+      'drums', 'make it sound higher',
+      { selectedId: 'kick_berghain_rumble', transforms: {} }
+    );
+    expect(patch).toBeNull();
+  });
 });
 
 describe('autoFixCode', () => {

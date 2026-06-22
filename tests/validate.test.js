@@ -97,12 +97,12 @@ describe('validatePlan', () => {
   });
 
   it('validates bass IDs against bass catalog', () => {
-    const r = validatePlan({ selectedId: 'basic_bass' }, 'bass');
+    const r = validatePlan({ selectedId: 'bass_acid_squelch' }, 'bass');
     expect(r.valid).toBe(true);
   });
 
   it('fails bass ID against wrong pillar catalog', () => {
-    const r = validatePlan({ selectedId: 'basic_bass' }, 'drums');
+    const r = validatePlan({ selectedId: 'bass_acid_squelch' }, 'drums');
     expect(r.valid).toBe(false);
   });
 });

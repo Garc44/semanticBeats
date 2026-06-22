@@ -17,6 +17,7 @@ import {
   updatePillarViz,
   updatePillarMode,
 } from './src/ui.js';
+import { maybeStartOnboarding, startOnboarding } from './src/onboarding.js';
 
 const pillars = makePillars();
 const pillarModes = Object.fromEntries(
@@ -329,6 +330,11 @@ for (const pillar of pillars) {
     ro.observe(canvas.parentElement ?? canvas);
   }
 }
+
+// ── Onboarding ────────────────────────────────────────────
+const helpBtn = document.getElementById('help-btn');
+if (helpBtn) helpBtn.addEventListener('click', () => startOnboarding());
+maybeStartOnboarding();
 
 // ── Init ──────────────────────────────────────────────────
 

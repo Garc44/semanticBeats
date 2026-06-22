@@ -64,7 +64,7 @@ describe('soundLibrary', () => {
 
   it('bass pillar contains only bass_* patterns', () => {
     for (const p of soundLibrary.bass) {
-      expect(p.id).toMatch(/^(basic_bass|bass_)/);
+      expect(p.id).toMatch(/^bass_/);
     }
   });
 
@@ -83,7 +83,7 @@ describe('getPatternById', () => {
   });
 
   it('returns pattern object with all required fields', () => {
-    const p = getPatternById('bass', 'basic_bass');
+    const p = getPatternById('bass', 'bass_acid_squelch');
     expect(p).toHaveProperty('id');
     expect(p).toHaveProperty('name');
     expect(p).toHaveProperty('tags');

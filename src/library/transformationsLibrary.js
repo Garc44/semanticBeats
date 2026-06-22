@@ -33,7 +33,7 @@ export const TRANSFORMS = {
 };
 
 export const PILLAR_TRANSFORMS = {
-  drums:            ['shape', 'crush', 'distort', 'reverb', 'ply', 'lopass', 'hipass', 'reverse'],
+  drums:            ['shape', 'crush', 'distort', 'reverb', 'lopass', 'hipass', 'reverse'],
   bass:             ['lopass', 'lopass_q', 'reverb', 'room_size', 'echo', 'speed_up', 'slow_down', 'shape', 'distort', 'crush', 'press', 'reverse', 'palindrome', 'robot_glitch'],
   bass_percussion:  ['lopass', 'lopass_q', 'reverb', 'room_size', 'echo', 'speed_up', 'slow_down', 'shape', 'distort', 'crush', 'press', 'reverse', 'palindrome', 'robot_glitch'],
   percussion:       ['crush', 'distort', 'reverb', 'degrade', 'iter', 'ply', 'reverse', 'jux_rev', 'lopass', 'robot_glitch', 'dj_filter'],
@@ -68,6 +68,13 @@ export function mergeLlmTransformPatch(pillar, llmPatch) {
   }
 }
 
+// Apply a curated emotion recipe. Unlike mergeLlmTransformPatch (which merges a partial
+// patch), this REPLACES the pillar's transform state with the recipe — each emotion is a
+// clean, known sound. The recipe is copied so later mutations don't leak back into it.
+export function applyEmotionRecipe(pillar, recipe) {
+  pillar.transforms = { ...recipe.transforms };
+}
+
 // — A: deterministic direct-command parser —
 // Explicit commands ("set crush to 16", "remove reverb") bypass the LLM entirely:
 // no hallucination, no padding, no latency. Returns a patch object or null (= defer to LLM).
@@ -77,44 +84,103 @@ const NAME_ALIASES = {
   distort: 'distort', distortion: 'distort',
   shape: 'shape', drive: 'shape', saturation: 'shape',
   echo: 'echo', delay: 'echo',
-  lopass: 'lopass', lowpass: 'lopass', lpf: 'lopass',
-  hipass: 'hipass', highpass: 'hipass', hpf: 'hipass',
+  lopass: 'lopass', lowpass: 'lopass', 'low pass': 'lopass', lpf: 'lopass',
+  hipass: 'hipass', highpass: 'hipass', 'high pass': 'hipass', hpf: 'hipass',
   filter: 'dj_filter', djf: 'dj_filter',
   resonance: 'lopass_q', lpq: 'lopass_q',
   degrade: 'degrade',
-  vowel: 'vowel',
+  vowel: 'vowel', formant: 'vowel',
   phaser: 'psy_swirl', swirl: 'psy_swirl',
   glitch: 'robot_glitch', coarse: 'robot_glitch',
   size: 'room_size',
-  speed: 'speed_up',
+  speed: 'speed_up', faster: 'speed_up',
+  slow: 'slow_down', slower: 'slow_down',
   iter: 'iter', ply: 'ply',
+  widen: 'jux_rev', stereo: 'jux_rev',
   reverse: 'reverse',
   palindrome: 'palindrome',
   press: 'press',
 };
 
-export function parseDirectCommand(pillarName, prompt) {
+// "Add this effect" values for bare-name commands that name an effect but give no
+// number ("add vowel filter", "reverse it"). Keeps named adds deterministic + offline
+// instead of leaning on the local model to invent a value. Numeric defaults are musical
+// (note crush/dj_filter are inverted — lower = stronger).
+const ADD_DEFAULTS = {
+  lopass: 800, hipass: 2000, lopass_q: 8, degrade: 0.3, dj_filter: 0.3,
+  reverb: 0.4, room_size: 4, echo: 0.4,
+  robot_glitch: 8, crush: 6, shape: 0.3, distort: 0.4, vowel: 'a', psy_swirl: 1.5,
+  speed_up: 2, slow_down: 2, iter: 4, ply: 2,
+  reverse: true, palindrome: true, jux_rev: true, press: true,
+};
+
+function addValueFor(id) {
+  if (id in ADD_DEFAULTS) return ADD_DEFAULTS[id];
+  const t = TRANSFORMS[id];
+  if (!t) return undefined;
+  if (t.type === 'boolean') return true;
+  if (t.type === 'enum') return t.values[0];
+  return undefined; // numeric with no defined default → defer to LLM
+}
+
+// Effects where a HIGHER number means LESS audible effect (so "more X" must step DOWN).
+const INVERTED = new Set(['crush']);
+// Relative-direction keywords. Order matters: removal is checked before these.
+const UP_RE   = /\b(more|up|raise|increase|boost|stronger|harder|heavier|deeper|wetter|brighter|louder|extra)\b/;
+const DOWN_RE = /\b(less|down|lower|reduce|decrease|weaker|softer|gentler|subtle|subtler|drier|lighter|pull back|ease)\b/;
+
+const clamp  = (t, v) => Math.max(t.min, Math.min(t.max, v));
+const round3 = v => Math.round(v * 1000) / 1000;
+
+// Deterministic, offline command parser. `current` = the effect's live effective values
+// (pattern.initialTransforms merged with pillar.transforms) so relative tweaks ("more
+// reverb") step from where the effect actually IS. Returns a patch object or null (= defer to LLM).
+export function parseDirectCommand(pillarName, prompt, current = {}) {
   const allowed = PILLAR_TRANSFORMS[pillarName] ?? [];
   const text = String(prompt).toLowerCase().trim();
   const names = Object.keys(NAME_ALIASES).join('|');
 
-  // removal: "remove reverb", "turn off the reverb", "no reverb", "kill the echo"
-  const rm = text.match(new RegExp(`\\b(?:remove|turn off|kill|disable|clear|no)\\s+(?:the\\s+)?(${names})\\b`));
+  // removal: "remove reverb", "turn off the reverb", "no reverb", "kill the echo", "without delay"
+  const rm = text.match(new RegExp(`\\b(?:remove|turn off|kill|disable|clear|no|without|strip)\\s+(?:the\\s+)?(${names})\\b`));
   if (rm) {
     const id = NAME_ALIASES[rm[1]];
     if (allowed.includes(id)) return { [id]: null };
   }
 
-  // set numeric: "set crush to 16", "crush 16", "reverb to 0.8", "make the shape 0.5"
-  const m = text.match(new RegExp(`\\b(?:set|turn|put|make|change)?\\s*(?:the\\s+)?(${names})\\s*(?:to|=|at|:)?\\s*(-?\\d*\\.?\\d+)\\b`));
-  if (m) {
-    const id = NAME_ALIASES[m[1]];
-    if (!allowed.includes(id)) return null;
-    const t = TRANSFORMS[id];
-    if (t.type !== 'numeric') return null;
-    const val = Math.max(t.min, Math.min(t.max, parseFloat(m[2]))); // clamp to range
-    return { [id]: val };
+  // Anchor on the first effect the user names. No name → it's a vibe prompt; defer to LLM.
+  const nameMatch = text.match(new RegExp(`\\b(${names})\\b`));
+  if (!nameMatch) return null;
+  const id = NAME_ALIASES[nameMatch[1]];
+  if (!allowed.includes(id)) return null;
+  const t = TRANSFORMS[id];
+
+  // enum (e.g. vowel): explicit value letter wins, else the add-default.
+  if (t.type === 'enum') {
+    const v = text.match(new RegExp(`\\b(${t.values.join('|')})\\b`));
+    return { [id]: v ? v[1] : addValueFor(id) };
   }
 
-  return null;
+  // boolean (e.g. reverse): naming it turns it on.
+  if (t.type === 'boolean') return { [id]: true };
+
+  // numeric. Explicit number ANYWHERE after the name wins — tolerates filler like
+  // "turn the reverb up to 0.9" or "change the value of reverb to 0.9".
+  const after = text.slice(nameMatch.index + nameMatch[0].length);
+  const num = after.match(/-?\d*\.?\d+/);
+  if (num) return { [id]: clamp(t, parseFloat(num[0])) };
+
+  // relative tweak: step 20% of the range from the current value (inverted effects flip).
+  const step = (t.max - t.min) * 0.2;
+  const cur = typeof current[id] === 'number' ? current[id]
+            : typeof t.default === 'number' ? t.default
+            : (t.min + t.max) / 2;
+  if (UP_RE.test(text) || DOWN_RE.test(text)) {
+    let dir = UP_RE.test(text) ? 1 : -1;
+    if (INVERTED.has(id)) dir = -dir;
+    return { [id]: round3(clamp(t, cur + dir * step)) };
+  }
+
+  // bare name, no number, no direction: "add reverb" → musical default.
+  const val = addValueFor(id);
+  return val === undefined ? null : { [id]: val };
 }

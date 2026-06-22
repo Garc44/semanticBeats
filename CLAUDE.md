@@ -71,7 +71,9 @@ Compile chain:
 
 **`src/strudel.js`** — Thin wrapper around `@strudel/web`. Exports `init()`, `play(code)`, `stop()`. `play()` calls `evaluate(code, true)` which hot-patches the running audio without stopping transport.
 
-**`src/ui.js`** — DOM helpers only. `addPreviewMessage(code, onApply, onDismiss)` renders the Apply/Dismiss card; callbacks are wired in `app.js`.
+**`src/library/emotionsLibrary.js`** — Per-pillar emotion recipes for TRX chips (amateur-friendly: pick a feeling, not an effect). Exports `EMOTION_RECIPES` (pillar → `[{ id, label, description, transforms }]`) and `getEmotionsForPillar(name)`. Each recipe's effect ids are constrained to that pillar's `PILLAR_TRANSFORMS`; numeric values within each effect's `TRANSFORMS` min/max. A chip click applies the recipe via `applyEmotionRecipe` (replace semantics) and reuses the existing preview/apply/revert flow — fully deterministic, bypasses the LLM. `applyEmotionRecipe(pillar, recipe)` (in `transformationsLibrary.js`) REPLACES `pillar.transforms` with a copy of `recipe.transforms` (vs `mergeLlmTransformPatch` which merges).
+
+**`src/ui.js`** — DOM helpers only. `addPreviewMessage(code, onApply, onDismiss)` renders the Apply/Dismiss card; callbacks are wired in `app.js`. TRX-mode chip row is driven by `getEmotionsForPillar` (emotion chips), click → `onEmotion(recipe.id)`.
 
 ## LLM Contract
 
@@ -91,5 +93,7 @@ Five test files, 85 tests total:
 - `tests/llm.test.js` — generateTransformationPlan (14 cases) and autoFixCode (2 cases)
 - `tests/validate.test.js` — validateCode (8 cases) and validatePlan (10 cases)
 - `tests/pillars.test.js` — PILLAR_NAMES, makePillars, rebuildStack (14 cases)
+- `tests/emotions.test.js` — EMOTION_RECIPES integrity (effect ids valid, allowed per pillar, values in range) + getEmotionsForPillar (8 cases)
+- `tests/transformations.test.js` — includes applyEmotionRecipe replace semantics
 
 Strudel and UI are not tested. No integration tests.

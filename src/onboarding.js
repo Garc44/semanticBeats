@@ -110,6 +110,7 @@ function renderTour() {
 
   const spot = root.querySelector('.ob-spot');
   const tip = root.querySelector('.ob-tooltip');
+  tip.style.visibility = 'hidden'; // stay hidden until positioned (no bottom-left flash)
   let index = 0;
 
   const finish = () => { markComplete(); cleanup(); };
@@ -167,6 +168,7 @@ function renderTour() {
     top = Math.max(margin, Math.min(top, window.innerHeight - th - margin));
     tip.style.left = `${left}px`;
     tip.style.top = `${top}px`;
+    tip.style.visibility = 'visible';
   }
 
   root.querySelector('.ob-skip').addEventListener('click', finish);
@@ -183,4 +185,6 @@ function renderTour() {
 
   teardownFn = cleanup;
   show();
+  // Web fonts can load after first paint, reflowing targets — re-anchor once ready.
+  document.fonts?.ready.then(reposition).catch(() => {});
 }

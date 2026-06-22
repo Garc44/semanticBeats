@@ -5,6 +5,7 @@ import {
   getTransformsForPillar,
   mergeLlmTransformPatch,
   parseDirectCommand,
+  applyEmotionRecipe,
 } from '../src/library/transformationsLibrary.js';
 
 describe('TRANSFORMS registry', () => {
@@ -175,5 +176,100 @@ describe('parseDirectCommand (A: deterministic explicit commands)', () => {
 
   it('does not false-trigger on numbers without an effect name', () => {
     expect(parseDirectCommand('drums', 'give me 4 on the floor')).toBeNull();
+  });
+});
+
+describe('parseDirectCommand (bare named-effect adds, no number)', () => {
+  it('adds an enum effect by name using its default ("add vowel filter")', () => {
+    expect(parseDirectCommand('melody', 'add vowel filter')).toEqual({ vowel: 'a' });
+  });
+
+  it('adds a bare enum name ("vowel")', () => {
+    expect(parseDirectCommand('melody', 'vowel')).toEqual({ vowel: 'a' });
+  });
+
+  it('adds a numeric effect by name using its default ("add reverb")', () => {
+    const patch = parseDirectCommand('drums', 'add reverb');
+    expect(patch).toHaveProperty('reverb');
+    expect(typeof patch.reverb).toBe('number');
+  });
+
+  it('adds a boolean effect by name as true ("reverse it")', () => {
+    expect(parseDirectCommand('drums', 'reverse it')).toEqual({ reverse: true });
+  });
+
+  it('maps "add high pass filter" to hipass, not dj_filter', () => {
+    const patch = parseDirectCommand('transitions', 'add high pass filter');
+    expect(patch).toHaveProperty('hipass');
+    expect(patch).not.toHaveProperty('dj_filter');
+  });
+
+  it('returns null when the named effect is not allowed on the pillar', () => {
+    expect(parseDirectCommand('drums', 'add vowel filter')).toBeNull();
+  });
+
+  it('still defers vibe prompts with no effect name to the LLM', () => {
+    expect(parseDirectCommand('melody', 'make it darker')).toBeNull();
+  });
+});
+
+describe('parseDirectCommand (enum value changes)', () => {
+  it('sets a specific vowel ("change vowel to e")', () => {
+    expect(parseDirectCommand('melody', 'change vowel to e')).toEqual({ vowel: 'e' });
+  });
+
+  it('parses bare "vowel o"', () => {
+    expect(parseDirectCommand('melody', 'vowel o')).toEqual({ vowel: 'o' });
+  });
+
+  it('parses "set the vowel to u"', () => {
+    expect(parseDirectCommand('melody', 'set the vowel to u')).toEqual({ vowel: 'u' });
+  });
+
+  it('still uses the default when no specific value is named ("add vowel filter")', () => {
+    expect(parseDirectCommand('melody', 'add vowel filter')).toEqual({ vowel: 'a' });
+  });
+});
+
+describe('parseDirectCommand (value changes on already-active effects)', () => {
+  it('sets an absolute value even with filler words ("turn the reverb up to 0.9")', () => {
+    expect(parseDirectCommand('drums', 'turn the reverb up to 0.9')).toEqual({ reverb: 0.9 });
+  });
+
+  it('handles "change the value of reverb to 0.9"', () => {
+    expect(parseDirectCommand('drums', 'change the value of reverb to 0.9')).toEqual({ reverb: 0.9 });
+  });
+
+  it('steps UP relative to the current value ("more reverb" from 0.5)', () => {
+    expect(parseDirectCommand('drums', 'more reverb', { reverb: 0.5 })).toEqual({ reverb: 0.7 });
+  });
+
+  it('steps DOWN relative to the current value ("less reverb" from 0.5)', () => {
+    expect(parseDirectCommand('drums', 'less reverb', { reverb: 0.5 })).toEqual({ reverb: 0.3 });
+  });
+
+  it('inverts direction for inverted effects ("more crush" steps the number DOWN)', () => {
+    // crush: 1..16, higher = subtler. "more crush" → fewer bits → lower number.
+    expect(parseDirectCommand('drums', 'more crush', { crush: 8 })).toEqual({ crush: 5 });
+  });
+
+  it('clamps relative steps to the effect range', () => {
+    expect(parseDirectCommand('drums', 'more reverb', { reverb: 0.95 })).toEqual({ reverb: 1 });
+  });
+});
+
+describe('applyEmotionRecipe', () => {
+  it('replaces existing transforms with the recipe (clears prior effects)', () => {
+    const pillar = { name: 'drums', transforms: { reverb: 0.9, echo: 0.5 } };
+    applyEmotionRecipe(pillar, { id: 'dark', transforms: { lopass: 600, shape: 0.3 } });
+    expect(pillar.transforms).toEqual({ lopass: 600, shape: 0.3 });
+  });
+
+  it('copies the recipe (mutating pillar.transforms does not touch the recipe)', () => {
+    const recipe = { id: 'dark', transforms: { lopass: 600 } };
+    const pillar = { name: 'drums', transforms: {} };
+    applyEmotionRecipe(pillar, recipe);
+    pillar.transforms.lopass = 999;
+    expect(recipe.transforms.lopass).toBe(600);
   });
 });

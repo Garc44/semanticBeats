@@ -1,4 +1,6 @@
 
+import { getEmotionsForPillar } from './library/emotionsLibrary.js';
+
 const PILLAR_ICONS = {
   drums:       `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="6" stroke="#E8302A" stroke-width="1.5"/><circle cx="7" cy="7" r="2.5" fill="#E8302A"/></svg>`,
   bass:        `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 10 Q3.5 2 7 7 Q10.5 12 13 4" stroke="#E8302A" stroke-width="1.5" fill="none"/></svg>`,
@@ -7,33 +9,6 @@ const PILLAR_ICONS = {
   transitions: `<svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="12" height="12" stroke="#E8302A" stroke-width="1.5" fill="none"/><line x1="1" y1="7" x2="13" y2="7" stroke="#E8302A" stroke-width="1"/><line x1="7" y1="1" x2="7" y2="13" stroke="#E8302A" stroke-width="1"/></svg>`,
 };
 
-const TRX_CHIPS = {
-  drums:           [{ label: '+ reverb',   prompt: 'add reverb'            },
-                   { label: '+ glitchy',   prompt: 'make it glitchy'       },
-                   { label: '+ darker',    prompt: 'make it darker'        },
-                   { label: '+ widen',     prompt: 'widen the stereo'      },
-                   { label: '+ crush',     prompt: 'add bit crush'         }],
-  bass:            [{ label: '+ darker',   prompt: 'make it darker'        },
-                   { label: '+ reverb',    prompt: 'add reverb'            },
-                   { label: '+ distort',   prompt: 'add distortion'        },
-                   { label: '+ slow down', prompt: 'slow it down'          },
-                   { label: '+ echo',      prompt: 'add echo'              }],
-  percussion:      [{ label: '+ crush',    prompt: 'add bit crush'         },
-                   { label: '+ reverb',    prompt: 'add reverb'            },
-                   { label: '+ glitchy',   prompt: 'make it glitchy'       },
-                   { label: '+ widen',     prompt: 'widen the stereo'      },
-                   { label: '+ reverse',   prompt: 'reverse the pattern'   }],
-  melody:          [{ label: '+ reverb',   prompt: 'add reverb'            },
-                   { label: '+ echo',      prompt: 'add echo'              },
-                   { label: '+ filter',    prompt: 'darken the filter'     },
-                   { label: '+ widen',     prompt: 'widen the stereo'      },
-                   { label: '+ vowel',     prompt: 'add vowel filter'      }],
-  transitions:     [{ label: '+ reverb',   prompt: 'add reverb'            },
-                   { label: '+ faster',    prompt: 'speed it up'           },
-                   { label: '+ reverse',   prompt: 'reverse the pattern'   },
-                   { label: '+ filter',    prompt: 'add high pass filter'  },
-                   { label: '+ echo',      prompt: 'add echo'              }],
-};
 
 const statusEl = () => document.getElementById('status');
 
@@ -104,7 +79,7 @@ export function renderGlobalControls(globalState, onChange) {
   container.appendChild(bpcGroup);
 }
 
-export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onVizToggle, onModeToggle }) {
+export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onVizToggle, onModeToggle, onEmotion }) {
   const card = document.createElement('div');
   card.className = 'pillar-card';
   card.dataset.pillar = pillar.name;
@@ -205,13 +180,14 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onViz
   chipsEl.className = 'pillar-chips';
   chipsEl.style.display = 'none';
 
-  for (const chip of TRX_CHIPS[pillar.name] ?? []) {
+  for (const recipe of getEmotionsForPillar(pillar.name)) {
     const btn = document.createElement('button');
     btn.className = 'chip-btn';
-    btn.textContent = chip.label;
+    btn.textContent = recipe.label;
+    if (recipe.description) btn.title = recipe.description;
     btn.addEventListener('click', () => {
       btn.disabled = true;
-      onSend(chip.prompt).finally(() => { btn.disabled = false; });
+      Promise.resolve(onEmotion(recipe.id)).finally(() => { btn.disabled = false; });
     });
     chipsEl.appendChild(btn);
   }

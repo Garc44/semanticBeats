@@ -27,9 +27,10 @@ Design decisions (locked):
 
 ## Pillars
 
-The 4 live pillars: `drums`, `bass_percussion`, `melody`, `transitions`.
-Each recipe's effects MUST be a subset of `PILLAR_TRANSFORMS[pillar]` and each numeric
-value within the effect's `min`/`max` in `TRANSFORMS`.
+The 5 live pillars (`PILLAR_NAMES` in `src/pillars.js`): `drums`, `bass`, `percussion`,
+`melody`, `transitions`. Each recipe's effects MUST be a subset of
+`PILLAR_TRANSFORMS[pillar]` and each numeric value within the effect's `min`/`max` in
+`TRANSFORMS`.
 
 ## Emotion Vocabulary (12)
 
@@ -54,9 +55,12 @@ Constrained to each pillar's allowed effects.
 
 - **drums** (`shape, crush, distort, reverb, lopass, hipass, reverse`):
   Dark, Gritty, Industrial, Dreamy, Vintage
-- **bass_percussion** (`lopass, lopass_q, reverb, room_size, echo, speed_up, slow_down,
+- **bass** (`lopass, lopass_q, reverb, room_size, echo, speed_up, slow_down,
   shape, distort, crush, press, reverse, palindrome, robot_glitch`):
   Dark, Gritty, Industrial, Liquid, Bouncy, Broken
+- **percussion** (`crush, distort, reverb, degrade, iter, ply, reverse, jux_rev, lopass,
+  robot_glitch, dj_filter`):
+  Frantic, Broken, Hypnotic, Gritty, Spacey
 - **melody** (`lopass, lopass_q, hipass, reverb, room_size, echo, vowel, jux_rev,
   speed_up, slow_down, shape, degrade, psy_swirl, robot_glitch, dj_filter`):
   Dreamy, Spacey, Hypnotic, Liquid, Airy, Frantic
@@ -66,7 +70,7 @@ Constrained to each pillar's allowed effects.
 
 All 12 emotions appear on at least one pillar. Effects an emotion "wants" that a pillar
 disallows are dropped (e.g. Hypnotic on melody uses psy_swirl+echo since melody has no
-`iter`; on transitions uses iter+echo since it has no `psy_swirl`).
+`iter`; on transitions/percussion uses iter since they have no `psy_swirl`).
 
 ## Components
 

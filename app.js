@@ -33,11 +33,17 @@ function tracksSnapshot() {
   return Object.fromEntries(pillars.map(p => [p.name, p.selectedId ?? null]));
 }
 
+// Cap GEN chips so the browse menu stays scannable; ranking is cohesion-first,
+// so the top slice surfaces the sounds that fit the current mix.
+const GEN_CHIP_COUNT = 5;
+function genChipsFor(name) {
+  return rankSoundsByCohesion(name, tracksSnapshot()).slice(0, GEN_CHIP_COUNT);
+}
+
 // Recompute every pillar's GEN chips so cohesion marks/order reflect the
 // current mix. Cheap; only GEN-mode rows are visible at any time.
 function refreshAllGenChips() {
-  const snap = tracksSnapshot();
-  for (const p of pillars) setGenChips(p.name, rankSoundsByCohesion(p.name, snap));
+  for (const p of pillars) setGenChips(p.name, genChipsFor(p.name));
 }
 
 const globalState = {
@@ -340,7 +346,7 @@ for (const pillar of pillars) {
       pillarModes[pillar.name] = pillarModes[pillar.name] === 'generation' ? 'transformation' : 'generation';
       updatePillarMode(pillar.name, pillarModes[pillar.name]);
       if (pillarModes[pillar.name] === 'generation') {
-        setGenChips(pillar.name, rankSoundsByCohesion(pillar.name, tracksSnapshot()));
+        setGenChips(pillar.name, genChipsFor(pillar.name));
       }
     },
     onCodeEdit: (newCode) => {

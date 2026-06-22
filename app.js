@@ -6,6 +6,7 @@ import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
 import { compileTrack } from './src/compiler.js';
 import { mergeLlmTransformPatch, applyEmotionRecipe } from './src/library/transformationsLibrary.js';
 import { getEmotionsForPillar } from './src/library/emotionsLibrary.js';
+import { rankSoundsByCohesion } from './src/library/cohesion.js';
 import {
   setStatus,
   renderGlobalControls,
@@ -17,6 +18,7 @@ import {
   addPillarPreviewMessage,
   updatePillarViz,
   updatePillarMode,
+  setGenChips,
 } from './src/ui.js';
 import { maybeStartOnboarding, startOnboarding } from './src/onboarding.js';
 
@@ -24,6 +26,19 @@ const pillars = makePillars();
 const pillarModes = Object.fromEntries(
   PILLAR_NAMES.map(name => [name, 'generation'])
 );
+
+// Cross-pillar snapshot: { pillarName: selectedId | null }. Used both for the
+// LLM cohesion context and for ranking GEN browse chips.
+function tracksSnapshot() {
+  return Object.fromEntries(pillars.map(p => [p.name, p.selectedId ?? null]));
+}
+
+// Recompute every pillar's GEN chips so cohesion marks/order reflect the
+// current mix. Cheap; only GEN-mode rows are visible at any time.
+function refreshAllGenChips() {
+  const snap = tracksSnapshot();
+  for (const p of pillars) setGenChips(p.name, rankSoundsByCohesion(p.name, snap));
+}
 
 const globalState = {
   tempo: 120,
@@ -156,6 +171,7 @@ async function handlePillarSend(pillarName, prompt) {
           }
         }
         setStatus('Applied');
+        refreshAllGenChips();
       },
       () => {
         pillar.transforms = prevTransforms;
@@ -167,9 +183,7 @@ async function handlePillarSend(pillarName, prompt) {
   }
 
   // generation mode (existing flow)
-  const currentTracksState = Object.fromEntries(
-    pillars.map(p => [p.name, p.selectedId ?? null])
-  );
+  const currentTracksState = tracksSnapshot();
 
   const plan = await generateTransformationPlan(pillarName, prompt, currentTracksState);
 
@@ -207,6 +221,7 @@ async function handlePillarSend(pillarName, prompt) {
         }
       }
       setStatus('Applied');
+      refreshAllGenChips();
     },
     () => {
       pillar.code = prevCode;
@@ -257,6 +272,7 @@ async function handleEmotion(pillarName, recipeId) {
         }
       }
       setStatus('Applied');
+      refreshAllGenChips();
     },
     () => {
       pillar.transforms = prevTransforms;
@@ -323,6 +339,9 @@ for (const pillar of pillars) {
     onModeToggle: () => {
       pillarModes[pillar.name] = pillarModes[pillar.name] === 'generation' ? 'transformation' : 'generation';
       updatePillarMode(pillar.name, pillarModes[pillar.name]);
+      if (pillarModes[pillar.name] === 'generation') {
+        setGenChips(pillar.name, rankSoundsByCohesion(pillar.name, tracksSnapshot()));
+      }
     },
     onCodeEdit: (newCode) => {
       if (newCode === pillar.code) return;
@@ -346,6 +365,9 @@ for (const pillar of pillars) {
     ro.observe(canvas.parentElement ?? canvas);
   }
 }
+
+// Initial GEN chip population (all channels empty -> original order).
+refreshAllGenChips();
 
 // ── Onboarding ────────────────────────────────────────────
 const helpBtn = document.getElementById('help-btn');

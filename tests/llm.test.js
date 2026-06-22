@@ -54,13 +54,18 @@ describe('generateTransformationPlan', () => {
     expect(systemTextOf(global.fetch.mock.calls[0])).toContain('bass_rolling_hypnotic');
   });
 
-  it('includes other channels in system prompt as cohesion context', async () => {
+  it('includes other channels (name + tags) in system prompt as cohesion context', async () => {
     mockFetch(mockPlan());
     const currentTracksState = { drums: 'basic_kick', bass: 'rumble_acid', transitions: null };
     await generateTransformationPlan('melody', 'add synth', currentTracksState);
     const systemText = systemTextOf(global.fetch.mock.calls[0]);
-    expect(systemText).toContain('basic_kick');
+    // known id resolves to its display name + tags
+    expect(systemText).toContain('Basic Kick');
+    expect(systemText).toContain('kick');
+    // unknown id falls back to the raw id
     expect(systemText).toContain('rumble_acid');
+    // empty channel marked, own channel excluded
+    expect(systemText).toContain('(empty)');
     expect(systemText).not.toContain('melody:');
   });
 

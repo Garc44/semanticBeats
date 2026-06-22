@@ -336,6 +336,7 @@ header {
 /* ── Pillar Chat ── */
 .pillar-chat {
   flex: 1;
+  min-height: 0; /* allow the chat to shrink so the chip row + input stay in view */
   overflow-y: auto;
   padding: 0.6rem;
   display: flex;
@@ -351,6 +352,7 @@ header {
   gap: 6px;
   padding: 6px 10px;
   border-top: 1px solid #1a1a1a;
+  flex-shrink: 0; /* keep its size; the chat above yields space instead */
 }
 
 /* Each mode's chips live in their own wrapping flex box; mode toggling swaps
@@ -363,7 +365,7 @@ header {
   flex-wrap: wrap;
   gap: 6px;
   align-content: flex-start;
-  max-height: 150px;
+  max-height: 120px;
   overflow-y: auto;
 }
 .chips-trx {

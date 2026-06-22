@@ -346,12 +346,17 @@ header {
 
 /* ── Pillar Input ── */
 .pillar-chips {
-  display: none;
+  display: flex;
   flex-wrap: wrap;
   gap: 6px;
   padding: 6px 10px;
   border-top: 1px solid #1a1a1a;
 }
+
+/* Groups use display:contents so chips flow as direct flex items of the row,
+   wrapping naturally; mode toggling swaps which group is contents vs none. */
+.chips-gen { display: contents; }
+.chips-trx { display: none; }
 
 .chip-btn {
   background: #1a1a1a;
@@ -368,6 +373,19 @@ header {
 .chip-btn:hover {
   border-color: #E8302A;
   color: #E8302A;
+}
+
+.chip--fits {
+  border-color: var(--accent-dim);
+  color: #bbb;
+}
+
+.chip--fits::before {
+  content: '●';
+  color: var(--accent);
+  font-size: 8px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .chip-btn:disabled {

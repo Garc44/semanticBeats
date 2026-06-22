@@ -3,7 +3,8 @@ import { generateTransformationPlan } from './src/llm.js';
 import { generateTransformPatch } from './src/llm.js';
 import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
 import { compileTrack } from './src/compiler.js';
-import { mergeLlmTransformPatch } from './src/library/transformationsLibrary.js';
+import { mergeLlmTransformPatch, applyEmotionRecipe } from './src/library/transformationsLibrary.js';
+import { getEmotionsForPillar } from './src/library/emotionsLibrary.js';
 import {
   setStatus,
   renderGlobalControls,
@@ -111,7 +112,7 @@ async function handlePillarSend(pillarName, prompt) {
   if (mode === 'transformation') {
     const patch = await generateTransformPatch(pillarName, prompt, pillar);
     if (!patch) {
-      addPillarMessage(pillarName, 'error', 'Could not generate transform. Try rephrasing.');
+      addPillarMessage(pillarName, 'error', 'No matching effect — try rephrasing.');
       setStatus('Error');
       return;
     }
@@ -204,6 +205,54 @@ async function handlePillarSend(pillarName, prompt) {
   setStatus('Preview ready');
 }
 
+// ── Emotion Recipe (TRX chips) ────────────────────────────
+// Deterministic, offline: an emotion chip applies a curated recipe directly, bypassing
+// the LLM/parseDirectCommand path. Replace semantics + the existing preview/revert flow.
+async function handleEmotion(pillarName, recipeId) {
+  const pillar = pillars.find(p => p.name === pillarName);
+  const recipe = getEmotionsForPillar(pillarName).find(r => r.id === recipeId);
+  if (!recipe) {
+    addPillarMessage(pillarName, 'error', 'Unknown emotion.');
+    setStatus('Error');
+    return;
+  }
+  addPillarMessage(pillarName, 'user', recipe.label);
+  setStatus('Thinking...');
+
+  const prevTransforms = { ...pillar.transforms };
+  applyEmotionRecipe(pillar, recipe);
+  const newCode = compileTrack({ selectedId: pillar.selectedId, modifications: pillar.lastMods }, pillarName, pillar);
+  if (!newCode) {
+    pillar.transforms = prevTransforms;
+    addPillarMessage(pillarName, 'error', 'Pattern assembly failed.');
+    setStatus('Error');
+    return;
+  }
+  addPillarPreviewMessage(
+    pillarName,
+    newCode,
+    async () => {
+      pillar.code = newCode;
+      updatePillarCode(pillarName, newCode);
+      await rebuildAndPlay();
+      if (!globalState.isPlaying) {
+        const stack = rebuildStack(pillars, globalState);
+        if (stack) {
+          await play(stack);
+          globalState.isPlaying = true;
+          playBtn.textContent = '■ Stop';
+        }
+      }
+      setStatus('Applied');
+    },
+    () => {
+      pillar.transforms = prevTransforms;
+      setStatus('Ready');
+    }
+  );
+  setStatus('Preview ready');
+}
+
 // ── Viz Toggle ────────────────────────────────────────────
 
 function handleVizToggle(pillarName) {
@@ -253,6 +302,7 @@ for (const pillar of pillars) {
       pillar.code = newCode;
       rebuildAndPlay();
     },
+    onEmotion: (recipeId) => handleEmotion(pillar.name, recipeId),
   });
   pillarsRow.appendChild(card);
   const canvas = document.getElementById(`viz-canvas-${pillar.name}`);

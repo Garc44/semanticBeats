@@ -645,3 +645,132 @@ button:active { transform: scale(0.94); }
   0%, 100% { background: var(--accent); }
   50%      { background: var(--accent-dim); }
 }
+
+/* ════════════════════════════════════════════════════════════
+   ONBOARDING — welcome card + spotlight tour
+   ════════════════════════════════════════════════════════════ */
+.ob-root { position: fixed; inset: 0; z-index: 10000; }
+
+.ob-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  animation: msg-in 0.2s ease-out;
+}
+
+.ob-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, 90vw);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  box-shadow: var(--glow);
+  padding: 1.6rem 1.5rem;
+  animation: preview-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.ob-kicker {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+.ob-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 2.4rem;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+  text-shadow: 0 0 14px rgba(232, 48, 42, 0.4);
+}
+
+.ob-lead { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
+
+.ob-moves { list-style: none; counter-reset: move; margin-bottom: 1.4rem; }
+.ob-moves li {
+  counter-increment: move;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+.ob-moves li::before {
+  content: counter(move, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.ob-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+.ob-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.9rem;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.06s;
+}
+.ob-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow-soft); }
+.ob-btn:active { transform: scale(0.94); }
+.ob-primary { background: var(--accent); color: #000; border-color: var(--accent); }
+.ob-primary:hover { color: #000; box-shadow: var(--glow); }
+
+/* ── Spotlight tour ── */
+.ob-spot {
+  position: absolute;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), var(--glow);
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+.ob-tooltip {
+  position: absolute;
+  width: min(300px, 80vw);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  box-shadow: var(--glow);
+  padding: 0.9rem 1rem;
+  animation: msg-in 0.2s ease-out;
+}
+.ob-step-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+.ob-step-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+.ob-step-body { font-size: 0.85rem; color: var(--text); line-height: 1.5; margin-bottom: 0.9rem; }
+
+/* ── Header replay button ── */
+#help-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 0;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.06s;
+}
+#help-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow-soft); }
+#help-btn:active { transform: scale(0.92); }

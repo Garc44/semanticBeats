@@ -10,6 +10,12 @@ const PILLAR_ICONS = {
 };
 
 
+// Display-only labels (internal pillar names stay drums/bass/percussion/etc.).
+const PILLAR_LABELS = {
+  percussion: 'PERCS',
+  transitions: 'EFFECTS',
+};
+
 const statusEl = () => document.getElementById('status');
 
 export function setStatus(text) {
@@ -94,7 +100,7 @@ export function renderPillar(pillar, { onSend, onMute, onSolo, onCodeEdit, onViz
 
   const nameEl = document.createElement('span');
   nameEl.className = 'pillar-name';
-  nameEl.textContent = pillar.name.replace(/_/g, ' ').toUpperCase();
+  nameEl.textContent = PILLAR_LABELS[pillar.name] ?? pillar.name.replace(/_/g, ' ').toUpperCase();
   titleEl.appendChild(nameEl);
 
   const controls = document.createElement('div');

@@ -17,6 +17,7 @@ import {
   updatePillarViz,
   updatePillarMode,
 } from './src/ui.js';
+import { maybeStartOnboarding, startOnboarding } from './src/onboarding.js';
 
 const pillars = makePillars();
 const pillarModes = Object.fromEntries(
@@ -37,6 +38,21 @@ const globalState = {
 
 const playBtn = document.getElementById('play-btn');
 
+// Reflect transport state into the DOM so CSS can drive beat-synced motion.
+function setPlaying(playing) {
+  globalState.isPlaying = playing;
+  playBtn.textContent = playing ? '■ Stop' : '▶ Play';
+  document.body.classList.toggle('is-playing', playing);
+}
+
+// Expose beat duration (seconds) as a CSS var so pulse animations stay in time.
+function syncBeatDuration() {
+  const beatSec = 60 / globalState.tempo;
+  document.documentElement.style.setProperty('--beat-dur', `${beatSec}s`);
+  document.documentElement.style.setProperty('--bar-dur', `${beatSec * globalState.beatsPerCycle}s`);
+}
+syncBeatDuration();
+
 async function rebuildAndPlay() {
   const stack = rebuildStack(pillars, globalState);
   if (!stack) {
@@ -48,8 +64,7 @@ async function rebuildAndPlay() {
     await play(stack);
   } catch {
     stop();
-    globalState.isPlaying = false;
-    playBtn.textContent = '▶ Play';
+    setPlaying(false);
     setStatus('Play error — stopped');
   }
 }
@@ -60,16 +75,14 @@ playBtn.addEventListener('click', async () => {
     if (!stack) { setStatus('No active pillars'); return; }
     try {
       await play(stack);
-      globalState.isPlaying = true;
-      playBtn.textContent = '■ Stop';
+      setPlaying(true);
       setStatus('Playing');
     } catch (e) {
       setStatus('Play error');
     }
   } else {
     stop();
-    globalState.isPlaying = false;
-    playBtn.textContent = '▶ Play';
+    setPlaying(false);
     setStatus('Stopped');
   }
 });
@@ -85,6 +98,7 @@ const debouncedRebuild = debounce(rebuildAndPlay, 50);
 
 renderGlobalControls(globalState, (key, value) => {
   globalState[key] = value;
+  if (key === 'tempo' || key === 'beatsPerCycle') syncBeatDuration();
   debouncedRebuild();
 });
 
@@ -188,8 +202,7 @@ async function handlePillarSend(pillarName, prompt) {
         const stack = rebuildStack(pillars, globalState);
         if (stack) {
           await play(stack);
-          globalState.isPlaying = true;
-          playBtn.textContent = '■ Stop';
+          setPlaying(true);
         }
       }
       setStatus('Applied');
@@ -239,8 +252,7 @@ async function handleEmotion(pillarName, recipeId) {
         const stack = rebuildStack(pillars, globalState);
         if (stack) {
           await play(stack);
-          globalState.isPlaying = true;
-          playBtn.textContent = '■ Stop';
+          setPlaying(true);
         }
       }
       setStatus('Applied');
@@ -318,6 +330,11 @@ for (const pillar of pillars) {
     ro.observe(canvas.parentElement ?? canvas);
   }
 }
+
+// ── Onboarding ────────────────────────────────────────────
+const helpBtn = document.getElementById('help-btn');
+if (helpBtn) helpBtn.addEventListener('click', () => startOnboarding());
+maybeStartOnboarding();
 
 // ── Init ──────────────────────────────────────────────────
 

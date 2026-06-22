@@ -5,21 +5,31 @@
   --surface: #0a0a0a;
   --border: #1a1a1a;
   --accent: #E8302A;
+  --accent-dim: #8a1c18;
   --text: #f0f0f0;
   --muted: #555555;
   --error: #E8302A;
   --user-bubble: #100000;
   --preview-bg: #000000;
+  --glow: 0 0 14px rgba(232, 48, 42, 0.35);
+  --glow-soft: 0 0 8px rgba(232, 48, 42, 0.18);
+  --beat-dur: 0.5s;
+  --bar-dur: 2s;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--mono);
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }
 
 body::after {
@@ -473,4 +483,294 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   font-size: 1rem;
   letter-spacing: 0.12em;
   cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.06s;
 }
+
+/* ════════════════════════════════════════════════════════════
+   UI QUALITY PASS — depth, motion, beat-sync, microinteractions
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Scanline overlay (layered over film grain) ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.4;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.25) 3px,
+    transparent 4px
+  );
+  mix-blend-mode: multiply;
+}
+
+/* ── Depth: glow on accent surfaces ── */
+header { box-shadow: 0 2px 18px rgba(232, 48, 42, 0.12); }
+.pillar-header { box-shadow: 0 2px 14px rgba(232, 48, 42, 0.08); }
+
+/* ── Press feedback on every button ── */
+button:active { transform: scale(0.94); }
+.btn-genre:active, .btn-bpc:active, .chip-btn:active,
+.btn-send:active, .btn-apply:active, .btn-mute:active,
+.btn-solo:active, .btn-viz:active, .btn-mode:active { transform: scale(0.92); }
+
+.chip-btn, .btn-genre, .btn-bpc, .btn-send, .btn-apply,
+.btn-mute, .btn-solo, .btn-viz, .btn-mode {
+  transition: color 0.15s, border-color 0.15s, background 0.15s,
+              box-shadow 0.15s, transform 0.06s;
+}
+
+.btn-genre:hover, .chip-btn:hover, .btn-viz:hover, .btn-mode:hover {
+  box-shadow: var(--glow-soft);
+}
+.btn-send:hover, .btn-apply:hover { box-shadow: var(--glow); }
+
+/* ── Active states get glow, not just fill ── */
+.btn-bpc.active, .btn-mute.active { box-shadow: var(--glow-soft); }
+
+/* ── Index tags on pillar headers (01 02 03 …) ── */
+#pillars-row { counter-reset: pillar; }
+.pillar-card { counter-increment: pillar; }
+.pillar-title::before {
+  content: counter(pillar, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  padding-right: 0.15rem;
+  align-self: flex-start;
+}
+
+.pillar-name {
+  text-shadow: 0 0 10px rgba(232, 48, 42, 0.25);
+  transition: text-shadow 0.2s;
+}
+
+/* ── Status indicator: blinking dot when live ── */
+#status::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  background: var(--muted);
+  vertical-align: middle;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+/* ── Message + preview entrance ── */
+.msg, .msg-preview {
+  animation: msg-in 0.22s ease-out;
+}
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg-preview {
+  animation: preview-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  box-shadow: var(--glow-soft);
+}
+@keyframes preview-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Loading cursor blink on status text ── */
+@keyframes blink { 50% { opacity: 0.2; } }
+
+/* ════════════════════════════════════════════════════════════
+   PLAYING STATE — beat-synced motion (driven by body.is-playing)
+   ════════════════════════════════════════════════════════════ */
+
+/* Play button breathes red while live */
+.is-playing #play-btn {
+  animation: pulse-btn var(--beat-dur) ease-in-out infinite;
+}
+@keyframes pulse-btn {
+  0%, 100% { box-shadow: 0 0 8px rgba(232, 48, 42, 0.4); }
+  50%      { box-shadow: 0 0 22px rgba(232, 48, 42, 0.9); }
+}
+
+/* Live status dot */
+.is-playing #status::before {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: blink var(--beat-dur) step-end infinite;
+}
+
+/* Active (non-muted) pillars pulse on the beat.
+   Drawn on an overlay pseudo-element (pointer-events:none, top z-index) because the
+   card's opaque children would paint over an inset shadow on the card itself. */
+.pillar-card { position: relative; }
+.pillar-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  box-shadow: inset 0 3px 0 var(--accent), inset 0 0 26px rgba(232, 48, 42, 0.18);
+}
+.is-playing .pillar-card:not(.pillar--muted):not(.pillar--empty):not(.pillar--dimmed)::after {
+  animation: pillar-beat var(--beat-dur) ease-out infinite;
+}
+@keyframes pillar-beat {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Pillar names flicker subtly in time */
+.is-playing .pillar-card:not(.pillar--muted):not(.pillar--empty):not(.pillar--dimmed) .pillar-name {
+  animation: name-glow var(--bar-dur) ease-in-out infinite;
+}
+@keyframes name-glow {
+  0%, 100% { text-shadow: 0 0 8px rgba(232, 48, 42, 0.25); }
+  50%      { text-shadow: 0 0 16px rgba(232, 48, 42, 0.7); }
+}
+
+/* Muted pillars sit still and dark while others move */
+.is-playing .pillar--muted { animation: none; }
+
+/* ── Working state: send button pulses while a request is in flight ── */
+.btn-send:disabled {
+  animation: working 0.7s ease-in-out infinite;
+  opacity: 1;
+}
+@keyframes working {
+  0%, 100% { background: var(--accent); }
+  50%      { background: var(--accent-dim); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   ONBOARDING — welcome card + spotlight tour
+   ════════════════════════════════════════════════════════════ */
+.ob-root { position: fixed; inset: 0; z-index: 10000; }
+
+.ob-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  animation: msg-in 0.2s ease-out;
+}
+
+.ob-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, 90vw);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  box-shadow: var(--glow);
+  padding: 1.6rem 1.5rem;
+  animation: preview-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.ob-kicker {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+.ob-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 2.4rem;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+  text-shadow: 0 0 14px rgba(232, 48, 42, 0.4);
+}
+
+.ob-lead { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
+
+.ob-moves { list-style: none; counter-reset: move; margin-bottom: 1.4rem; }
+.ob-moves li {
+  counter-increment: move;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+.ob-moves li::before {
+  content: counter(move, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.ob-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+.ob-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.9rem;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.06s;
+}
+.ob-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow-soft); }
+.ob-btn:active { transform: scale(0.94); }
+.ob-primary { background: var(--accent); color: #000; border-color: var(--accent); }
+.ob-primary:hover { color: #000; box-shadow: var(--glow); }
+
+/* ── Spotlight tour ── */
+.ob-spot {
+  position: absolute;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), var(--glow);
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+.ob-tooltip {
+  position: absolute;
+  width: min(300px, 80vw);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  box-shadow: var(--glow);
+  padding: 0.9rem 1rem;
+  animation: msg-in 0.2s ease-out;
+}
+.ob-step-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+.ob-step-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+.ob-step-body { font-size: 0.85rem; color: var(--text); line-height: 1.5; margin-bottom: 0.9rem; }
+
+/* ── Header replay button ── */
+#help-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 0;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.06s;
+}
+#help-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow-soft); }
+#help-btn:active { transform: scale(0.92); }

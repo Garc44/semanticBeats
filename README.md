@@ -7,6 +7,9 @@ patterns and shapes the sound. No code required, but you can edit Strudel direct
 Everything runs **locally and offline**: the LLM is Ollama on your own machine — no API keys,
 no quota, no cloud.
 
+📖 **[Full documentation & wiki →](https://garc44.github.io/semanticBeats-wiki/)** — architecture,
+design decisions, and developer docs (built with Quartz).
+
 ## Requirements
 
 - [Node.js](https://nodejs.org/) v18+

@@ -1,5 +1,6 @@
 import { init, play, stop, stopViz } from './src/strudel.js';
 import { generateTransformationPlan } from './src/llm.js';
+import { buildIntent } from './src/intent.js';
 import { generateTransformPatch } from './src/llm.js';
 import { warmUpModel } from './src/llm.js';
 import { PILLAR_NAMES, makePillars, rebuildStack } from './src/pillars.js';
@@ -187,10 +188,12 @@ async function handlePillarSend(pillarName, prompt) {
     return;
   }
 
-  // generation mode (existing flow)
+  // generation mode: distill intent first (lexer + one classification call),
+  // then let the selection LLM choose from a retrieval-narrowed catalog.
   const currentTracksState = tracksSnapshot();
 
-  const plan = await generateTransformationPlan(pillarName, prompt, currentTracksState);
+  const intent = await buildIntent(prompt);
+  const plan = await generateTransformationPlan(pillarName, prompt, currentTracksState, intent);
 
   if (!plan) {
     addPillarMessage(pillarName, 'error', 'Could not select pattern. Try rephrasing.');

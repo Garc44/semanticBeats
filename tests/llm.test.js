@@ -123,6 +123,39 @@ describe('generateTransformationPlan', () => {
     global.fetch = vi.fn().mockResolvedValue(ollamaResponse('not json at all'));
     await expect(generateTransformationPlan('drums', 'kick', {})).resolves.toBeNull();
   });
+
+  const testIntent = {
+    genre: 'techno', bpm: 130, key: 'A', scale: 'minor', energy: 'mid',
+    moods: ['dark', 'minimal'], textures: [], layers: [],
+  };
+
+  it('with intent: narrows catalog to top-8 retrieved patterns', async () => {
+    mockFetch(mockPlan());
+    await generateTransformationPlan('bass', 'dark bass', {}, testIntent);
+    const systemText = systemTextOf(global.fetch.mock.calls[0]);
+    const idCount = (systemText.match(/"id":/g) ?? []).length;
+    expect(idCount).toBeLessThanOrEqual(8);
+  });
+
+  it('with intent: includes intent summary in system prompt', async () => {
+    mockFetch(mockPlan());
+    await generateTransformationPlan('bass', 'dark bass', {}, testIntent);
+    expect(systemTextOf(global.fetch.mock.calls[0])).toContain('"genre":"techno"');
+  });
+
+  it('with intent: schema enum only contains narrowed ids', async () => {
+    mockFetch(mockPlan());
+    await generateTransformationPlan('bass', 'dark bass', {}, testIntent);
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body.format.properties.selectedId.enum.length).toBeLessThanOrEqual(8);
+  });
+
+  it('without intent: full catalog (back-compat)', async () => {
+    mockFetch(mockPlan());
+    await generateTransformationPlan('bass', 'dark bass', {});
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(body.format.properties.selectedId.enum.length).toBeGreaterThan(8);
+  });
 });
 
 function mockPatchFetch(patch) {

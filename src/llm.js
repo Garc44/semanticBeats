@@ -1,6 +1,7 @@
 import { soundLibrary } from './library/soundLibrary.js';
 import { getTransformsForPillar, parseDirectCommand } from './library/transformationsLibrary.js';
 import { getPatternById } from './library/soundLibrary.js';
+import { rankPatternsByIntent } from './promptEngine.js';
 
 const TRACK_ROLES = {
   drums:       'rhythmic foundation — kicks',
@@ -86,9 +87,12 @@ export function warmUpModel() {
   }).catch(() => {}); // best-effort — ignore failures (Ollama not running yet, etc.)
 }
 
-export async function generateTransformationPlan(pillarName, userPrompt, currentTracksState = {}) {
+export async function generateTransformationPlan(pillarName, userPrompt, currentTracksState = {}, intent = null) {
   try {
-    const catalog = soundLibrary[pillarName] ?? [];
+    const fullCatalog = soundLibrary[pillarName] ?? [];
+    const catalog = intent
+      ? rankPatternsByIntent(pillarName, intent).slice(0, 8).map(r => r.pattern)
+      : fullCatalog;
     const catalogSummary = catalog.map(p => ({ id: p.id, name: p.name, tags: p.tags }));
 
     const otherTracks = Object.entries(currentTracksState)
@@ -101,6 +105,8 @@ export async function generateTransformationPlan(pillarName, userPrompt, current
       })
       .join('\n');
 
+    const intentBlock = intent ? `\nDistilled musical intent for this request:\n${JSON.stringify(intent)}\n` : '';
+
     const systemPrompt = `You are a techno producer choosing the ${TRACK_ROLES[pillarName] ?? pillarName} pattern for a live set.
 
 The user describes a vibe in plain language. Pick the catalog pattern whose name/tags best match that vibe AND that locks in with the other playing channels.
@@ -110,7 +116,7 @@ ${otherTracks || '(none)'}
 
 Catalog (choose selectedId from these only):
 ${JSON.stringify(catalogSummary, null, 2)}
-
+${intentBlock}
 Rules:
 - selectedId MUST be one of the catalog ids above.
 - explanation: one short sentence on why this pattern fits the request.

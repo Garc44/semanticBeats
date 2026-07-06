@@ -148,6 +148,7 @@ export async function buildIntent(prompt) {
   const lexed = lexIntent(prompt);
   const llm = await generateIntent(prompt);
   const intent = { ...DEFAULT_INTENT, ...compact(llm ?? {}), ...compact({ bpm: lexed.bpm, genre: lexed.genre, textures: lexed.textures }) };
+  intent.layers = [...(intent.layers ?? [])];
   if (!intent.bpm) intent.bpm = GENRE_DEFAULT_BPM[intent.genre] ?? 126;
   // Ensure lexer's instrument hints are represented as layers.
   const covered = new Set(intent.layers.map(l => l.pillar));

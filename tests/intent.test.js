@@ -109,4 +109,12 @@ describe('buildIntent', () => {
     expect(intent.key).toBeTruthy();       // default fills
     expect(intent.textures).toContain('glitch');
   });
+
+  it('does not mutate DEFAULT_INTENT.layers across calls', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('down'));
+    const first = await buildIntent('heavy kick drum');   // instrument hint -> layers.push
+    expect(first.layers.length).toBeGreaterThan(0);
+    const second = await buildIntent('warm pads');        // no instrument hint
+    expect(second.layers).toEqual([]);                     // must NOT contain first call's layers
+  });
 });

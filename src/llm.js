@@ -119,7 +119,7 @@ Rules:
 
 Examples (ids are illustrative — always pick a real id from the catalog above):
 "something darker and hypnotic"   -> {"selectedId":"<dark/hypnotic id>","explanation":"deep rolling pattern matches the dark mood","modifications":{"speed":1.0,"slowdown":1}}
-"give me something more driving"  -> {"selectedId":"<punchy id>","explanation":"punchy pattern adds drive","modifications":{"speed":1.0,"slowdown":1}}
+"give me something more driving"  -> {"selectedId":"<punchy id>","exlaplanation":"punchy pattern adds drive","modifications":{"speed":1.0,"slowdown":1}}
 "same energy but faster"          -> {"selectedId":"<current-style id>","explanation":"keeps the feel, doubles the pace","modifications":{"speed":2.0,"slowdown":1}}`;
 
     const cleaned = await callOllama(systemPrompt, userPrompt, { schema: buildPlanSchema(catalog) });

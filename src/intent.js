@@ -47,6 +47,9 @@ const INSTRUMENT_LEXICON = {
   'shaker': 'percussion', 'rim': 'percussion', 'ride': 'percussion',
 };
 
+// Word-boundary matching to avoid false positives (e.g. "warehouse" contains "house").
+const hasWord = (text, kw) => new RegExp(`\\b${kw}\\b`).test(text);
+
 // Deterministic pre-parse. Anything found here is LOCKED — buildIntent lets these
 // values override whatever the LLM classifier says.
 export function lexIntent(prompt) {
@@ -57,16 +60,16 @@ export function lexIntent(prompt) {
 
   let genre = null;
   for (const [kw, g] of Object.entries(GENRE_LEXICON)) {
-    if (text.includes(kw)) { genre = g; break; }
+    if (hasWord(text, kw)) { genre = g; break; }
   }
 
   const textures = [...new Set(
-    Object.entries(TEXTURE_LEXICON).filter(([kw]) => text.includes(kw)).map(([, t]) => t)
+    Object.entries(TEXTURE_LEXICON).filter(([kw]) => hasWord(text, kw)).map(([, t]) => t)
   )];
 
   const layerHints = [...new Set(
     Object.entries(INSTRUMENT_LEXICON)
-      .filter(([kw]) => new RegExp(`\\b${kw}\\b`).test(text))
+      .filter(([kw]) => hasWord(text, kw))
       .map(([, pillar]) => pillar)
   )];
 

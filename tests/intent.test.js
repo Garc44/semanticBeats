@@ -24,6 +24,11 @@ describe('lexIntent', () => {
     expect(lexIntent('acid 303 line').layerHints).toContain('bass');
     expect(lexIntent('crunchy hats').layerHints).toContain('percussion');
   });
+
+  it('does not match genre/texture keywords inside larger words', () => {
+    expect(lexIntent('warehouse party').genre).toBeNull();
+    expect(lexIntent('an environment recording').textures).not.toContain('metallic');
+  });
 });
 
 describe('vocabulary', () => {

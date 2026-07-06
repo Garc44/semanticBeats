@@ -19,7 +19,7 @@ const OLLAMA_URL = import.meta.env?.VITE_OLLAMA_URL ?? 'http://localhost:11434/a
 // Single Ollama call. Returns fence-stripped response text.
 // `schema` → Ollama's `format` (JSON Schema) for constrained output. Omit for free-text (autoFix).
 // Throws on HTTP error — callers that must degrade gracefully wrap in try/catch.
-async function callOllama(systemPrompt, userPrompt, { schema = null } = {}) {
+export async function callOllama(systemPrompt, userPrompt, { schema = null } = {}) {
   const body = {
     model: OLLAMA_MODEL,
     messages: [

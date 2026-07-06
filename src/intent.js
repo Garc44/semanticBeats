@@ -1,4 +1,6 @@
 import { soundLibrary } from './library/soundLibrary.js';
+import { callOllama } from './llm.js';
+import { PILLAR_NAMES } from './pillars.js';
 
 // — Controlled vocabularies. These feed both the lexer and the LLM JSON schema, so
 //   intent vocabulary and retrieval vocabulary (library tags) stay one space. —
@@ -74,4 +76,83 @@ export function lexIntent(prompt) {
   )];
 
   return { bpm, genre, textures, layerHints };
+}
+
+export const DEFAULT_INTENT = {
+  genre: 'techno', bpm: null, key: 'A', scale: 'minor', energy: 'mid',
+  moods: ['dark', 'minimal'], textures: [], layers: [],
+};
+
+function buildIntentSchema() {
+  return {
+    type: 'object',
+    properties: {
+      genre: { type: 'string', enum: GENRES },
+      bpm: { type: 'integer', minimum: 60, maximum: 200 },
+      key: { type: 'string', enum: KEYS },
+      scale: { type: 'string', enum: SCALES },
+      energy: { type: 'string', enum: ['low', 'mid', 'high'] },
+      moods: { type: 'array', items: { type: 'string', enum: moodVocabulary() }, maxItems: 5 },
+      textures: { type: 'array', items: { type: 'string', enum: TEXTURES }, maxItems: 3 },
+      layers: {
+        type: 'array', maxItems: 5,
+        items: {
+          type: 'object',
+          properties: {
+            pillar: { type: 'string', enum: PILLAR_NAMES },
+            character: { type: 'string' },
+          },
+          required: ['pillar', 'character'],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ['genre', 'key', 'scale', 'energy', 'moods'],
+    additionalProperties: false,
+  };
+}
+
+// One classification call. Small local models are good at this; keep it to
+// classification only — no code, no notation, just controlled-vocabulary JSON.
+export async function generateIntent(prompt) {
+  try {
+    const systemPrompt = `You are a music producer's assistant. Classify the user's request into a musical intent object.
+
+Rules:
+- genre/key/scale/energy/moods: pick the closest match from the allowed values.
+- bpm: only set if the user implies a tempo; otherwise omit.
+- layers: one entry per musical part the user asked for (drums, bass, percussion, melody, transitions). character = one short phrase describing that part.
+- Output ONLY the JSON object.
+
+Examples:
+"glitchy lo-fi hip hop beat with rhodes chords" -> {"genre":"lofi_hiphop","key":"A","scale":"minor","energy":"low","moods":["warm","minimal"],"textures":["glitch","dusty"],"layers":[{"pillar":"drums","character":"loose swung boom-bap"},{"pillar":"melody","character":"warm rhodes 7th chords"}]}
+"dark driving techno" -> {"genre":"techno","key":"D","scale":"phrygian","energy":"high","moods":["dark","driving"],"textures":["driving"],"layers":[{"pillar":"drums","character":"pounding four on the floor"},{"pillar":"bass","character":"rolling dark bassline"}]}`;
+
+    const cleaned = await callOllama(systemPrompt, prompt, { schema: buildIntentSchema() });
+    const intent = JSON.parse(cleaned);
+    if (!intent || typeof intent !== 'object') return null;
+    return intent;
+  } catch {
+    return null;
+  }
+}
+
+// Drop null/empty values so spreading doesn't clobber earlier layers.
+function compact(obj) {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) =>
+    v !== null && v !== undefined && !(Array.isArray(v) && v.length === 0)));
+}
+
+// Total function: defaults ← LLM ← lexer (rightmost wins). Never returns null.
+export async function buildIntent(prompt) {
+  const lexed = lexIntent(prompt);
+  const llm = await generateIntent(prompt);
+  const intent = { ...DEFAULT_INTENT, ...compact(llm ?? {}), ...compact({ bpm: lexed.bpm, genre: lexed.genre, textures: lexed.textures }) };
+  if (!intent.bpm) intent.bpm = GENRE_DEFAULT_BPM[intent.genre] ?? 126;
+  // Ensure lexer's instrument hints are represented as layers.
+  const covered = new Set(intent.layers.map(l => l.pillar));
+  for (const pillar of lexed.layerHints) {
+    if (!covered.has(pillar)) intent.layers.push({ pillar, character: prompt });
+  }
+  return intent;
 }

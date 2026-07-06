@@ -1,4 +1,5 @@
 import { soundLibrary } from './library/soundLibrary.js';
+import { SAMPLE_NAMES } from './library/strudelDocs.js';
 
 const ALLOWED_STRUDEL_FUNCTIONS = new Set([
   'sound', 's', 'note', 'n', 'stack', 'cat', 'seq',
@@ -69,4 +70,46 @@ export function validateCode(code) {
   }
 
   return { valid: errors.length === 0, errors };
+}
+
+// Everything mini-notation may contain. Anything outside this set is treated as
+// injection/hallucination — the mininotation string is the ONLY free-text field
+// the LLM controls, so this charset is the security boundary.
+const MININOTATION_CHARSET = /^[a-zA-Z0-9\s~\[\]<>(),*/!@.|-]*$/;
+const NOTE_RE = /^[a-g](?:s|b)?\d$/;
+
+// Split notation into atoms by stripping structural syntax. `bd*4` → ['bd','4'];
+// bare numbers are structural (repeat counts, euclid args) and skipped by callers.
+function miniAtoms(mini) {
+  return mini.replace(/[\[\]<>(),*/!@|]/g, ' ').split(/\s+/).filter(Boolean);
+}
+
+const isNumber = a => /^\d+(\.\d+)?$/.test(a);
+
+export function validateMiniNotation(mini, kind) {
+  const errors = [];
+  if (!mini || !mini.trim()) return { valid: false, errors: ['Mini-notation is empty'] };
+  if (!MININOTATION_CHARSET.test(mini)) errors.push('Illegal characters in mini-notation');
+
+  const closers = { ']': '[', '>': '<', ')': '(' };
+  const stack = [];
+  for (const ch of mini) {
+    if ('[<('.includes(ch)) stack.push(ch);
+    else if (ch in closers && stack.pop() !== closers[ch]) { errors.push('Unbalanced brackets'); break; }
+  }
+  if (stack.length) errors.push('Unbalanced brackets');
+
+  for (const atom of miniAtoms(mini)) {
+    if (atom === '~' || isNumber(atom)) continue;
+    if (kind === 'sample' && !SAMPLE_NAMES.includes(atom)) errors.push(`Unknown sample: ${atom}`);
+    if (kind === 'note' && !NOTE_RE.test(atom)) errors.push(`Bad note: ${atom}`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Approximate density check: counts non-rest atoms, ignoring *N multipliers and
+// euclid expansion (both only ADD events, so this is a safe lower bound).
+export function countMiniEvents(mini) {
+  return miniAtoms(mini).filter(a => a !== '~' && !isNumber(a)).length;
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateCode, validatePlan } from '../src/validate.js';
+import { validateCode, validatePlan, validateMiniNotation, countMiniEvents } from '../src/validate.js';
 
 describe('validateCode', () => {
   it('passes valid Strudel code', () => {
@@ -104,5 +104,46 @@ describe('validatePlan', () => {
   it('fails bass ID against wrong pillar catalog', () => {
     const r = validatePlan({ selectedId: 'bass_acid_squelch' }, 'drums');
     expect(r.valid).toBe(false);
+  });
+});
+
+describe('validateMiniNotation', () => {
+  it('accepts valid sample notation', () => {
+    expect(validateMiniNotation('bd ~ [~ bd] bd*2', 'sample').valid).toBe(true);
+    expect(validateMiniNotation('bd(3,8)', 'sample').valid).toBe(true);
+    expect(validateMiniNotation('hh*8 <oh hh>', 'sample').valid).toBe(true);
+  });
+
+  it('accepts valid note notation including chords', () => {
+    expect(validateMiniNotation('c2 [~ eb2] c2 [g1 bb1]', 'note').valid).toBe(true);
+    expect(validateMiniNotation('[c2,eb2,g2] ~ ~ ~', 'note').valid).toBe(true);
+    expect(validateMiniNotation('fs4 ~ cs5 ~', 'note').valid).toBe(true);
+  });
+
+  it('rejects unknown samples', () => {
+    const r = validateMiniNotation('bd kaboom bd', 'sample');
+    expect(r.valid).toBe(false);
+    expect(r.errors[0]).toContain('kaboom');
+  });
+
+  it('rejects malformed notes', () => {
+    expect(validateMiniNotation('c2 h9 x', 'note').valid).toBe(false);
+  });
+
+  it('rejects unbalanced brackets and empty input', () => {
+    expect(validateMiniNotation('bd [bd bd', 'sample').valid).toBe(false);
+    expect(validateMiniNotation('   ', 'sample').valid).toBe(false);
+  });
+
+  it('rejects code-injection characters', () => {
+    expect(validateMiniNotation('bd").gain(9)//', 'sample').valid).toBe(false);
+  });
+});
+
+describe('countMiniEvents', () => {
+  it('counts non-rest atoms', () => {
+    expect(countMiniEvents('bd ~ bd ~')).toBe(2);
+    expect(countMiniEvents('~ ~ ~ ~')).toBe(0);
+    expect(countMiniEvents('[c2,eb2,g2] ~')).toBe(3);
   });
 });

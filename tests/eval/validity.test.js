@@ -1,5 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { checkValidity } from '../../eval/validity.js';
+import { describe, it, expect, afterAll } from 'vitest';
+import { checkValidity, closeValidityWorker } from '../../eval/validity.js';
+import { soundLibrary } from '../../src/library/soundLibrary.js';
+
+afterAll(() => closeValidityWorker());
 
 const cls = async code => (await checkValidity(code)).errorClass;
 
@@ -63,4 +66,27 @@ describe('checkValidity', () => {
   it('classifies other runtime throws as runtime', async () => {
     expect(await cls('const a = undefined; a.b')).toBe('runtime');
   });
+
+  it('rejects computed-member, reflection and this bypasses', async () => {
+    expect(await cls("s('bd')['constr'+'uctor']['constr'+'uctor']")).toBe('forbidden');
+    expect(await cls("Reflect.get(Reflect.getPrototypeOf(()=>1), 'constr'.concat('uctor'))")).toBe('forbidden');
+    expect(await cls("s('bd')[`constructor`]")).toBe('forbidden');
+    expect(await cls('this.x')).toBe('forbidden');
+    expect(await cls('Object.getPrototypeOf(s("bd"))')).toBe('forbidden');
+  });
+
+  it('never flags library pattern code as forbidden', async () => {
+    const codes = Object.values(soundLibrary).flat().map(p => p.code);
+    expect(codes.length).toBeGreaterThan(50);
+    for (const code of codes) expect(await cls(code), code).not.toBe('forbidden');
+    expect(await cls(`stack(${codes[0]}, ${codes[1]})`)).not.toBe('forbidden');
+  });
+
+  it('contains runaway evaluation (huge pattern, microtask loop)', async () => {
+    expect(await cls('s("bd*1e9")')).toBe('runtime');
+    const r = await checkValidity('const f=()=>Promise.resolve().then(f); f(); s("bd")');
+    expect(r.errorClass).toBe('runtime');
+    expect(r.detail).toContain('timeout');
+    expect((await checkValidity('s("bd*4")')).valid).toBe(true);
+  }, 30000);
 });

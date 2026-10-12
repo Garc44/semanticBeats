@@ -112,7 +112,7 @@ export const soundLibrary = {
   percussion: [
 
     { id: "perc_industrial_iron", name: "Kompakt Metal Shakers", tags: ["perc", "hihat", "industrial", "metallic"],
-      code: `stack(s("~ oh*4").gain(0.85), s("hh*16").gain(saw.range(0.2, 0.7).fast(4))).hpq(2)`,
+      code: `stack(s("~ oh*4").bank("RolandTR909").gain(0.85), s("hh*16").gain(saw.range(0.2, 0.7).fast(4))).hpq(2)`,
       initialTransforms: { hipass: 2200, crush: 5 } },
 
     { id: "perc_distressed_clap", name: "Factory Floor Clap", tags: ["perc", "clap", "industrial", "lo-fi", "distorted"],
@@ -128,36 +128,36 @@ export const soundLibrary = {
 
     { id: "perc_breathing_ghost", name: "The Breathing Ghost", tags: ["perc", "ambient", "generative", "probability", "filter", "ghostly"],
       code: `stack(
-              s("~ oh").gain(0.7).room(0.3),
+              s("~ oh").bank("RolandTR909").gain(0.7).room(0.3),
               s("hh*16").degradeBy(sine.slow(8).range(0.1, 0.75)).hpf(saw.slow(6).range(1200, 6000)).hpq(4).gain(0.5),
             )`,
       initialTransforms: {} },
 
     { id: "perc_tape_drift_warp", name: "The Tape-Drift Warp", tags: ["perc", "lo-fi", "tape-drift", "pitch-modulation", "warp", "rimshot"],
       code: `stack(
-              s("rim(5,8)").speed(sine.slow(5).range(0.7, 1.4)).pan(saw.slow(4).range(0.1, 0.9)).room(0.5).sz(0.6).gain(0.7),
-              s("~ oh/2").gain(0.6),
+              s("rim(5,8)").bank("RolandTR909").speed(sine.slow(5).range(0.7, 1.4)).pan(saw.slow(4).range(0.1, 0.9)).room(0.5).sz(0.6).gain(0.7),
+              s("~ oh/2").bank("RolandTR909").gain(0.6),
             )`,
       initialTransforms: {} },
 
     { id: "perc_909_warehouse_anthem", name: "The 909 Warehouse Anthem", tags: ["perc", "909", "techno", "industrial", "warehouse", "driving"],
       code: `stack(
               s("~ cp ~ cp").gain(0.9).room(0.6).sz(0.8),
-              s("~ oh ~ oh ~ oh ~ oh").gain(0.8),
-              s("~ ride ~ ride ~ ride ~ ride").gain("[0.5 0.8]*2"),
+              s("~ oh ~ oh ~ oh ~ oh").bank("RolandTR909").gain(0.8),
+              s("~ rd ~ rd ~ rd ~ rd").bank("RolandTR909").gain("[0.5 0.8]*2"),
             )`,
       initialTransforms: {} },
 
     { id: "perc_motor_city_groove", name: "The Motor City Groove", tags: ["perc", "detroit", "techno", "groove", "toms", "syncopated"],
       code: `stack(
               s("~ cp ~ cp").gain(0.8),
-              s("~ oh ~ oh ~ oh ~ oh").gain(0.7),
+              s("~ oh ~ oh ~ oh ~ oh").bank("RolandTR909").gain(0.7),
               s("lt ~ mt ~ ~ ht lt ~").gain("[0.7 0.5]*4").room(0.3),
             )`,
       initialTransforms: {} },
 
     { id: "perc_sparse_open_hat", name: "Sparse Open Hat", tags: ["perc", "hihat", "minimal", "dark", "sparse"],
-      code: `s("~ oh ~ ~ ~ oh ~ ~")`,
+      code: `s("~ oh ~ ~ ~ oh ~ ~").bank("RolandTR909")`,
       initialTransforms: { hipass: 3000, reverb: 0.3, shape: 0.2 } },
 
     { id: "perc_modulated_hh", name: "Modulated Hi-Hat Fade", tags: ["perc", "hihat", "modulated", "minimal", "dark"],
@@ -165,7 +165,7 @@ export const soundLibrary = {
       initialTransforms: { hipass: 4000, reverb: 0.2 } },
 
     { id: "perc_rim_hat_minimal", name: "Rim and Hat Minimal", tags: ["perc", "rim", "hihat", "minimal", "dark"],
-      code: `stack(s("~ rim ~ ~ ~ rim ~ ~").gain(0.8).room(0.2), s("hh ~ hh hh ~ hh hh ~").gain(0.5).hpf(5000))`,
+      code: `stack(s("~ rim ~ ~ ~ rim ~ ~").bank("RolandTR909").gain(0.8).room(0.2), s("hh ~ hh hh ~ hh hh ~").gain(0.5).hpf(5000))`,
       initialTransforms: {} },
 
     { id: "perc_euclidean_hh", name: "Euclidean Hi-Hat", tags: ["perc", "hihat", "euclidean", "minimal", "dark"],
@@ -177,7 +177,7 @@ export const soundLibrary = {
       initialTransforms: {} },
 
     { id: "perc_degrading_oh", name: "Degrading Open Hat", tags: ["perc", "hihat", "degrading", "generative", "dark"],
-      code: `s("oh(3,8)").degradeBy(sine.slow(6).range(0, 0.5))`,
+      code: `s("oh(3,8)").bank("RolandTR909").degradeBy(sine.slow(6).range(0, 0.5))`,
       initialTransforms: { hipass: 2800, reverb: 0.35 } },
 
   ],

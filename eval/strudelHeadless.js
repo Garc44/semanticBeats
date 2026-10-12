@@ -19,6 +19,8 @@ export function loadStrudel() {
       const tonal = await import('@strudel/tonal');
       const { transpiler } = await import('@strudel/transpiler');
       await core.evalScope(core, mini, tonal);
+      // evalScope exposes string-eval helpers globally; generated code must not reach them.
+      for (const name of ['evaluate', 'evalScope', 'strudelScope']) delete globalThis[name];
 
       for (const name of REPL_NOOP_FUNCTIONS) globalThis[name] = async () => {};
       for (const name of VIZ_METHODS) {

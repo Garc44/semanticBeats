@@ -36,4 +36,9 @@ describe('queryCycle', () => {
     const haps = await queryCycle('$: s("bd*4")\n_$: s("hh*8")');
     expect(haps).toHaveLength(4);
   });
+
+  it('does not leave string-eval helpers on globalThis', async () => {
+    await queryCycle('s("bd")');
+    for (const n of ['evaluate', 'evalScope', 'strudelScope']) expect(typeof globalThis[n]).toBe('undefined');
+  });
 });

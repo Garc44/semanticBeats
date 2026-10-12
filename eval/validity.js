@@ -9,12 +9,15 @@ export const EXECUTING_CLASSES = [null, 'unknown_sound', 'silent'];
 // LLM code is evaluated in Node with full process rights — this AST check is the
 // security boundary (the worker below shares process rights; it only isolates
 // hangs and memory blowups). Strudel code never needs any of these.
+// This is a denylist: residual risk is documented and accepted because the code
+// comes from an LLM that is not adversarial.
 const FORBIDDEN_NAMES = new Set([
   'process', 'globalThis', 'global', 'window', 'document', 'require', 'module',
   'eval', 'Function', 'fetch', 'setTimeout', 'setInterval',
   'constructor', '__proto__', 'prototype',
   'Reflect', 'Object', 'Proxy', 'Symbol', 'arguments', 'Atomics', 'WebAssembly',
   'Buffer', 'queueMicrotask', 'setImmediate',
+  'evaluate', 'evalScope', 'strudelScope',
 ]);
 const LOOP_TYPES = new Set(['WhileStatement', 'DoWhileStatement', 'ForStatement', 'ForInStatement', 'ForOfStatement']);
 const MODULE_TYPES = new Set(['ImportExpression', 'ImportDeclaration', 'ExportNamedDeclaration', 'ExportDefaultDeclaration', 'MetaProperty']);
@@ -107,7 +110,7 @@ function evaluateInWorker(code) {
       outcome = m;
       clearTimeout(timer);
       timer = setTimeout(() => {
-        if (outcome.ok) return kill(`timeout after ${EVAL_TIMEOUT_MS} ms (worker unresponsive after evaluation)`);
+        if (outcome.ok) return kill(`worker unresponsive after result (ping timeout ${PING_TIMEOUT_MS} ms)`);
         // Keep the original error class; just discard the poisoned worker.
         if (worker === w) worker = null;
         w.terminate();

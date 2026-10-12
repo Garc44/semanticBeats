@@ -86,7 +86,7 @@ describe('checkValidity', () => {
     expect(await cls('s("bd*1e9")')).toBe('runtime');
     const r = await checkValidity('const f=()=>Promise.resolve().then(f); f(); s("bd")');
     expect(r.errorClass).toBe('runtime');
-    expect(r.detail).toContain('timeout');
+    expect(r.detail).toContain('unresponsive');
     expect((await checkValidity('s("bd*4")')).valid).toBe(true);
   }, 30000);
 
@@ -105,5 +105,10 @@ describe('checkValidity', () => {
   it('handles overlapping calls', async () => {
     const rs = await Promise.all([cls('s("bd*4")'), cls('s("~ ~")'), cls('fooBar(1)')]);
     expect(rs).toEqual([null, 'silent', 'unknown_function']);
+  });
+
+  it('rejects Strudel string-eval entry points', async () => {
+    expect(await cls("await evaluate('(() => { throw new Error(String(typeof process)) })()')")).toBe('forbidden');
+    expect(await cls('evalScope({}); s("bd")')).toBe('forbidden');
   });
 });

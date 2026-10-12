@@ -89,4 +89,21 @@ describe('checkValidity', () => {
     expect(r.detail).toContain('timeout');
     expect((await checkValidity('s("bd*4")')).valid).toBe(true);
   }, 30000);
+
+  it('rejects computed keys in destructuring, literals and classes', async () => {
+    expect(await cls("const {['constr'+'uctor']: C} = s('bd'); s('bd')")).toBe('forbidden');
+    expect(await cls("const {'constructor': C} = s('bd'); s('bd')")).toBe('forbidden');
+    expect(await cls("const o = {['a'+'b']: 1}; s('bd')")).toBe('forbidden');
+    expect(await cls("class A { ['m'+'x']() {} }; s('bd')")).toBe('forbidden');
+  });
+
+  it('keeps the worker usable after a starving payload that also throws', async () => {
+    expect(await cls('const f=()=>Promise.resolve().then(f); f(); null.x')).toBe('runtime');
+    expect(await cls('s("bd*4")')).toBe(null);
+  }, 30000);
+
+  it('handles overlapping calls', async () => {
+    const rs = await Promise.all([cls('s("bd*4")'), cls('s("~ ~")'), cls('fooBar(1)')]);
+    expect(rs).toEqual([null, 'silent', 'unknown_function']);
+  });
 });

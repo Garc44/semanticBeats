@@ -24,9 +24,16 @@ function findForbidden(node) {
   if (MODULE_TYPES.has(node.type)) return `module access (${node.type})`;
   if (node.type === 'Identifier' && FORBIDDEN_NAMES.has(node.name)) return `identifier ${node.name}`;
   if (node.type === 'ThisExpression') return 'this';
-  if (node.type === 'MemberExpression' && node.computed
-      && !(node.property.type === 'Literal' && typeof node.property.value === 'number')) {
-    return 'computed member access';
+  const keyed = node.type === 'MemberExpression' ? node.property
+    : (node.type === 'Property' || node.type === 'MethodDefinition' || node.type === 'PropertyDefinition') ? node.key
+    : null;
+  if (keyed) {
+    if (node.computed && !(keyed.type === 'Literal' && typeof keyed.value === 'number')) {
+      return 'computed member access';
+    }
+    if (!node.computed && keyed.type === 'Literal' && FORBIDDEN_NAMES.has(String(keyed.value))) {
+      return `property ${keyed.value}`;
+    }
   }
   for (const value of Object.values(node)) {
     for (const child of Array.isArray(value) ? value : [value]) {
@@ -82,24 +89,31 @@ function evaluateInWorker(code) {
       w.terminate();
       reject(new WorkerFailure(msg));
     };
-    let pendingHaps = null;
+    let outcome = null; // { ok, haps } or { ok:false, error }
     let timer = setTimeout(() => kill(`timeout after ${EVAL_TIMEOUT_MS} ms`), EVAL_TIMEOUT_MS);
-    const onMessage = m => {
-      if (m.pong === id) { done(); return resolve(pendingHaps); }
-      if (m.id !== id) return;
-      if (m.ok) {
-        // Code may have left a runaway microtask loop behind that starves the worker:
-        // confirm it is still responsive before trusting (and reusing) it.
-        pendingHaps = m.haps;
-        clearTimeout(timer);
-        timer = setTimeout(() => kill(`timeout after ${EVAL_TIMEOUT_MS} ms (worker unresponsive after evaluation)`), PING_TIMEOUT_MS);
-        return w.postMessage({ ping: id });
-      }
+    const settle = () => {
       done();
-      const err = new Error(m.error.message);
-      err.name = m.error.name;
-      err.code = m.error.code;
+      if (outcome.ok) return resolve(outcome.haps);
+      const err = new Error(outcome.error.message);
+      err.name = outcome.error.name;
+      err.code = outcome.error.code;
       reject(err);
+    };
+    const onMessage = m => {
+      if (m.pong === id) return settle();
+      if (m.id !== id) return;
+      // Code may have left a runaway microtask loop behind that starves the worker:
+      // confirm it is still responsive before trusting (and reusing) it.
+      outcome = m;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (outcome.ok) return kill(`timeout after ${EVAL_TIMEOUT_MS} ms (worker unresponsive after evaluation)`);
+        // Keep the original error class; just discard the poisoned worker.
+        if (worker === w) worker = null;
+        w.terminate();
+        settle();
+      }, PING_TIMEOUT_MS);
+      w.postMessage({ ping: id });
     };
     const onError = e => kill(`worker crashed: ${e?.message ?? e}`);
     const onExit = c => kill(`worker crashed: exit code ${c}`);
@@ -126,7 +140,16 @@ function fail(errorClass, detail, extra = {}) {
   };
 }
 
-export async function checkValidity(code) {
+let queue = Promise.resolve();
+
+// Serialised: the single worker handles one request at a time.
+export function checkValidity(code) {
+  const run = queue.then(() => checkValidityNow(code));
+  queue = run.catch(() => {});
+  return run;
+}
+
+async function checkValidityNow(code) {
   if (typeof code !== 'string' || !code.trim()) return fail('empty', 'no code');
 
   let ast;

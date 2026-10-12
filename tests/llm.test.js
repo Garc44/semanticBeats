@@ -271,3 +271,78 @@ describe('autoFixCode', () => {
     await expect(autoFixCode('broken', 'error')).rejects.toThrow();
   });
 });
+
+import { callOllamaDetailed } from '../src/llm.js';
+
+function bodyOf(call) { return JSON.parse(call[1].body); }
+
+describe('callOllamaDetailed', () => {
+  beforeEach(() => vi.restoreAllMocks());
+
+  it('keeps app defaults: temperature 0, seed 42, num_predict 200', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ message: { content: 'x' } }) });
+    await callOllamaDetailed('sys', 'user');
+    expect(bodyOf(global.fetch.mock.calls[0]).options).toEqual({ temperature: 0, seed: 42, num_predict: 200 });
+  });
+
+  it('forwards temperature, seed, numPredict and reports tokens via onCall', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({
+      message: { content: '```js\ns("bd")\n```' }, prompt_eval_count: 120, eval_count: 30,
+    }) });
+    const seen = [];
+    const r = await callOllamaDetailed('sys', 'user', { temperature: 0.7, seed: 1003, numPredict: 1024, onCall: x => seen.push(x) });
+    expect(bodyOf(global.fetch.mock.calls[0]).options).toEqual({ temperature: 0.7, seed: 1003, num_predict: 1024 });
+    expect(r.text).toBe('s("bd")');
+    expect(r.raw).toBe('```js\ns("bd")\n```');
+    expect(r).toMatchObject({ promptTokens: 120, evalTokens: 30 });
+    expect(typeof r.durationMs).toBe('number');
+    expect(seen).toHaveLength(1);
+  });
+});
+
+describe('generateTransformationPlan options', () => {
+  beforeEach(() => vi.restoreAllMocks());
+
+  it('forwards llm options to Ollama', async () => {
+    mockFetch(mockPlan());
+    await generateTransformationPlan('drums', 'kick', {}, null, { llm: { temperature: 0.7, seed: 7, numPredict: 1024 } });
+    expect(bodyOf(global.fetch.mock.calls[0]).options).toEqual({ temperature: 0.7, seed: 7, num_predict: 1024 });
+  });
+
+  it('reasoning: schema demands reasoning first and the plan returns it', async () => {
+    mockFetch(mockPlan({ reasoning: 'Four on the floor fits techno.' }));
+    const plan = await generateTransformationPlan('drums', 'kick', {}, null, { reasoning: true });
+    const schema = bodyOf(global.fetch.mock.calls[0]).format;
+    expect(Object.keys(schema.properties)[0]).toBe('reasoning');
+    expect(schema.required).toContain('reasoning');
+    expect(plan.reasoning).toBe('Four on the floor fits techno.');
+    expect(systemTextOf(global.fetch.mock.calls[0])).toContain('reasoning');
+  });
+
+  it('without reasoning the schema has no reasoning field', async () => {
+    mockFetch(mockPlan());
+    const plan = await generateTransformationPlan('drums', 'kick', {});
+    expect(bodyOf(global.fetch.mock.calls[0]).format.properties.reasoning).toBeUndefined();
+    expect(plan.reasoning).toBeUndefined();
+  });
+
+  it('injects graph context into the system prompt', async () => {
+    mockFetch(mockPlan());
+    await generateTransformationPlan('drums', 'kick', {}, null, { graphContext: 'detroit → 118–127 BPM' });
+    expect(systemTextOf(global.fetch.mock.calls[0])).toContain('detroit → 118–127 BPM');
+  });
+
+  it('catalogOverride restricts the selectedId enum', async () => {
+    const { soundLibrary } = await import('../src/library/soundLibrary.js');
+    const two = soundLibrary.drums.slice(0, 2);
+    mockFetch(mockPlan({ selectedId: two[0].id }));
+    await generateTransformationPlan('drums', 'kick', {}, null, { catalogOverride: two });
+    expect(bodyOf(global.fetch.mock.calls[0]).format.properties.selectedId.enum).toEqual(two.map(p => p.id));
+  });
+
+  it('few-shot examples contain no typos', async () => {
+    mockFetch(mockPlan());
+    await generateTransformationPlan('drums', 'kick', {});
+    expect(systemTextOf(global.fetch.mock.calls[0])).not.toContain('exlaplanation');
+  });
+});

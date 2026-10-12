@@ -118,3 +118,11 @@ describe('buildIntent', () => {
     expect(second.layers).toEqual([]);                     // must NOT contain first call's layers
   });
 });
+
+describe('buildIntent llm options', () => {
+  it('forwards llm options to the classifier call', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ message: { content: '{"genre":"techno","key":"A","scale":"minor","energy":"mid","moods":["dark"]}' } }) });
+    await buildIntent('dark techno', { temperature: 0.7, seed: 9, numPredict: 1024 });
+    expect(JSON.parse(global.fetch.mock.calls[0][1].body).options).toEqual({ temperature: 0.7, seed: 9, num_predict: 1024 });
+  });
+});

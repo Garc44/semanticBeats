@@ -12,15 +12,17 @@ const TRACK_ROLES = {
 };
 
 // — Ollama config (local: no key, no quota, runs offline) —
-// Use a 7-8B instruct model — far more capable than the old 3B at intent mapping.
+// Browser: Vite env. Node (eval/): process env. Default: local qwen2.5:7b.
 // Pull it first:  ollama pull qwen2.5:7b   (or set VITE_OLLAMA_MODEL).
-const OLLAMA_MODEL = import.meta.env?.VITE_OLLAMA_MODEL ?? 'qwen2.5:7b';
-const OLLAMA_URL = import.meta.env?.VITE_OLLAMA_URL ?? 'http://localhost:11434/api/chat';
+export const OLLAMA_MODEL = import.meta.env?.VITE_OLLAMA_MODEL ?? globalThis.process?.env?.VITE_OLLAMA_MODEL ?? 'qwen2.5:7b';
+export const OLLAMA_URL = import.meta.env?.VITE_OLLAMA_URL ?? globalThis.process?.env?.VITE_OLLAMA_URL ?? 'http://localhost:11434/api/chat';
 
-// Single Ollama call. Returns fence-stripped response text.
-// `schema` → Ollama's `format` (JSON Schema) for constrained output. Omit for free-text (autoFix).
-// Throws on HTTP error — callers that must degrade gracefully wrap in try/catch.
-export async function callOllama(systemPrompt, userPrompt, { schema = null } = {}) {
+// Single Ollama call with timing + token accounting. App defaults are deterministic
+// (temperature 0, seed 42); the evaluation harness overrides them per run.
+// `schema` -> Ollama's `format` (JSON Schema). Throws on HTTP error.
+export async function callOllamaDetailed(systemPrompt, userPrompt, {
+  schema = null, temperature = 0, seed = 42, numPredict = 200, onCall = null,
+} = {}) {
   const body = {
     model: OLLAMA_MODEL,
     messages: [
@@ -29,10 +31,11 @@ export async function callOllama(systemPrompt, userPrompt, { schema = null } = {
     ],
     stream: false,
     keep_alive: '30m',                                   // pin model in RAM — no cold reload between prompts
-    options: { temperature: 0, seed: 42, num_predict: 200 }, // deterministic + cap output (JSON is small)
+    options: { temperature, seed, num_predict: numPredict },
   };
   if (schema) body.format = schema;
 
+  const started = Date.now();
   const response = await fetch(OLLAMA_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -42,29 +45,63 @@ export async function callOllama(systemPrompt, userPrompt, { schema = null } = {
   if (!response.ok) throw new Error(`Ollama HTTP ${response.status}`);
   const data = await response.json();
   const raw = data.message?.content ?? '';
-  return raw.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
+  const result = {
+    text: raw.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim(),
+    raw,
+    promptTokens: data.prompt_eval_count ?? 0,
+    evalTokens: data.eval_count ?? 0,
+    durationMs: Date.now() - started,
+  };
+  onCall?.(result);
+  return result;
+}
+
+// Returns fence-stripped response text.
+export async function callOllama(systemPrompt, userPrompt, options = {}) {
+  return (await callOllamaDetailed(systemPrompt, userPrompt, options)).text;
 }
 
 // Ollama supports full JSON Schema in `format` — so we enforce key set, enums, numeric
 // ranges, and additionalProperties:false at the model level (stronger than a cloud subset).
-function buildPlanSchema(catalog) {
+function buildPlanSchema(catalog, { reasoning = false } = {}) {
+  const properties = {
+    // Property order matters: the grammar makes the model write reasoning BEFORE choosing.
+    ...(reasoning ? { reasoning: { type: 'string' } } : {}),
+    selectedId: { type: 'string', enum: catalog.map(p => p.id) },
+    explanation: { type: 'string' },
+    modifications: {
+      type: 'object',
+      properties: {
+        speed: { type: 'number', minimum: 0.25, maximum: 4.0 },
+        slowdown: { type: 'integer', minimum: 1 },
+      },
+      additionalProperties: false,
+    },
+  };
   return {
     type: 'object',
-    properties: {
-      selectedId: { type: 'string', enum: catalog.map(p => p.id) },
-      explanation: { type: 'string' },
-      modifications: {
-        type: 'object',
-        properties: {
-          speed: { type: 'number', minimum: 0.25, maximum: 4.0 },
-          slowdown: { type: 'integer', minimum: 1 },
-        },
-        additionalProperties: false,
-      },
-    },
-    required: ['selectedId'],
+    properties,
+    required: reasoning ? ['reasoning', 'selectedId'] : ['selectedId'],
     additionalProperties: false,
   };
+}
+
+const PLAN_EXAMPLES = [
+  { prompt: 'something darker and hypnotic',
+    reasoning: 'Dark hypnotic techno wants a sparse, low-filtered part that repeats without drama.',
+    plan: { selectedId: '<dark/hypnotic id>', explanation: 'deep rolling pattern matches the dark mood', modifications: { speed: 1.0, slowdown: 1 } } },
+  { prompt: 'give me something more driving',
+    reasoning: 'Driving means steady, accented hits on every beat at full tempo.',
+    plan: { selectedId: '<punchy id>', explanation: 'punchy pattern adds drive', modifications: { speed: 1.0, slowdown: 1 } } },
+  { prompt: 'same energy but faster',
+    reasoning: 'The character should stay; only the tempo doubles.',
+    plan: { selectedId: '<current-style id>', explanation: 'keeps the feel, doubles the pace', modifications: { speed: 2.0, slowdown: 1 } } },
+];
+
+function renderPlanExamples(reasoning) {
+  return PLAN_EXAMPLES
+    .map(e => `"${e.prompt}" -> ${JSON.stringify(reasoning ? { reasoning: e.reasoning, ...e.plan } : e.plan)}`)
+    .join('\n');
 }
 
 function buildPatchSchema(available) {
@@ -87,12 +124,13 @@ export function warmUpModel() {
   }).catch(() => {}); // best-effort — ignore failures (Ollama not running yet, etc.)
 }
 
-export async function generateTransformationPlan(pillarName, userPrompt, currentTracksState = {}, intent = null) {
+export async function generateTransformationPlan(pillarName, userPrompt, currentTracksState = {}, intent = null, {
+  llm = {}, reasoning = false, graphContext = null, catalogOverride = null,
+} = {}) {
   try {
     const fullCatalog = soundLibrary[pillarName] ?? [];
-    const catalog = intent
-      ? rankPatternsByIntent(pillarName, intent).slice(0, 8).map(r => r.pattern)
-      : fullCatalog;
+    const catalog = catalogOverride
+      ?? (intent ? rankPatternsByIntent(pillarName, intent).slice(0, 8).map(r => r.pattern) : fullCatalog);
     const catalogSummary = catalog.map(p => ({ id: p.id, name: p.name, tags: p.tags }));
 
     const otherTracks = Object.entries(currentTracksState)
@@ -116,19 +154,17 @@ ${otherTracks || '(none)'}
 
 Catalog (choose selectedId from these only):
 ${JSON.stringify(catalogSummary, null, 2)}
-${intentBlock}
+${intentBlock}${graphContext ? `\nKnowledge graph context (curated genre → tempo → pattern → function links):\n${graphContext}\n` : ''}
 Rules:
-- selectedId MUST be one of the catalog ids above.
+${reasoning ? '- reasoning: FIRST write 2–4 sentences thinking like a producer — which genre conventions, tempo and groove the request implies, and which catalog pattern fulfils them. Then choose.\n' : ''}- selectedId MUST be one of the catalog ids above.
 - explanation: one short sentence on why this pattern fits the request.
 - modifications.speed (0.25–4.0) and modifications.slowdown (integer ≥ 1): keep both at 1 UNLESS the user explicitly asks to change tempo. Speed up → speed 2.0; slow down → slowdown 2.
 - Output ONLY the JSON object. No prose, no markdown.
 
 Examples (ids are illustrative — always pick a real id from the catalog above):
-"something darker and hypnotic"   -> {"selectedId":"<dark/hypnotic id>","explanation":"deep rolling pattern matches the dark mood","modifications":{"speed":1.0,"slowdown":1}}
-"give me something more driving"  -> {"selectedId":"<punchy id>","exlaplanation":"punchy pattern adds drive","modifications":{"speed":1.0,"slowdown":1}}
-"same energy but faster"          -> {"selectedId":"<current-style id>","explanation":"keeps the feel, doubles the pace","modifications":{"speed":2.0,"slowdown":1}}`;
+${renderPlanExamples(reasoning)}`;
 
-    const cleaned = await callOllama(systemPrompt, userPrompt, { schema: buildPlanSchema(catalog) });
+    const cleaned = await callOllama(systemPrompt, userPrompt, { ...llm, schema: buildPlanSchema(catalog, { reasoning }) });
     const plan = JSON.parse(cleaned);
 
     if (typeof plan.selectedId !== 'string' || !plan.selectedId) return null;
@@ -141,7 +177,12 @@ Examples (ids are illustrative — always pick a real id from the catalog above)
     const tempoRequested = /faster|slower|speed|slow|fast|half|double|tempo|bpm/i.test(userPrompt);
     const safeMods = tempoRequested ? mods : { ...mods, speed: 1.0, slowdown: 1 };
 
-    return { selectedId: plan.selectedId, explanation: plan.explanation ?? '', modifications: safeMods };
+    return {
+      selectedId: plan.selectedId,
+      explanation: plan.explanation ?? '',
+      modifications: safeMods,
+      ...(reasoning ? { reasoning: plan.reasoning ?? '' } : {}),
+    };
   } catch {
     return null;
   }

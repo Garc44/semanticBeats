@@ -114,7 +114,7 @@ function buildIntentSchema() {
 
 // One classification call. Small local models are good at this; keep it to
 // classification only — no code, no notation, just controlled-vocabulary JSON.
-export async function generateIntent(prompt) {
+export async function generateIntent(prompt, llm = {}) {
   try {
     const systemPrompt = `You are a music producer's assistant. Classify the user's request into a musical intent object.
 
@@ -128,7 +128,7 @@ Examples:
 "glitchy lo-fi hip hop beat with rhodes chords" -> {"genre":"lofi_hiphop","key":"A","scale":"minor","energy":"low","moods":["warm","minimal"],"textures":["glitch","dusty"],"layers":[{"pillar":"drums","character":"loose swung boom-bap"},{"pillar":"melody","character":"warm rhodes 7th chords"}]}
 "dark driving techno" -> {"genre":"techno","key":"D","scale":"phrygian","energy":"high","moods":["dark","driving"],"textures":["driving"],"layers":[{"pillar":"drums","character":"pounding four on the floor"},{"pillar":"bass","character":"rolling dark bassline"}]}`;
 
-    const cleaned = await callOllama(systemPrompt, prompt, { schema: buildIntentSchema() });
+    const cleaned = await callOllama(systemPrompt, prompt, { ...llm, schema: buildIntentSchema() });
     const intent = JSON.parse(cleaned);
     if (!intent || typeof intent !== 'object') return null;
     return intent;
@@ -144,10 +144,10 @@ function compact(obj) {
 }
 
 // Total function: defaults ← LLM ← lexer (rightmost wins). Never returns null.
-export async function buildIntent(prompt) {
+export async function buildIntent(prompt, llm = {}) {
   const lexed = lexIntent(prompt);
-  const llm = await generateIntent(prompt);
-  const intent = { ...DEFAULT_INTENT, ...compact(llm ?? {}), ...compact({ bpm: lexed.bpm, genre: lexed.genre, textures: lexed.textures }) };
+  const llmIntent = await generateIntent(prompt, llm);
+  const intent = { ...DEFAULT_INTENT, ...compact(llmIntent ?? {}), ...compact({ bpm: lexed.bpm, genre: lexed.genre, textures: lexed.textures }) };
   intent.layers = [...(intent.layers ?? [])];
   if (!intent.bpm) intent.bpm = GENRE_DEFAULT_BPM[intent.genre] ?? 126;
   // Ensure lexer's instrument hints are represented as layers.

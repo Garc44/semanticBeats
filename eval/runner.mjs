@@ -8,7 +8,7 @@ import { EVAL_CONFIG } from './config.js';
 import { STAGES } from './stages/index.js';
 import { loadCorpus, validateCorpus, assertFrozen } from './corpus/corpus.js';
 import { runMatrix, collectMeta } from './runner/core.js';
-import { callOllamaDetailed, OLLAMA_MODEL } from '../src/llm.js';
+import { callOllamaDetailed, OLLAMA_MODEL, OLLAMA_URL } from '../src/llm.js';
 import { closeValidityWorker } from './validity.js';
 
 const { values: args } = parseArgs({
@@ -45,19 +45,25 @@ if (!existsSync(metaPath)) {
   writeFileSync(metaPath, JSON.stringify(await collectMeta({ corpus, config: { ...EVAL_CONFIG, stages: stages.map(s => s.id), reps, promptIds: prompts.map(p => p.id) } }), null, 2) + '\n');
 }
 
-// Warm-up: load the model into RAM so the first measured run is not a cold start.
-await callOllamaDetailed('Reply with OK.', 'OK', { numPredict: 1 });
-
 let res;
 try {
-  res = await runMatrix({
-    stages, prompts, reps,
-    seedBase: EVAL_CONFIG.seedBase,
-    temperature: EVAL_CONFIG.temperature,
-    maxConsecutiveCrashes: EVAL_CONFIG.maxConsecutiveCrashes,
-    outPath: args.out,
-  });
+  // Warm-up: load the model into RAM so the first measured run is not a cold start.
+  try {
+    await callOllamaDetailed('Reply with OK.', 'OK', { numPredict: 1 });
+  } catch (err) {
+    console.error(`Ollama not reachable at ${OLLAMA_URL} / model ${OLLAMA_MODEL} missing — start \`ollama serve\` and \`ollama pull ${OLLAMA_MODEL}\` (${err?.message ?? err})`);
+    process.exitCode = 1;
+  }
+  if (!process.exitCode) {
+    res = await runMatrix({
+      stages, prompts, reps,
+      seedBase: EVAL_CONFIG.seedBase,
+      temperature: EVAL_CONFIG.temperature,
+      maxConsecutiveCrashes: EVAL_CONFIG.maxConsecutiveCrashes,
+      outPath: args.out,
+    });
+  }
 } finally {
   await closeValidityWorker();
 }
-console.log(`done: ${res.written} written, ${res.skipped} skipped, ${res.crashed} crashed`);
+if (res) console.log(`done: ${res.written} written, ${res.skipped} skipped, ${res.crashed} crashed`);

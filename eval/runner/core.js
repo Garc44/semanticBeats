@@ -1,4 +1,4 @@
-import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, truncateSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import os from 'node:os';
 import { performance } from 'node:perf_hooks';
@@ -18,6 +18,15 @@ export function readDoneKeys(path) {
     try { done.add(runKey(JSON.parse(line))); } catch { /* partial line from an interrupted write */ }
   }
   return done;
+}
+
+// An interrupted write can leave a partial last line without '\n'. Drop it so
+// the next append starts on a fresh line (the fragment was never a complete record).
+export function trimPartialTail(path) {
+  if (!existsSync(path)) return;
+  const buf = readFileSync(path);
+  if (buf.length === 0 || buf[buf.length - 1] === 0x0a) return;
+  truncateSync(path, buf.lastIndexOf(0x0a) + 1);
 }
 
 // Latency = wall clock of stage.run (all LLM calls + deterministic compilation).
@@ -45,8 +54,10 @@ export async function evaluateRun({ stage, prompt, rep, seed, temperature, now =
 }
 
 export async function runMatrix({ stages, prompts, reps, seedBase, temperature, outPath, maxConsecutiveCrashes, now, log = console.log }) {
-  const done = readDoneKeys(outPath);
   const errorsPath = `${outPath}.errors.jsonl`;
+  trimPartialTail(outPath);
+  trimPartialTail(errorsPath);
+  const done = readDoneKeys(outPath);
   const total = stages.length * prompts.length * reps;
   let written = 0, skipped = 0, crashed = 0, streak = 0;
 

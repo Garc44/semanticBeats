@@ -60,6 +60,20 @@ describe('runMatrix', () => {
     expect(existsSync(outPath) ? readFileSync(outPath, 'utf8').trim() : '').toBe('');
     expect(readLines(`${outPath}.errors.jsonl`)).toHaveLength(3);
     expect(readDoneKeys(outPath).size).toBe(0);
+    const res = await runMatrix({ ...base, stages: [codeStage], outPath });
+    expect(res).toEqual({ written: 4, skipped: 0, crashed: 0 });
+    expect(readDoneKeys(outPath).size).toBe(4);
+  });
+
+  it('resume after a partial trailing line keeps every line valid, no duplicates', async () => {
+    const outPath = tmp();
+    await runMatrix({ ...base, reps: 1, stages: [codeStage], outPath });
+    writeFileSync(outPath, readFileSync(outPath, 'utf8') + '{"stage":"S0","promptId":"u0');
+    const res = await runMatrix({ ...base, reps: 2, stages: [codeStage], outPath });
+    expect(res).toEqual({ written: 2, skipped: 2, crashed: 0 });
+    const recs = readLines(outPath);
+    expect(recs).toHaveLength(4);
+    expect(new Set(recs.map(runKey)).size).toBe(4);
   });
 
   it('records invalid code with its error class', async () => {

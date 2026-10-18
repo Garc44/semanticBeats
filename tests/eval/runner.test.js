@@ -26,13 +26,15 @@ describe('runMatrix', () => {
     expect(recs).toHaveLength(8);
     expect(new Set(recs.map(r => r.seed))).toEqual(new Set([1000, 1001]));
     const s0 = recs.find(r => r.stage === 'S0');
-    expect(s0).toMatchObject({ schema: 1, errorClass: null, executes: true, temperature: 0.7, llm: { calls: 1, promptTokens: 10, evalTokens: 5, llmMs: 3 } });
+    expect(s0).toMatchObject({ schema: 2, errorClass: null, executes: true, temperature: 0.7, llm: { calls: 1, promptTokens: 10, evalTokens: 5, llmMs: 3 } });
     expect(s0.tags).toEqual(expect.arrayContaining(['kick']));
     expect(s0.tags).toEqual(s0.tagsFromCode);
     const s3 = recs.find(r => r.stage === 'S3');
     expect(s3.tags).toEqual(['kick']);
     expect(typeof s3.latencyMs).toBe('number');
     expect(recs.slice(0, 2).map(r => r.stage)).toEqual(['S0', 'S3']);
+    expect(s0.harmony).toEqual({ pitched: 0, inKey: null, clashRate: null, lowCrowding: null });
+    expect(s0).toMatchObject({ form: null, fallbacks: null });
   });
 
   it('resumes: finished keys are skipped', async () => {
@@ -82,6 +84,24 @@ describe('runMatrix', () => {
     await runMatrix({ ...base, reps: 1, prompts: prompts.slice(0, 1), stages: [broken], outPath });
     const [rec] = readLines(outPath);
     expect(rec).toMatchObject({ errorClass: 'syntax', executes: false, tags: [], tagsFromCode: [] });
+    expect(rec.harmony).toBeNull();
+  });
+
+  it('records harmony over 4 bars, form and fallbacks from the stage result', async () => {
+    const outPath = tmp();
+    const formStage = {
+      id: 'S6', tagSource: 'code',
+      run: async () => ({
+        code: 'stack(s("bd*4").bank("RolandTR909"), n("<[0 ~ 0 ~] [0 ~ 0 ~] [0 ~ 0 ~] [3 ~ 0 ~]>").scale("C1:minor").s("sawtooth"), n("[0,2,4]").scale("C3:minor").s("square"))',
+        selectedIds: null, intent: null, plans: [], form: { subgenre: 'hypnotic' }, fallbacks: ['stab'], llm,
+      }),
+    };
+    await runMatrix({ ...base, reps: 1, prompts: prompts.slice(0, 1), stages: [formStage], outPath });
+    const [rec] = readLines(outPath);
+    expect(rec).toMatchObject({ schema: 2, form: { subgenre: 'hypnotic' }, fallbacks: ['stab'] });
+    expect(rec.harmony.inKey).toBe(1);
+    expect(rec.harmony.pitched).toBeGreaterThan(8);
+    expect(rec.tagsFromCode).toContain('hypnotic');   // only visible in the 4-bar window
   });
 
   it('runKey', () => expect(runKey({ stage: 'S0', promptId: 'd01', rep: 3 })).toBe('S0|d01|3'));

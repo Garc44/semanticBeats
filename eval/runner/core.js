@@ -4,6 +4,8 @@ import os from 'node:os';
 import { performance } from 'node:perf_hooks';
 import { checkValidity } from '../validity.js';
 import { tagsFromCode } from '../codeLexicon.js';
+import { harmonyMetrics } from '../harmony.js';
+import { EVAL_CONFIG } from '../config.js';
 import { tagsForPatternIds } from '../vocabulary.js';
 import { corpusHash } from '../corpus/corpus.js';
 import { OLLAMA_MODEL, OLLAMA_URL } from '../../src/llm.js';
@@ -30,24 +32,28 @@ export function trimPartialTail(path) {
 }
 
 // Latency = wall clock of stage.run (all LLM calls + deterministic compilation).
-// Validation and tagging happen outside the timed region.
+// Validation, tagging and harmony happen outside the timed region.
 export async function evaluateRun({ stage, prompt, rep, seed, temperature, now = () => performance.now() }) {
   const t0 = now();
   const result = await stage.run(prompt.text, { temperature, seed });
   const latencyMs = now() - t0;
 
-  const validity = await checkValidity(result.code);
-  const codeTags = validity.executes ? tagsFromCode(result.code, validity.haps) : [];
+  const cycles = EVAL_CONFIG.contentCycles;
+  const validity = await checkValidity(result.code, { cycles });
+  const content = validity.hapsAll ?? validity.haps;
+  const codeTags = validity.executes ? tagsFromCode(result.code, content, { cycles }) : [];
+  const harmony = validity.executes ? harmonyMetrics(content) : null;
   const tags = stage.tagSource === 'ids' ? tagsForPatternIds(result.selectedIds) : codeTags;
   const { outputs, ...llmCounts } = result.llm;
 
   return {
-    schema: 1,
+    schema: 2,
     stage: stage.id, promptId: prompt.id, category: prompt.category, rep, seed, temperature,
     code: result.code, selectedIds: result.selectedIds, intent: result.intent,
+    form: result.form ?? null, fallbacks: result.fallbacks ?? null,
     errorClass: validity.errorClass, errorDetail: validity.detail, unknownSounds: validity.unknownSounds,
     executes: validity.executes,
-    tags, tagsFromCode: codeTags, expected: prompt.expected,
+    tags, tagsFromCode: codeTags, expected: prompt.expected, harmony,
     latencyMs, llm: llmCounts, rawOutputs: outputs, plans: result.plans,
     timestamp: new Date().toISOString(),
   };

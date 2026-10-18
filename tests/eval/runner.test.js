@@ -27,10 +27,10 @@ describe('runMatrix', () => {
     expect(new Set(recs.map(r => r.seed))).toEqual(new Set([1000, 1001]));
     const s0 = recs.find(r => r.stage === 'S0');
     expect(s0).toMatchObject({ schema: 1, errorClass: null, executes: true, temperature: 0.7, llm: { calls: 1, promptTokens: 10, evalTokens: 5, llmMs: 3 } });
-    expect(s0.tags).toEqual(expect.arrayContaining(['kick', 'techno']));
+    expect(s0.tags).toEqual(expect.arrayContaining(['kick']));
     expect(s0.tags).toEqual(s0.tagsFromCode);
     const s3 = recs.find(r => r.stage === 'S3');
-    expect(s3.tags).toEqual(['kick', 'techno']);
+    expect(s3.tags).toEqual(['kick']);
     expect(typeof s3.latencyMs).toBe('number');
     expect(recs.slice(0, 2).map(r => r.stage)).toEqual(['S0', 'S3']);
   });

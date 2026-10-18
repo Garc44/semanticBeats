@@ -3,39 +3,40 @@ import { METHOD_CARDS } from '../../src/library/strudelDocs.js';
 import { TRANSFORMS } from '../../src/library/transformationsLibrary.js';
 import { normalizeLibraryTags, EVAL_VOCAB } from '../vocabulary.js';
 
-// Curated, deliberately small (stage S5): Genre ↔ Tempo ↔ Klangbaustein ↔ Strudel-Funktion.
-// Aliases are node attributes — the entry points for prompts without a direct tag hit.
-export const GENRE_NODES = [
-  { label: 'techno',     aliases: ['techno', 'berghain', 'tresor', 'peak time', 'peak-time', 'rave', 'klockworks'] },
-  { label: 'house',      aliases: ['house', 'chicago', 'garage', 'disco', 'jackin'] },
-  { label: 'minimal',    aliases: ['minimal', 'microhouse', 'stripped', 'minimalist'] },
-  { label: 'industrial', aliases: ['industrial', 'ebm', 'hard techno', 'factory', 'noise', 'warehouse'] },
-  { label: 'dub',        aliases: ['dub', 'dub techno', 'basic channel', 'echo chamber', 'chain reaction'] },
-  { label: 'ambient',    aliases: ['ambient', 'drone', 'chill', 'meditative', 'soundscape'] },
-  { label: 'trance',     aliases: ['trance', 'psy', 'goa', 'euphoric'] },
-  { label: 'lofi',       aliases: ['lofi', 'lo-fi', 'hip hop', 'hiphop', 'boom bap', 'study beats'] },
-  { label: 'acid',       aliases: ['acid', '303', 'squelchy', 'acid house'] },
+// Curated, deliberately small (stage S5, context for S6): Unterart ↔ Tempo ↔ Klangbaustein ↔ Strudel-Funktion.
+// Aliases are node attributes — the entry points for prompts without a direct tag hit (corpus category "alias").
+export const SUBGENRES = EVAL_VOCAB.subgenre;
+
+export const SUBGENRE_NODES = [
+  { label: 'acid',       aliases: ['acid', '303', 'squelch', 'squelchy'] },
   { label: 'detroit',    aliases: ['detroit', 'motor city', 'underground resistance', 'motown'] },
+  { label: 'dub',        aliases: ['dub', 'dub techno', 'basic channel', 'echo chamber', 'chain reaction'] },
+  { label: 'hypnotic',   aliases: ['hypnotic', 'hypnotisch', 'berghain', 'rolling', '4am', '4 uhr'] },
+  { label: 'industrial', aliases: ['industrial', 'ebm', 'hard techno', 'warehouse', 'factory', 'fabrik', 'noise'] },
+  { label: 'minimal',    aliases: ['minimal', 'minimalistisch', 'microhouse', 'stripped', 'minimalist'] },
+  { label: 'peak-time',  aliases: ['peak-time', 'peak time', 'tresor', 'rave', 'festival', 'mainstage'] },
 ];
 
 export const TEMPO_BANDS = [
-  { id: '70-95', min: 70, max: 95 },
-  { id: '118-127', min: 118, max: 127 },
-  { id: '128-134', min: 128, max: 134 },
+  { id: '115-124', min: 115, max: 124 },
+  { id: '125-129', min: 125, max: 129 },
+  { id: '130-134', min: 130, max: 134 },
   { id: '135-150', min: 135, max: 150 },
 ];
 
-export const GENRE_TEMPO = {
-  techno: ['128-134'], house: ['118-127'], minimal: ['118-127', '128-134'],
-  industrial: ['135-150'], dub: ['70-95', '118-127'], ambient: ['70-95'],
-  trance: ['135-150'], lofi: ['70-95'], acid: ['128-134', '135-150'],
-  detroit: ['118-127', '128-134'],
-};
+// Spec §2.3: standard tempo per subgenre. S6's compiler uses exactly this table.
+export const SUBGENRE_BPM = { acid: 132, detroit: 130, dub: 120, hypnotic: 128, industrial: 138, minimal: 125, 'peak-time': 134 };
 
-// Library default aesthetic: dark techno.
-export const DEFAULT_PATTERN_BANDS = ['128-134'];
+export function bandOfBpm(bpm) {
+  return TEMPO_BANDS.find(b => bpm >= b.min && bpm <= b.max) ?? null;
+}
 
-const GENRES = new Set(EVAL_VOCAB.genre);
+export const SUBGENRE_TEMPO = Object.fromEntries(SUBGENRES.map(s => [s, [bandOfBpm(SUBGENRE_BPM[s]).id]]));
+
+// Library default aesthetic: driving dark techno.
+export const DEFAULT_PATTERN_BANDS = ['130-134'];
+
+const SUBGENRE_SET = new Set(SUBGENRES);
 const METHOD_NAMES = new Set([...Object.keys(METHOD_CARDS), ...Object.values(TRANSFORMS).map(t => t.method)]);
 
 function patternMethods(pattern) {
@@ -52,9 +53,9 @@ export function buildKnowledgeGraph() {
   const edges = [];
   const methods = new Set();
 
-  for (const g of GENRE_NODES) {
-    nodes.push({ id: `genre:${g.label}`, type: 'genre', label: g.label, aliases: g.aliases });
-    for (const band of GENRE_TEMPO[g.label]) edges.push([`genre:${g.label}`, `tempo:${band}`]);
+  for (const s of SUBGENRE_NODES) {
+    nodes.push({ id: `subgenre:${s.label}`, type: 'subgenre', label: s.label, aliases: s.aliases });
+    for (const band of SUBGENRE_TEMPO[s.label]) edges.push([`subgenre:${s.label}`, `tempo:${band}`]);
   }
   for (const b of TEMPO_BANDS) nodes.push({ id: `tempo:${b.id}`, type: 'tempo', label: `${b.min}–${b.max} BPM`, min: b.min, max: b.max });
 
@@ -62,8 +63,8 @@ export function buildKnowledgeGraph() {
     for (const p of patterns) {
       const id = `pattern:${p.id}`;
       nodes.push({ id, type: 'pattern', label: p.name, pillar });
-      const genres = normalizeLibraryTags(p.tags).filter(t => GENRES.has(t));
-      const bands = genres.length ? [...new Set(genres.flatMap(g => GENRE_TEMPO[g]))] : DEFAULT_PATTERN_BANDS;
+      const subs = normalizeLibraryTags(p.tags).filter(t => SUBGENRE_SET.has(t));
+      const bands = subs.length ? [...new Set(subs.flatMap(s => SUBGENRE_TEMPO[s]))] : DEFAULT_PATTERN_BANDS;
       for (const band of bands) edges.push([`tempo:${band}`, id]);
       for (const m of patternMethods(p)) { methods.add(m); edges.push([id, `method:${m}`]); }
     }

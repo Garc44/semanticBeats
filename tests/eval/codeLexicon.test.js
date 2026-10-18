@@ -8,8 +8,8 @@ const tagsOf = async code => tagsFromCode(code, await queryCycle(code));
 afterAll(async () => { await closeValidityWorker(); });
 
 describe('tagsFromCode', () => {
-  it('four-on-the-floor 909 kick → kick, sparse, techno', async () => {
-    expect(await tagsOf('s("bd*4").bank("RolandTR909")')).toEqual(['kick', 'sparse', 'techno']);
+  it('four-on-the-floor 909 kick → kick, sparse', async () => {
+    expect(await tagsOf('s("bd*4").bank("RolandTR909")')).toEqual(['kick', 'sparse']);
   });
 
   it('works with serialized haps from checkValidity (worker path)', async () => {
@@ -39,9 +39,9 @@ describe('tagsFromCode', () => {
     expect(await tagsOf('n("0 2 4").scale("A:phrygian").s("sine")')).toContain('dark');
   });
 
-  it('crush ≤ 8 → gritty + lofi', async () => {
+  it('crush ≤ 8 → gritty', async () => {
     const tags = await tagsOf('s("hh*8").bank("RolandTR909").crush(6)');
-    expect(tags).toEqual(expect.arrayContaining(['gritty', 'lofi', 'hats']));
+    expect(tags).toEqual(expect.arrayContaining(['gritty', 'hats']));
   });
 
   it('dense cycles', async () => {

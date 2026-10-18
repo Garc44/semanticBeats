@@ -7,7 +7,7 @@ import { cohensKappa, meanJaccard } from '../../eval/corpus/agreement.js';
 
 function fixture() {
   const prompts = CATEGORIES.flatMap((category, c) =>
-    Array.from({ length: 10 }, (_, i) => ({ id: `${category[0]}${String(i + 1).padStart(2, '0')}`, category, text: `prompt ${c}-${i}`, expected: ['techno', 'kick'] })));
+    Array.from({ length: 10 }, (_, i) => ({ id: `${category[0]}${String(i + 1).padStart(2, '0')}`, category, text: `prompt ${c}-${i}`, expected: ['acid', 'kick'] })));
   return { version: 1, prompts };
 }
 
@@ -44,7 +44,7 @@ describe('corpusHash / assertFrozen', () => {
   it('changes when an expectation changes', () => {
     const a = fixture();
     const b = fixture();
-    b.prompts[0].expected = ['house'];
+    b.prompts[0].expected = ['dub'];
     expect(corpusHash(a)).not.toBe(corpusHash(b));
   });
 

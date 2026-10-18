@@ -1,58 +1,30 @@
 {
   "nodes": [
     {
-      "id": "genre:techno",
-      "type": "genre",
-      "label": "techno",
+      "id": "subgenre:acid",
+      "type": "subgenre",
+      "label": "acid",
       "aliases": [
-        "techno",
-        "berghain",
-        "tresor",
-        "peak time",
-        "peak-time",
-        "rave",
-        "klockworks"
+        "acid",
+        "303",
+        "squelch",
+        "squelchy"
       ]
     },
     {
-      "id": "genre:house",
-      "type": "genre",
-      "label": "house",
+      "id": "subgenre:detroit",
+      "type": "subgenre",
+      "label": "detroit",
       "aliases": [
-        "house",
-        "chicago",
-        "garage",
-        "disco",
-        "jackin"
+        "detroit",
+        "motor city",
+        "underground resistance",
+        "motown"
       ]
     },
     {
-      "id": "genre:minimal",
-      "type": "genre",
-      "label": "minimal",
-      "aliases": [
-        "minimal",
-        "microhouse",
-        "stripped",
-        "minimalist"
-      ]
-    },
-    {
-      "id": "genre:industrial",
-      "type": "genre",
-      "label": "industrial",
-      "aliases": [
-        "industrial",
-        "ebm",
-        "hard techno",
-        "factory",
-        "noise",
-        "warehouse"
-      ]
-    },
-    {
-      "id": "genre:dub",
-      "type": "genre",
+      "id": "subgenre:dub",
+      "type": "subgenre",
       "label": "dub",
       "aliases": [
         "dub",
@@ -63,82 +35,76 @@
       ]
     },
     {
-      "id": "genre:ambient",
-      "type": "genre",
-      "label": "ambient",
+      "id": "subgenre:hypnotic",
+      "type": "subgenre",
+      "label": "hypnotic",
       "aliases": [
-        "ambient",
-        "drone",
-        "chill",
-        "meditative",
-        "soundscape"
+        "hypnotic",
+        "hypnotisch",
+        "berghain",
+        "rolling",
+        "4am",
+        "4 uhr"
       ]
     },
     {
-      "id": "genre:trance",
-      "type": "genre",
-      "label": "trance",
+      "id": "subgenre:industrial",
+      "type": "subgenre",
+      "label": "industrial",
       "aliases": [
-        "trance",
-        "psy",
-        "goa",
-        "euphoric"
+        "industrial",
+        "ebm",
+        "hard techno",
+        "warehouse",
+        "factory",
+        "fabrik",
+        "noise"
       ]
     },
     {
-      "id": "genre:lofi",
-      "type": "genre",
-      "label": "lofi",
+      "id": "subgenre:minimal",
+      "type": "subgenre",
+      "label": "minimal",
       "aliases": [
-        "lofi",
-        "lo-fi",
-        "hip hop",
-        "hiphop",
-        "boom bap",
-        "study beats"
+        "minimal",
+        "minimalistisch",
+        "microhouse",
+        "stripped",
+        "minimalist"
       ]
     },
     {
-      "id": "genre:acid",
-      "type": "genre",
-      "label": "acid",
+      "id": "subgenre:peak-time",
+      "type": "subgenre",
+      "label": "peak-time",
       "aliases": [
-        "acid",
-        "303",
-        "squelchy",
-        "acid house"
+        "peak-time",
+        "peak time",
+        "tresor",
+        "rave",
+        "festival",
+        "mainstage"
       ]
     },
     {
-      "id": "genre:detroit",
-      "type": "genre",
-      "label": "detroit",
-      "aliases": [
-        "detroit",
-        "motor city",
-        "underground resistance",
-        "motown"
-      ]
-    },
-    {
-      "id": "tempo:70-95",
+      "id": "tempo:115-124",
       "type": "tempo",
-      "label": "70–95 BPM",
-      "min": 70,
-      "max": 95
+      "label": "115–124 BPM",
+      "min": 115,
+      "max": 124
     },
     {
-      "id": "tempo:118-127",
+      "id": "tempo:125-129",
       "type": "tempo",
-      "label": "118–127 BPM",
-      "min": 118,
-      "max": 127
+      "label": "125–129 BPM",
+      "min": 125,
+      "max": 129
     },
     {
-      "id": "tempo:128-134",
+      "id": "tempo:130-134",
       "type": "tempo",
-      "label": "128–134 BPM",
-      "min": 128,
+      "label": "130–134 BPM",
+      "min": 130,
       "max": 134
     },
     {
@@ -579,71 +545,39 @@
   ],
   "edges": [
     [
-      "genre:techno",
-      "tempo:128-134"
+      "subgenre:acid",
+      "tempo:130-134"
     ],
     [
-      "genre:house",
-      "tempo:118-127"
+      "subgenre:detroit",
+      "tempo:130-134"
     ],
     [
-      "genre:minimal",
-      "tempo:118-127"
+      "subgenre:dub",
+      "tempo:115-124"
     ],
     [
-      "genre:minimal",
-      "tempo:128-134"
+      "subgenre:hypnotic",
+      "tempo:125-129"
     ],
     [
-      "genre:industrial",
+      "subgenre:industrial",
       "tempo:135-150"
     ],
     [
-      "genre:dub",
-      "tempo:70-95"
+      "subgenre:minimal",
+      "tempo:125-129"
     ],
     [
-      "genre:dub",
-      "tempo:118-127"
+      "subgenre:peak-time",
+      "tempo:130-134"
     ],
     [
-      "genre:ambient",
-      "tempo:70-95"
-    ],
-    [
-      "genre:trance",
-      "tempo:135-150"
-    ],
-    [
-      "genre:lofi",
-      "tempo:70-95"
-    ],
-    [
-      "genre:acid",
-      "tempo:128-134"
-    ],
-    [
-      "genre:acid",
-      "tempo:135-150"
-    ],
-    [
-      "genre:detroit",
-      "tempo:118-127"
-    ],
-    [
-      "genre:detroit",
-      "tempo:128-134"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:basic_kick"
     ],
     [
       "tempo:135-150",
-      "pattern:kick_berghain_rumble"
-    ],
-    [
-      "tempo:128-134",
       "pattern:kick_berghain_rumble"
     ],
     [
@@ -667,7 +601,7 @@
       "method:size"
     ],
     [
-      "tempo:118-127",
+      "tempo:130-134",
       "pattern:kick_dirt_club_house"
     ],
     [
@@ -683,11 +617,7 @@
       "method:room"
     ],
     [
-      "tempo:118-127",
-      "pattern:kick_909_offbeat"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:kick_909_offbeat"
     ],
     [
@@ -711,11 +641,7 @@
       "method:size"
     ],
     [
-      "tempo:118-127",
-      "pattern:kick_909_ghost"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:kick_909_ghost"
     ],
     [
@@ -743,10 +669,6 @@
       "pattern:kick_909_syncopated"
     ],
     [
-      "tempo:128-134",
-      "pattern:kick_909_syncopated"
-    ],
-    [
       "pattern:kick_909_syncopated",
       "method:lpf"
     ],
@@ -763,7 +685,7 @@
       "method:size"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:kick_909_euclidean"
     ],
     [
@@ -787,7 +709,7 @@
       "method:size"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:kick_909_two_bar"
     ],
     [
@@ -807,7 +729,7 @@
       "method:size"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:kick_909_accented"
     ],
     [
@@ -827,11 +749,7 @@
       "method:size"
     ],
     [
-      "tempo:128-134",
-      "pattern:bass_acid_squelch"
-    ],
-    [
-      "tempo:135-150",
+      "tempo:130-134",
       "pattern:bass_acid_squelch"
     ],
     [
@@ -847,7 +765,7 @@
       "method:lpq"
     ],
     [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:bass_rolling_hypnotic"
     ],
     [
@@ -863,11 +781,7 @@
       "method:shape"
     ],
     [
-      "tempo:118-127",
-      "pattern:bass_minimal_offbeat"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:bass_minimal_offbeat"
     ],
     [
@@ -899,7 +813,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:bass_tribal_tom"
     ],
     [
@@ -911,7 +825,7 @@
       "method:lpf"
     ],
     [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:bass_rolling_saw_driver"
     ],
     [
@@ -927,7 +841,7 @@
       "method:sustain"
     ],
     [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:bass_stereo_groove_saw"
     ],
     [
@@ -947,7 +861,7 @@
       "method:sustain"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:bass_accented_offbeat_sub"
     ],
     [
@@ -967,11 +881,7 @@
       "method:sustain"
     ],
     [
-      "tempo:128-134",
-      "pattern:bass_resonant_acid_stepper"
-    ],
-    [
-      "tempo:135-150",
+      "tempo:130-134",
       "pattern:bass_resonant_acid_stepper"
     ],
     [
@@ -987,11 +897,7 @@
       "method:sustain"
     ],
     [
-      "tempo:70-95",
-      "pattern:bass_dub_cavern_chord"
-    ],
-    [
-      "tempo:118-127",
+      "tempo:115-124",
       "pattern:bass_dub_cavern_chord"
     ],
     [
@@ -1015,11 +921,7 @@
       "method:sustain"
     ],
     [
-      "tempo:118-127",
-      "pattern:bass_phrygian_creep"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:bass_phrygian_creep"
     ],
     [
@@ -1031,11 +933,7 @@
       "method:lpf"
     ],
     [
-      "tempo:118-127",
-      "pattern:bass_hypnotic_pulse"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:bass_hypnotic_pulse"
     ],
     [
@@ -1051,7 +949,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:bass_chromatic_descent"
     ],
     [
@@ -1067,7 +965,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:bass_phrygian_walk"
     ],
     [
@@ -1083,11 +981,7 @@
       "method:shape"
     ],
     [
-      "tempo:118-127",
-      "pattern:bass_sub_sine_filter"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:bass_sub_sine_filter"
     ],
     [
@@ -1107,7 +1001,7 @@
       "method:slow"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:bass_minor_saw_run"
     ],
     [
@@ -1143,10 +1037,6 @@
       "pattern:perc_distressed_clap"
     ],
     [
-      "tempo:70-95",
-      "pattern:perc_distressed_clap"
-    ],
-    [
       "pattern:perc_distressed_clap",
       "method:crush"
     ],
@@ -1167,11 +1057,7 @@
       "method:size"
     ],
     [
-      "tempo:118-127",
-      "pattern:perc_morphing_minimalist"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:perc_morphing_minimalist"
     ],
     [
@@ -1195,7 +1081,7 @@
       "method:slow"
     ],
     [
-      "tempo:70-95",
+      "tempo:130-134",
       "pattern:perc_breathing_ghost"
     ],
     [
@@ -1215,7 +1101,7 @@
       "method:slow"
     ],
     [
-      "tempo:70-95",
+      "tempo:130-134",
       "pattern:perc_tape_drift_warp"
     ],
     [
@@ -1235,19 +1121,11 @@
       "pattern:perc_909_warehouse_anthem"
     ],
     [
-      "tempo:128-134",
-      "pattern:perc_909_warehouse_anthem"
-    ],
-    [
       "pattern:perc_909_warehouse_anthem",
       "method:room"
     ],
     [
-      "tempo:118-127",
-      "pattern:perc_motor_city_groove"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:perc_motor_city_groove"
     ],
     [
@@ -1255,11 +1133,7 @@
       "method:room"
     ],
     [
-      "tempo:118-127",
-      "pattern:perc_sparse_open_hat"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:perc_sparse_open_hat"
     ],
     [
@@ -1275,11 +1149,7 @@
       "method:shape"
     ],
     [
-      "tempo:118-127",
-      "pattern:perc_modulated_hh"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:perc_modulated_hh"
     ],
     [
@@ -1295,11 +1165,7 @@
       "method:slow"
     ],
     [
-      "tempo:118-127",
-      "pattern:perc_rim_hat_minimal"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:perc_rim_hat_minimal"
     ],
     [
@@ -1311,11 +1177,7 @@
       "method:room"
     ],
     [
-      "tempo:118-127",
-      "pattern:perc_euclidean_hh"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:perc_euclidean_hh"
     ],
     [
@@ -1331,11 +1193,7 @@
       "method:slow"
     ],
     [
-      "tempo:118-127",
-      "pattern:perc_clap_hat_stack"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:perc_clap_hat_stack"
     ],
     [
@@ -1351,7 +1209,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:perc_degrading_oh"
     ],
     [
@@ -1371,7 +1229,7 @@
       "method:slow"
     ],
     [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:melody_ostgut_synth"
     ],
     [
@@ -1395,11 +1253,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
-      "pattern:melody_acid_sequence"
-    ],
-    [
-      "tempo:135-150",
+      "tempo:130-134",
       "pattern:melody_acid_sequence"
     ],
     [
@@ -1423,7 +1277,7 @@
       "method:shape"
     ],
     [
-      "tempo:135-150",
+      "tempo:125-129",
       "pattern:melody_shimmering_trance"
     ],
     [
@@ -1443,15 +1297,11 @@
       "method:room"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:melody_acid_chirp"
     ],
     [
-      "tempo:135-150",
-      "pattern:melody_acid_chirp"
-    ],
-    [
-      "tempo:118-127",
+      "tempo:125-129",
       "pattern:melody_acid_chirp"
     ],
     [
@@ -1467,7 +1317,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:melody_brain_melter"
     ],
     [
@@ -1487,7 +1337,7 @@
       "method:room"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:melody_modular_bleep"
     ],
     [
@@ -1503,7 +1353,7 @@
       "method:room"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:melody_overdriven_101"
     ],
     [
@@ -1519,11 +1369,7 @@
       "method:shape"
     ],
     [
-      "tempo:118-127",
-      "pattern:melody_tritone_tension"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:melody_tritone_tension"
     ],
     [
@@ -1551,7 +1397,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:melody_sparse_dissonant"
     ],
     [
@@ -1575,11 +1421,7 @@
       "method:shape"
     ],
     [
-      "tempo:118-127",
-      "pattern:melody_chromatic_fall"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:melody_chromatic_fall"
     ],
     [
@@ -1599,7 +1441,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:melody_phrygian_sparse"
     ],
     [
@@ -1623,7 +1465,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:melody_minor_dyad_filter"
     ],
     [
@@ -1647,11 +1489,7 @@
       "method:sustain"
     ],
     [
-      "tempo:118-127",
-      "pattern:melody_chromatic_upper"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:melody_chromatic_upper"
     ],
     [
@@ -1679,7 +1517,7 @@
       "method:shape"
     ],
     [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:arp_strobe_bleep"
     ],
     [
@@ -1707,7 +1545,7 @@
       "method:room"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:trans_minor_arp_tail"
     ],
     [
@@ -1731,7 +1569,7 @@
       "method:room"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:trans_chromatic_pan"
     ],
     [
@@ -1759,11 +1597,7 @@
       "method:room"
     ],
     [
-      "tempo:118-127",
-      "pattern:trans_sparse_chord_stab"
-    ],
-    [
-      "tempo:128-134",
+      "tempo:125-129",
       "pattern:trans_sparse_chord_stab"
     ],
     [
@@ -1787,7 +1621,7 @@
       "method:size"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:trans_tritone_arp"
     ],
     [
@@ -1819,7 +1653,7 @@
       "method:room"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:trans_minor7_stab"
     ],
     [
@@ -1843,7 +1677,7 @@
       "method:size"
     ],
     [
-      "tempo:128-134",
+      "tempo:130-134",
       "pattern:trans_tritone_stutter"
     ],
     [

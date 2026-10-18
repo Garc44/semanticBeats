@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { validateCorpus, corpusHash, assertFrozen, CATEGORIES } from '../../eval/corpus/corpus.js';
@@ -29,6 +29,16 @@ describe('validateCorpus', () => {
     expect(errors).toMatch(/no expected tags/);
     expect(errors).toMatch(/unknown category "other"/);
     expect(errors).toMatch(/expected 10 prompts in "underspecified"/);
+  });
+
+  it('categories follow spec Rev. 2 §5', () => {
+    expect(CATEGORIES).toEqual(['direct_hit', 'alias', 'structure', 'underspecified']);
+  });
+
+  it('the shipped sample prompts use known categories and tags', () => {
+    const sample = JSON.parse(readFileSync(new URL('../../eval/corpus/prompts.json', import.meta.url), 'utf8'));
+    const errors = validateCorpus(sample).filter(e => !e.startsWith('expected 10 prompts'));
+    expect(errors).toEqual([]);
   });
 });
 

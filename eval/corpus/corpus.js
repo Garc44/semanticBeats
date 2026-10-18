@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { ALL_TAGS } from '../vocabulary.js';
 
-export const CATEGORIES = ['direct_hit', 'genre_no_hit', 'structure', 'underspecified'];
+export const CATEGORIES = ['direct_hit', 'alias', 'structure', 'underspecified'];
 export const PROMPTS_PER_CATEGORY = 10;
 export const DEFAULT_CORPUS_PATH = fileURLToPath(new URL('./prompts.json', import.meta.url));
 export const DEFAULT_HASH_PATH = fileURLToPath(new URL('./FROZEN.sha256', import.meta.url));

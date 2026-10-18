@@ -1,0 +1,6 @@
+{"prompts":[
+{"id":"d01","category":"direct_hit","text":"Acid-Techno mit quietschender 303-Bassline","expected":["acid","bass","kick","driving"]},
+{"id":"a01","category":"alias","text":"klingt nach Berghain um 6 Uhr morgens","expected":["hypnotic","dark","kick","bass"]},
+{"id":"s01","category":"structure","text":"nur Kick, Bass und ein Stab, der Bass wechselt alle vier Takte","expected":["kick","bass","chords","hypnotic"]},
+{"id":"u01","category":"underspecified","text":"mach was Dunkles","expected":["dark","kick"]}
+]}

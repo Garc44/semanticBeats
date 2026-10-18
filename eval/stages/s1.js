@@ -10,7 +10,7 @@ export const SPEC_SOUNDS = {
   synths: ['sine', 'square', 'triangle', 'sawtooth'],
 };
 
-export const CORE_FUNCTIONS = ['s', 'note', 'n', 'stack', 'cat', 'seq', 'bank', 'scale', 'fast', 'slow', 'gain'];
+export const CORE_FUNCTIONS = ['s', 'note', 'n', 'stack', 'cat', 'seq', 'bank', 'scale', 'fast', 'slow', 'gain', 'setcpm'];
 
 const range = card => (card.type === 'enum' ? card.values.join('|') : `${card.min}–${card.max}`);
 

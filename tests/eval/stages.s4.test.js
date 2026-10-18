@@ -10,12 +10,12 @@ describe('S4 musical chain-of-thought', () => {
     const r = await S4.run('dark techno', { temperature: 0.7, seed: 1 });
     expect(S4).toMatchObject({ id: 'S4', tagSource: 'ids' });
     const planBodies = bodies().filter(isPlanCall);
-    expect(planBodies).toHaveLength(2);
+    expect(planBodies).toHaveLength(3);
     for (const b of planBodies) {
       expect(Object.keys(b.format.properties)[0]).toBe('reasoning');
       expect(b.format.required).toContain('reasoning');
     }
     expect(r.plans.every(p => p.plan.reasoning === 'Techno needs a steady pulse.')).toBe(true);
-    expect(r.selectedIds).toHaveLength(2);
+    expect(r.selectedIds).toHaveLength(3);
   });
 });

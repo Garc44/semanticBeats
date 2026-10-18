@@ -7,17 +7,19 @@ import { mockOllama, bodies, isIntentCall, isPlanCall, intentJson, firstChoicePl
 describe('S5 GraphRAG', () => {
   beforeEach(() => vi.restoreAllMocks());
 
-  it('keeps reasoning, injects graph context and graph-ranked catalog', async () => {
-    mockOllama(b => (isIntentCall(b) ? intentJson(['percussion']) : firstChoicePlan(b, { reasoning: 'r' })));
+  it('keeps reasoning, injects graph context and graph-ranked catalog for all three parts', async () => {
+    mockOllama(b => (isIntentCall(b) ? intentJson(['drums']) : firstChoicePlan(b, { reasoning: 'r' })));
     const r = await S5.run('a Motor City style groove', { temperature: 0.7, seed: 1 });
     expect(S5).toMatchObject({ id: 'S5', tagSource: 'ids' });
-    const [plan] = bodies().filter(isPlanCall);
-    expect(Object.keys(plan.format.properties)[0]).toBe('reasoning');
-    expect(plan.messages[0].content).toContain('Knowledge graph context');
-    expect(plan.messages[0].content).toContain('detroit');
-    expect(plan.format.properties.selectedId.enum).toHaveLength(8);
-    expect(plan.format.properties.selectedId.enum).toContain('perc_motor_city_groove');
-    expect(r.selectedIds).toHaveLength(1);
+    const plans = bodies().filter(isPlanCall);
+    expect(plans).toHaveLength(3);
+    for (const plan of plans) {
+      expect(Object.keys(plan.format.properties)[0]).toBe('reasoning');
+      expect(plan.messages[0].content).toContain('Knowledge graph context');
+      expect(plan.messages[0].content).toContain('detroit');
+      expect(plan.format.properties.selectedId.enum).toHaveLength(8);
+    }
+    expect(r.selectedIds).toHaveLength(3);
   });
 
   it('registry exposes all six stages in order, matching EVAL_CONFIG', () => {

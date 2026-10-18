@@ -1,10 +1,9 @@
 import { callOllamaDetailed } from '../../src/llm.js';
 import { extractCode, makeCallLog, llmOptions } from './common.js';
 
-// S0 — baseline: raw prompt, direct code output. The system prompt only states the
-// task and output format; without it the model answers in prose.
+// S0 — baseline: raw prompt, direct code output. The system prompt states the task (three techno parts) and the output format.
 export const S0_SYSTEM = `You are a live-coding assistant for Strudel (strudel.cc), a JavaScript pattern language for music.
-Write Strudel code for the user's request.
+Write a techno loop in Strudel for the user's request with three parts: drums (kick and hi-hats), a bassline, and a melodic part (stab or lead).
 Output ONLY the Strudel code — no prose, no markdown fences, no comments.`;
 
 export const S0 = {

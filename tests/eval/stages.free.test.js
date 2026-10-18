@@ -20,6 +20,8 @@ describe('S0 baseline', () => {
     const [b] = bodies();
     expect(b.format).toBeUndefined();
     expect(b.messages[0].content).toBe(S0_SYSTEM);
+    expect(S0_SYSTEM).toContain('three parts: drums (kick and hi-hats), a bassline, and a melodic part (stab or lead)');
+    expect(S0_SYSTEM).toContain('techno loop');
     expect(b.messages[1].content).toBe('dark techno');
     expect(b.options).toEqual({ temperature: 0.7, seed: 1000, num_predict: 1024 });
   });
@@ -49,6 +51,7 @@ describe('S1 specification', () => {
     expect(block).toContain('RolandTR909');
     expect(block).toContain('sawtooth');
     expect(block).toContain('stack');
+    expect(block).toContain('setcpm');
     for (const name of Object.keys(METHOD_CARDS)) expect(block).toMatch(new RegExp(`^- ${name}\\(`, 'm'));
     expect(block).toContain('- lpf(hz): 100–5000 — ');
     expect(block).toContain('- vowel("a".."u"): a|e|i|o|u — ');
@@ -70,11 +73,10 @@ describe('S1 specification', () => {
 describe('S2 few-shot', () => {
   beforeEach(() => vi.restoreAllMocks());
 
-  it('examples block holds the top-3 library patterns per intent pillar, with code', () => {
-    const block = buildExamplesBlock({ genre: 'techno', moods: ['dark'], textures: [], layers: [{ pillar: 'drums' }, { pillar: 'bass' }] });
-    expect((block.match(/^\[drums\]/gm) ?? []).length).toBe(3);
-    expect((block.match(/^\[bass\]/gm) ?? []).length).toBe(3);
-    expect(block).not.toMatch(/^\[melody\]/m);
+  it('examples block holds the top-3 library patterns for drums, bass and melody, with code', () => {
+    const block = buildExamplesBlock({ genre: 'techno', moods: ['dark'], textures: [], layers: [{ pillar: 'drums' }] });
+    for (const pillar of ['drums', 'bass', 'melody']) expect((block.match(new RegExp(`^\\[${pillar}\\]`, 'gm')) ?? []).length).toBe(3);
+    expect(block).not.toMatch(/^\[percussion\]/m);
     expect(block).toMatch(/^\[drums\] \w+ \(tags: .+\): s\(/m);
   });
 

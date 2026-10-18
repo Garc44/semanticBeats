@@ -1,16 +1,15 @@
 import { buildIntent } from '../../src/intent.js';
 import { generateTransformationPlan } from '../../src/llm.js';
 import { compileTrack } from '../../src/compiler.js';
-import { PILLAR_NAMES, makePillars } from '../../src/pillars.js';
+import { makePillars } from '../../src/pillars.js';
 import { EVAL_CONFIG } from '../config.js';
 
-// Underspecified prompts with no recognisable part get a minimal techno track.
-export const DEFAULT_TRACK_PILLARS = ['drums', 'bass'];
+// Spec Rev. 2 §2.1: every stage produces drums, bass and a melodic part,
+// so harmony is measurable and stages are comparable.
+export const TRACK_PILLARS = ['drums', 'bass', 'melody'];
 
-export function trackPillars(intent) {
-  const wanted = new Set((intent?.layers ?? []).map(l => l.pillar));
-  const ordered = PILLAR_NAMES.filter(p => wanted.has(p));
-  return ordered.length ? ordered : DEFAULT_TRACK_PILLARS;
+export function trackPillars() {
+  return TRACK_PILLARS;
 }
 
 export function assembleStack(layerCodes) {

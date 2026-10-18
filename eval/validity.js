@@ -78,7 +78,7 @@ export async function closeValidityWorker() {
 
 class WorkerFailure extends Error {}
 
-function evaluateInWorker(code) {
+function evaluateInWorker(code, cycles) {
   return new Promise((resolve, reject) => {
     const w = getWorker();
     const id = nextId++;
@@ -92,11 +92,11 @@ function evaluateInWorker(code) {
       w.terminate();
       reject(new WorkerFailure(msg));
     };
-    let outcome = null; // { ok, haps } or { ok:false, error }
+    let outcome = null; // { ok, haps, hapsAll } or { ok:false, error }
     let timer = setTimeout(() => kill(`timeout after ${EVAL_TIMEOUT_MS} ms`), EVAL_TIMEOUT_MS);
     const settle = () => {
       done();
-      if (outcome.ok) return resolve(outcome.haps);
+      if (outcome.ok) return resolve({ haps: outcome.haps, hapsAll: outcome.hapsAll });
       const err = new Error(outcome.error.message);
       err.name = outcome.error.name;
       err.code = outcome.error.code;
@@ -121,7 +121,7 @@ function evaluateInWorker(code) {
     const onError = e => kill(`worker crashed: ${e?.message ?? e}`);
     const onExit = c => kill(`worker crashed: exit code ${c}`);
     w.on('message', onMessage); w.on('error', onError); w.on('exit', onExit);
-    w.postMessage({ id, code });
+    w.postMessage({ id, code, cycles });
   });
 }
 
@@ -139,20 +139,21 @@ function fail(errorClass, detail, extra = {}) {
   return {
     valid: false,
     executes: EXECUTING_CLASSES.includes(errorClass),
-    errorClass, detail, haps: [], unknownSounds: [], ...extra,
+    errorClass, detail, haps: [], hapsAll: [], unknownSounds: [], ...extra,
   };
 }
 
 let queue = Promise.resolve();
 
 // Serialised: the single worker handles one request at a time.
-export function checkValidity(code) {
-  const run = queue.then(() => checkValidityNow(code));
+// cycles = content window for lexicon and harmony; classification always uses bar 0.
+export function checkValidity(code, { cycles = 1 } = {}) {
+  const run = queue.then(() => checkValidityNow(code, cycles));
   queue = run.catch(() => {});
   return run;
 }
 
-async function checkValidityNow(code) {
+async function checkValidityNow(code, cycles) {
   if (typeof code !== 'string' || !code.trim()) return fail('empty', 'no code');
 
   let ast;
@@ -164,19 +165,19 @@ async function checkValidityNow(code) {
   const forbidden = findForbidden(ast);
   if (forbidden) return fail('forbidden', forbidden);
 
-  let haps;
+  let haps, hapsAll;
   try {
-    haps = await evaluateInWorker(code);
+    ({ haps, hapsAll } = await evaluateInWorker(code, cycles));
   } catch (err) {
     if (err instanceof WorkerFailure) return fail('runtime', err.message);
     return fail(classifyThrow(err), String(err?.message ?? err));
   }
 
   const audible = haps.filter(h => isAudible(h.value));
-  if (!audible.length) return fail('silent', 'no audible events in cycle 0..1', { haps });
+  if (!audible.length) return fail('silent', 'no audible events in cycle 0..1', { haps, hapsAll });
 
   const unknownSounds = [...new Set(audible.map(h => h.value).filter(v => !isKnownSound(v)).map(soundLabel))];
-  if (unknownSounds.length) return fail('unknown_sound', unknownSounds.join(', '), { haps, unknownSounds });
+  if (unknownSounds.length) return fail('unknown_sound', unknownSounds.join(', '), { haps, hapsAll, unknownSounds });
 
-  return { valid: true, executes: true, errorClass: null, detail: null, haps, unknownSounds: [] };
+  return { valid: true, executes: true, errorClass: null, detail: null, haps, hapsAll, unknownSounds: [] };
 }

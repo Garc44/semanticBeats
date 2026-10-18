@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { queryCycle } from '../../eval/strudelHeadless.js';
+import { queryCycle, queryCycles, evaluatePattern } from '../../eval/strudelHeadless.js';
 
 describe('queryCycle', () => {
   it('returns one cycle of haps for a valid pattern', async () => {
@@ -40,5 +40,22 @@ describe('queryCycle', () => {
   it('does not leave string-eval helpers on globalThis', async () => {
     await queryCycle('s("bd")');
     for (const n of ['evaluate', 'evalScope', 'strudelScope']) expect(typeof globalThis[n]).toBe('undefined');
+  });
+});
+
+describe('multi-bar queries', () => {
+  it('queryCycles spans n bars; queryCycle stays bar 0', async () => {
+    expect(await queryCycles('s("bd*4")', 4)).toHaveLength(16);
+    expect(await queryCycle('s("bd*4")')).toHaveLength(4);
+  });
+
+  it('alternation advances per bar', async () => {
+    const haps = await queryCycles('note("<c3 e3 g3 b3>")', 4);
+    expect(haps.map(h => h.value.note)).toEqual(['c3', 'e3', 'g3', 'b3']);
+  });
+
+  it('evaluatePattern returns a queryable pattern', async () => {
+    const pat = await evaluatePattern('s("bd hh")');
+    expect(pat.queryArc(0, 2)).toHaveLength(4);
   });
 });

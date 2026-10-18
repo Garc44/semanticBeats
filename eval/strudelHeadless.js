@@ -39,8 +39,8 @@ export function loadStrudel() {
   return ready;
 }
 
-// Throws whatever Strudel throws. Returns haps of cycle [0, 1).
-export async function queryCycle(code) {
+// Throws whatever Strudel throws. Returns the evaluated pattern (labelled `$:` blocks stacked).
+export async function evaluatePattern(code) {
   const { core, transpiler } = await loadStrudel();
   labelled = [];
   const { pattern } = await core.evaluate(code, transpiler);
@@ -50,5 +50,15 @@ export async function queryCycle(code) {
     err.code = 'NO_PATTERN';
     throw err;
   }
-  return result.queryArc(0, 1);
+  return result;
+}
+
+// Haps of bars [0, cycles).
+export async function queryCycles(code, cycles = 1) {
+  return (await evaluatePattern(code)).queryArc(0, cycles);
+}
+
+// Haps of bar 0 — the validity window.
+export async function queryCycle(code) {
+  return queryCycles(code, 1);
 }

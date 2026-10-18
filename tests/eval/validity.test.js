@@ -112,3 +112,24 @@ describe('checkValidity', () => {
     expect(await cls('evalScope({}); s("bd")')).toBe('forbidden');
   });
 });
+
+describe('content window', () => {
+  it('hapsAll spans the requested bars, haps stays bar 0', async () => {
+    const r = await checkValidity('s("bd*4").bank("RolandTR909")', { cycles: 4 });
+    expect(r.errorClass).toBeNull();
+    expect(r.haps).toHaveLength(4);
+    expect(r.hapsAll).toHaveLength(16);
+    expect(r.hapsAll[15].whole).toEqual({ begin: 3.75, end: 4 });
+  });
+
+  it('defaults to one bar; non-executing classes have empty hapsAll', async () => {
+    expect((await checkValidity('s("bd*4").bank("RolandTR909")')).hapsAll).toHaveLength(4);
+    expect((await checkValidity('s("bd".fast(')).hapsAll).toEqual([]);
+  });
+
+  it('silent in bar 0 stays silent even if later bars sound', async () => {
+    const r = await checkValidity('s("<~ bd>").bank("RolandTR909")', { cycles: 4 });
+    expect(r.errorClass).toBe('silent');
+    expect(r.hapsAll.length).toBeGreaterThan(0);
+  });
+});

@@ -4,5 +4,6 @@ import { S2 } from './s2.js';
 import { S3 } from './s3.js';
 import { S4 } from './s4.js';
 import { S5 } from './s5.js';
+import { S6 } from './s6.js';
 
-export const STAGES = { S0, S1, S2, S3, S4, S5 };
+export const STAGES = { S0, S1, S2, S3, S4, S5, S6 };

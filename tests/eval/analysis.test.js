@@ -6,7 +6,8 @@ const rec = (stage, promptId, rep, o = {}) => ({
   errorClass: null, executes: true, tags: ['a'], tagsFromCode: ['a'], expected: ['a', 'b'],
   latencyMs: 1000, llm: { calls: 1, promptTokens: 100, evalTokens: 20, llmMs: 900 }, ...o,
 });
-const opts = { stages: ['S0', 'S1'], thresholds: { validity: 0.05, f1: 0.05, f1Code: 0.05, entropy: 0.05, latencyMs: 500 }, bootstrap: { iterations: 200, alpha: 0.05, seed: 1 } };
+const thresholds = { validity: 0.05, f1: 0.05, f1Code: 0.05, entropy: 0.05, inKey: 0.05, clashRate: 0.05, lowCrowding: 0.05, latencyMs: 500 };
+const opts = { stages: ['S0', 'S1'], thresholds, bootstrap: { iterations: 200, alpha: 0.05, seed: 1 } };
 
 describe('perPrompt', () => {
   it('validity over all runs, F1 over executing runs, entropy over valid runs', () => {
@@ -58,7 +59,56 @@ describe('summarize', () => {
   it('markdown + csv', () => {
     expect(toMarkdown(s)).toContain('| S1 |');
     const csv = toCsv(records).split('\n');
-    expect(csv[0]).toBe('stage,promptId,category,rep,seed,errorClass,executes,latencyMs,promptTokens,evalTokens,tags,tagsFromCode,expected');
+    expect(csv[0]).toBe('stage,promptId,category,rep,seed,errorClass,executes,latencyMs,promptTokens,evalTokens,tags,tagsFromCode,expected,inKey,clashRate,lowCrowding,fallbacks');
     expect(csv).toHaveLength(17);
+  });
+});
+
+describe('harmony and S6', () => {
+  const h = (inKey, clashRate, lowCrowding) => ({ pitched: 8, inKey, clashRate, lowCrowding });
+  const records = [];
+  for (const p of ['p1', 'p2', 'p3', 'p4']) for (const rep of [0, 1]) {
+    records.push(rec('S2', p, rep, { harmony: h(0.6, 0.3, 0.2) }));
+    records.push(rec('S5', p, rep, { harmony: h(0.7, 0.2, 0.1) }));
+    records.push(rec('S6', p, rep, {
+      harmony: h(1, 0.05, 0), fallbacks: rep ? ['stab'] : [],
+      form: { bassA: rep ? '0...............' : '1...............', hat: '..x...x...x...x.', bassB: 'a', openhat: 'b', clap: 'c', stab: 'd' },
+    }));
+  }
+  const s = summarize(records, { ...opts, stages: ['S2', 'S5', 'S6'], extraComparisons: [['S2', 'S6'], ['S5', 'S6']] });
+
+  it('per-stage harmony', () => {
+    expect(s.stages.S6.inKey.estimate).toBe(1);
+    expect(s.stages.S2.clashRate.estimate).toBeCloseTo(0.3, 10);
+  });
+
+  it('S6 fallback rate and lane entropy; other stages null', () => {
+    expect(s.stages.S6.fallbackRate).toBe(0.5);
+    expect(s.stages.S6.laneEntropy.hat).toBe(0);
+    expect(s.stages.S6.laneEntropy.bassA).toBe(1);
+    expect(s.stages.S2.laneEntropy).toBeNull();
+    expect(s.stages.S2.fallbackRate).toBeNaN();
+  });
+
+  it('extra comparisons S2→S6 and S5→S6 next to adjacent ones', () => {
+    const pairs = new Set(s.comparisons.map(c => `${c.from}>${c.to}`));
+    expect(pairs).toEqual(new Set(['S2>S5', 'S5>S6', 'S2>S6']));
+    const inKey = s.comparisons.find(c => c.from === 'S2' && c.to === 'S6' && c.metric === 'inKey');
+    expect(inKey).toMatchObject({ estimate: 0.4, substantial: true });
+  });
+
+  it('markdown has harmony and S6 tables', () => {
+    const md = toMarkdown(s);
+    expect(md).toContain('In key');
+    expect(md).toContain('Fallback rate');
+  });
+
+  // Review Focus 5
+  it('schema-1 records without harmony/form/fallbacks do not break the analysis', () => {
+    const old = [rec('S0', 'p1', 0), rec('S0', 'p2', 0)];
+    const res = summarize(old, { ...opts, stages: ['S0'] });
+    expect(res.stages.S0.inKey.estimate).toBeNaN();
+    expect(res.stages.S0.laneEntropy).toBeNull();
+    expect(toCsv(old).split('\n')).toHaveLength(3);
   });
 });

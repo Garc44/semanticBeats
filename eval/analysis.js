@@ -19,7 +19,9 @@ export function perPrompt(records) {
   for (const [key, runs] of groupBy(records, r => `${r.stage}|${r.promptId}`)) {
     const executing = runs.filter(r => r.executes);
     const valid = runs.filter(r => r.errorClass === null);
-    const fid = executing.map(r => prf1(r.expected, r.tags));
+    // No expected tags (open-ended prompt) → no fidelity; NaN drops out of medians and paired CIs.
+    const scored = executing.filter(r => r.expected?.length);
+    const fid = scored.map(r => prf1(r.expected, r.tags));
     const withFallbacks = runs.filter(r => Array.isArray(r.fallbacks));
     const withForm = valid.filter(r => r.form && typeof r.form === 'object');
     out.set(key, {
@@ -28,7 +30,7 @@ export function perPrompt(records) {
       f1: mean(fid.map(x => x.f1)),
       precision: mean(fid.map(x => x.precision)),
       recall: mean(fid.map(x => x.recall)),
-      f1Code: mean(executing.map(r => prf1(r.expected, r.tagsFromCode).f1)),
+      f1Code: mean(scored.map(r => prf1(r.expected, r.tagsFromCode).f1)),
       entropy: valid.length ? normalizedEntropy(valid.map(r => r.tags)) : NaN,
       distinct: valid.length ? distinctRatio(valid.map(r => r.tags)) : NaN,
       inKey: mean(executing.map(r => harmonyOf(r, 'inKey'))),

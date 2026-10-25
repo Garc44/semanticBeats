@@ -22,7 +22,10 @@ export function validateCorpus(corpus) {
     seen.add(p.id);
     if (!CATEGORIES.includes(p.category)) errors.push(`${p.id}: unknown category "${p.category}"`);
     if (!String(p.text ?? '').trim()) errors.push(`${p.id}: empty text`);
-    if (!Array.isArray(p.expected) || !p.expected.length) errors.push(`${p.id}: no expected tags`);
+    // Open-ended prompts ("make anything") have no expectation: excluded from fidelity only.
+    if (p.openEnded) {
+      if (!Array.isArray(p.expected) || p.expected.length) errors.push(`${p.id}: open-ended prompt must have no expected tags`);
+    } else if (!Array.isArray(p.expected) || !p.expected.length) errors.push(`${p.id}: no expected tags`);
     for (const t of p.expected ?? []) if (!VOCAB.has(t)) errors.push(`${p.id}: unknown tag "${t}"`);
   }
   for (const c of CATEGORIES) {
@@ -35,7 +38,7 @@ export function validateCorpus(corpus) {
 export function corpusHash(corpus) {
   const canonical = [...corpus.prompts]
     .sort((a, b) => a.id.localeCompare(b.id))
-    .map(p => ({ id: p.id, category: p.category, text: p.text, expected: [...p.expected].sort() }));
+    .map(p => ({ id: p.id, category: p.category, text: p.text, expected: [...p.expected].sort(), openEnded: !!p.openEnded }));
   return createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
 }
 

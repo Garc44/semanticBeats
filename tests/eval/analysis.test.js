@@ -25,6 +25,13 @@ describe('perPrompt', () => {
     const stats = perPrompt([rec('S0', 'p1', 0, { errorClass: 'empty', executes: false, tags: [] })]).get('S0|p1');
     expect(stats.f1).toBeNaN();
   });
+
+  it('open-ended prompt (no expected tags) → fidelity NaN, other metrics kept', () => {
+    const stats = perPrompt([rec('S0', 'p1', 0, { expected: [] }), rec('S0', 'p1', 1, { expected: [], tags: ['b'] })]).get('S0|p1');
+    for (const k of ['f1', 'precision', 'recall', 'f1Code']) expect(stats[k]).toBeNaN();
+    expect(stats.validityRate).toBe(1);
+    expect(stats.entropy).toBe(1);
+  });
 });
 
 describe('summarize', () => {

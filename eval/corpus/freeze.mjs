@@ -13,7 +13,8 @@ if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
 const read = name => JSON.parse(readFileSync(fileURLToPath(new URL(`./${name}`, import.meta.url)), 'utf8'));
 const A = read('annotation-A.json');
 const B = read('annotation-B.json');
-const ids = corpus.prompts.map(p => p.id);
+// Open-ended prompts carry no tags by rule, so they would only inflate agreement.
+const ids = corpus.prompts.filter(p => !p.openEnded).map(p => p.id);
 const missing = ids.filter(id => !(id in A.tags) || !(id in B.tags));
 if (missing.length) { console.error(`annotation passes miss: ${missing.join(', ')}`); process.exit(1); }
 

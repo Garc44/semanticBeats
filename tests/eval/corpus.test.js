@@ -31,6 +31,14 @@ describe('validateCorpus', () => {
     expect(errors).toMatch(/expected 10 prompts in "underspecified"/);
   });
 
+  it('open-ended prompt: empty expected allowed, tags forbidden', () => {
+    const c = fixture();
+    c.prompts[0] = { ...c.prompts[0], expected: [], openEnded: true };
+    expect(validateCorpus(c)).toEqual([]);
+    c.prompts[0].expected = ['kick'];
+    expect(validateCorpus(c).join('\n')).toMatch(/open-ended prompt must have no expected tags/);
+  });
+
   it('categories follow spec Rev. 2 §5', () => {
     expect(CATEGORIES).toEqual(['direct_hit', 'alias', 'structure', 'underspecified']);
   });
@@ -55,6 +63,14 @@ describe('corpusHash / assertFrozen', () => {
     const a = fixture();
     const b = fixture();
     b.prompts[0].expected = ['dub'];
+    expect(corpusHash(a)).not.toBe(corpusHash(b));
+  });
+
+  it('changes when a prompt becomes open-ended', () => {
+    const a = fixture();
+    const b = fixture();
+    b.prompts[0] = { ...b.prompts[0], expected: [], openEnded: true };
+    a.prompts[0].expected = [];
     expect(corpusHash(a)).not.toBe(corpusHash(b));
   });
 

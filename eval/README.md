@@ -24,7 +24,7 @@ npm run eval -- --out eval/results/full-YYYY-MM-DD.jsonl
 npm run eval:analyze -- eval/results/full-YYYY-MM-DD.jsonl
 ```
 Runs resume automatically; crashes land in `*.errors.jsonl` and are retried.
-`eval/corpus/prompts.json` currently holds 4 sample prompts; the author replaces it with the 40 real prompts (categories `direct_hit`, `alias`, `structure`, `underspecified`).
+`eval/corpus/prompts.json` holds the 40 techno prompts (10 each: `direct_hit`, `alias`, `structure`, `underspecified`), frozen 2026-10-26. Expected tags = consensus of two annotators (`annotation-A.json` author, `annotation-B.json` second person, `annotation-consensus.json`); κ 0.655 over 39 prompts.
 
 ## Metrics
 - **Validity**: `checkValidity` on bar 0. Classes `syntax`, `unknown_function`, `unknown_sound` (exposé) plus `empty`, `forbidden`, `runtime`, `no_pattern`, `silent`.

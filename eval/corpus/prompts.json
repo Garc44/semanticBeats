@@ -24,7 +24,7 @@
 {"id": "s03", "category": "structure", "text": "Der Stab soll im Vordergrund stehen, Kick und Bass leiser", "expected": ["kick", "bass", "chords"]},
 {"id": "s04", "category": "structure", "text": "Bitte gib mir einen Beat mit einer simplen 4x4-Kick, aber dafür sehr im Vordergrund stehenden Hihats", "expected": ["kick", "hats"]},
 {"id": "s05", "category": "structure", "text": "Bitte mach mir einen Beat mit vielen Elementen. Es darf aber nicht chaotisch sein, es muss sich trotzdem gut anhören", "expected": ["dense"]},
-{"id": "s06", "category": "structure", "text": "Brauche 140 BPM mit melodischen Synths", "expected": ["detroit", "lead"]},
+{"id": "s06", "category": "structure", "text": "Brauche 140 BPM mit melodischen Synths", "expected": ["lead", "chords"]},
 {"id": "s07", "category": "structure", "text": "Ein Beat, bei dem die Kick kurz aussetzt und dann wieder normal spielt. Im Rhythmus bitte", "expected": ["glitchy", "kick"]},
 {"id": "s08", "category": "structure", "text": "Gib mir einen sehr rauen Sound", "expected": ["gritty"]},
 {"id": "s09", "category": "structure", "text": "Bitte viel Hall, wie in einer großen Halle, brauche Tiefe", "expected": ["spacious", "deep"]},

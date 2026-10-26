@@ -118,8 +118,8 @@
       "dense"
     ],
     "s06": [
-      "detroit",
-      "lead"
+      "lead",
+      "chords"
     ],
     "s07": [
       "glitchy",
@@ -175,5 +175,7 @@
       "lead"
     ]
   },
-  "reasons": {}
+  "reasons": {
+    "s06": "Nachträglich vom Autor geändert (26.10.): detroit entfernt, chords ergänzt (vorher detroit, lead)."
+  }
 }

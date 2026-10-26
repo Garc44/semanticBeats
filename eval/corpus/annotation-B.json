@@ -1,0 +1,188 @@
+{
+  "pass": "B",
+  "annotator": "zweite Person (Schwester des Autors)",
+  "annotatedAt": "2026-10-26T10:27:48.945Z",
+  "tags": {
+    "d01": [
+      "acid",
+      "glitchy",
+      "bass"
+    ],
+    "d02": [
+      "detroit",
+      "kick",
+      "bass"
+    ],
+    "d03": [
+      "dub",
+      "sparse",
+      "kick"
+    ],
+    "d04": [
+      "hypnotic"
+    ],
+    "d05": [
+      "minimal",
+      "sparse",
+      "lead"
+    ],
+    "d06": [
+      "acid",
+      "glitchy",
+      "fx"
+    ],
+    "d07": [
+      "detroit",
+      "warm",
+      "lead"
+    ],
+    "d08": [
+      "dub",
+      "warm",
+      "deep"
+    ],
+    "d09": [
+      "industrial",
+      "metallic"
+    ],
+    "d10": [
+      "peak-time"
+    ],
+    "a01": [
+      "dark",
+      "dense",
+      "deep"
+    ],
+    "a02": [
+      "peak-time",
+      "dark",
+      "driving"
+    ],
+    "a03": [
+      "acid",
+      "driving",
+      "dense",
+      "lead"
+    ],
+    "a04": [
+      "detroit",
+      "driving",
+      "warm",
+      "lead"
+    ],
+    "a05": [
+      "industrial",
+      "gritty",
+      "metallic",
+      "deep"
+    ],
+    "a06": [
+      "peak-time",
+      "dense",
+      "lead"
+    ],
+    "a07": [
+      "industrial",
+      "spacious",
+      "metallic"
+    ],
+    "a08": [
+      "hypnotic",
+      "driving",
+      "gritty"
+    ],
+    "a09": [
+      "dub",
+      "spacious",
+      "deep",
+      "sub"
+    ],
+    "a10": [
+      "dark",
+      "pad"
+    ],
+    "s01": [
+      "kick",
+      "bass",
+      "chords"
+    ],
+    "s02": [
+      "hypnotic",
+      "driving",
+      "sparse"
+    ],
+    "s03": [
+      "kick",
+      "bass",
+      "chords"
+    ],
+    "s04": [
+      "minimal",
+      "kick",
+      "hats"
+    ],
+    "s05": [
+      "driving",
+      "dense"
+    ],
+    "s06": [
+      "chords"
+    ],
+    "s07": [
+      "glitchy",
+      "kick"
+    ],
+    "s08": [
+      "gritty"
+    ],
+    "s09": [
+      "spacious",
+      "deep"
+    ],
+    "s10": [
+      "dark",
+      "deep"
+    ],
+    "u01": [
+      "dark",
+      "deep"
+    ],
+    "u02": [
+      "peak-time",
+      "dense"
+    ],
+    "u03": [
+      "hypnotic",
+      "driving",
+      "evolving"
+    ],
+    "u04": [
+      "hypnotic",
+      "driving",
+      "sparse"
+    ],
+    "u05": [
+      "hypnotic",
+      "driving",
+      "percussion"
+    ],
+    "u06": [
+      "warm"
+    ],
+    "u07": [
+      "minimal",
+      "sparse"
+    ],
+    "u09": [
+      "dark",
+      "gritty",
+      "deep"
+    ],
+    "u10": [
+      "driving",
+      "deep",
+      "lead"
+    ]
+  },
+  "notes": {}
+}

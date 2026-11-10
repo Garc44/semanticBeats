@@ -1,6 +1,5 @@
 // Usage: node --import ./eval/node-hooks/register.mjs eval/library/listeningPage.mjs [--only new] > library.html
 // One strudel.cc link per pattern (compiled exactly like S3–S5, at 130 BPM) for listening checks.
-import { code2hash } from '@strudel/core';
 import { soundLibrary } from '../../src/library/soundLibrary.js';
 import { TECHNO_DRUMS } from '../../src/library/techno/drums.js';
 import { TECHNO_BASS } from '../../src/library/techno/bass.js';
@@ -8,6 +7,12 @@ import { TECHNO_MELODY } from '../../src/library/techno/melody.js';
 import { compileTrack } from '../../src/compiler.js';
 import { makePillars } from '../../src/pillars.js';
 import { LIBRARY_COVERAGE } from '../config.js';
+
+// @strudel/core prints a banner on load; keep stdout pure HTML.
+const log = console.log;
+console.log = (...a) => console.error(...a);
+const { code2hash } = await import('@strudel/core');
+console.log = log;
 
 const onlyNew = process.argv.includes('--only') && process.argv[process.argv.indexOf('--only') + 1] === 'new';
 const NEW = { drums: TECHNO_DRUMS, bass: TECHNO_BASS, melody: TECHNO_MELODY };

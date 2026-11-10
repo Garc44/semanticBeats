@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { perPrompt, summarize, toMarkdown, toCsv } from '../../eval/analysis.js';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { perPrompt, summarize, toMarkdown, toCsv, loadRuns } from '../../eval/analysis.js';
 
 const rec = (stage, promptId, rep, o = {}) => ({
   stage, promptId, category: 'direct_hit', rep, seed: 1000 + rep,
@@ -117,5 +120,61 @@ describe('harmony and S6', () => {
     expect(res.stages.S0.inKey.estimate).toBeNaN();
     expect(res.stages.S0.laneEntropy).toBeNull();
     expect(toCsv(old).split('\n')).toHaveLength(3);
+  });
+});
+
+describe('fidelity lift over shuffled prompts', () => {
+  const exp = { p1: ['a'], p2: ['b'], p3: ['c'], p4: ['d'] };
+  const records = [];
+  for (const [p, expected] of Object.entries(exp)) for (const rep of [0, 1]) {
+    // S2: same tags whatever the prompt; S3: exactly the expected tags.
+    records.push(rec('S2', p, rep, { expected, tags: ['a'], tagsFromCode: ['a'] }));
+    records.push(rec('S3', p, rep, { expected, tags: expected, tagsFromCode: expected }));
+  }
+  const s = summarize(records, { ...opts, stages: ['S2', 'S3'] });
+
+  it('prompt-independent tags → lift 0', () => {
+    expect(s.stages.S2.liftF1Code.estimate).toBe(0);
+    expect(s.stages.S2.liftF1.estimate).toBe(0);
+  });
+
+  it('prompt-following tags → lift > 0', () => {
+    expect(s.stages.S3.liftF1Code.estimate).toBeGreaterThan(0);
+    expect(s.stages.S3.liftF1.estimate).toBeGreaterThan(0);
+  });
+
+  it('markdown has the lift table', () => expect(toMarkdown(s)).toContain('Treue über Zufall'));
+});
+
+describe('pooled rates', () => {
+  it('fallback rate pooled over all runs next to the per-prompt median', () => {
+    const records = [];
+    for (const p of ['p1', 'p2', 'p3', 'p4']) for (let rep = 0; rep < 10; rep++)
+      records.push(rec('S6', p, rep, { fallbacks: p === 'p1' && rep === 0 ? ['stab'] : [] }));
+    const s = summarize(records, { ...opts, stages: ['S6'] });
+    expect(s.stages.S6.pooled.fallbackRate).toBe(0.025);
+    expect(s.stages.S6.fallbackRate).toBe(0);
+    expect(s.stages.S6.pooled.validity).toBe(1);
+  });
+});
+
+describe('loadRuns', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'loadruns-'));
+  const write = (name, recs) => {
+    const path = join(dir, name);
+    writeFileSync(path, recs.map(r => JSON.stringify(r)).join('\n') + '\n');
+    return path;
+  };
+  const a = write('a.jsonl', [rec('S0', 'd01', 0), rec('S2', 'd01', 0)]);
+  const b = write('b.jsonl', [rec('S2', 'd01', 0), rec('S3', 'd01', 0)]);
+
+  // Review Focus 5
+  it('throws on a run present in two files', () => {
+    expect(() => loadRuns([a, b])).toThrow(/duplicate run S2\|d01\|0/);
+  });
+
+  it('stagesByPath takes only the listed stages from a file', () => {
+    const runs = loadRuns([b, a], { stagesByPath: { [a]: ['S0'] } });
+    expect(runs.map(r => r.stage).sort()).toEqual(['S0', 'S2', 'S3']);
   });
 });

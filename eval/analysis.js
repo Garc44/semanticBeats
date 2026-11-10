@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { prf1, normalizedEntropy, distinctRatio, median, percentile, mean, bootstrapCI, pairedDiffCI, millerBand } from './metrics.js';
+import { prf1, normalizedEntropy, distinctRatio, median, percentile, mean, bootstrapCI, pairedDiffCI, millerBand, mulberry32 } from './metrics.js';
 import { LANE_FIELDS } from './s6/form.js';
 
 export function loadRecords(path) {
@@ -11,10 +11,45 @@ export function loadRecords(path) {
   return out;
 }
 
+export const runKey = r => `${r.stage}|${r.promptId}|${r.rep}`;
+
+// Several result files in one analysis (e.g. S0/S1 from run 1, S2–S6 from run 2).
+// stagesByPath limits a file to some stages; a run found twice is an error, never counted twice.
+export function loadRuns(paths, { stagesByPath = {} } = {}) {
+  const seen = new Set();
+  const out = [];
+  for (const path of paths) {
+    const keep = stagesByPath[path];
+    for (const r of loadRecords(path)) {
+      if (keep && !keep.includes(r.stage)) continue;
+      const key = runKey(r);
+      if (seen.has(key)) throw new Error(`duplicate run ${key}`);
+      seen.add(key);
+      out.push(r);
+    }
+  }
+  return out;
+}
+
+// Fidelity baseline: each prompt is scored against a foreign prompt's expectation. Sattolo's
+// shuffle yields a single cycle, so no prompt keeps its own (derangement); fixed by the seed.
+export function foreignPrompts(records, seed) {
+  const ids = [...new Set(records.filter(r => r.expected?.length).map(r => r.promptId))].sort();
+  if (ids.length < 2) return new Map();
+  const perm = [...ids];
+  const rand = mulberry32(seed);
+  for (let i = perm.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * i);
+    [perm[i], perm[j]] = [perm[j], perm[i]];
+  }
+  const expected = new Map(records.filter(r => r.expected?.length).map(r => [r.promptId, r.expected]));
+  return new Map(ids.map((id, i) => [id, expected.get(perm[i])]));
+}
+
 const groupBy = (xs, keyFn) => xs.reduce((m, x) => m.set(keyFn(x), [...(m.get(keyFn(x)) ?? []), x]), new Map());
 const harmonyOf = (r, key) => (r.harmony && Number.isFinite(r.harmony[key]) ? r.harmony[key] : NaN);
 
-export function perPrompt(records) {
+export function perPrompt(records, foreign = new Map()) {
   const out = new Map();
   for (const [key, runs] of groupBy(records, r => `${r.stage}|${r.promptId}`)) {
     const executing = runs.filter(r => r.executes);
@@ -23,6 +58,9 @@ export function perPrompt(records) {
     const scored = executing.filter(r => r.expected?.length);
     const fid = scored.map(r => prf1(r.expected, r.tags));
     const withFallbacks = runs.filter(r => Array.isArray(r.fallbacks));
+    const other = foreign.get(runs[0].promptId);
+    const f1Foreign = other ? mean(scored.map(r => prf1(other, r.tags).f1)) : NaN;
+    const f1CodeForeign = other ? mean(scored.map(r => prf1(other, r.tagsFromCode).f1)) : NaN;
     const withForm = valid.filter(r => r.form && typeof r.form === 'object');
     out.set(key, {
       stage: runs[0].stage, promptId: runs[0].promptId, category: runs[0].category, n: runs.length,
@@ -31,6 +69,7 @@ export function perPrompt(records) {
       precision: mean(fid.map(x => x.precision)),
       recall: mean(fid.map(x => x.recall)),
       f1Code: mean(scored.map(r => prf1(r.expected, r.tagsFromCode).f1)),
+      f1Foreign, f1CodeForeign,
       entropy: valid.length ? normalizedEntropy(valid.map(r => r.tags)) : NaN,
       distinct: valid.length ? distinctRatio(valid.map(r => r.tags)) : NaN,
       inKey: mean(executing.map(r => harmonyOf(r, 'inKey'))),
@@ -72,10 +111,12 @@ function comparisonPairs(present, extra) {
 }
 
 export function summarize(records, { stages, thresholds, bootstrap, extraComparisons = [] }) {
-  const pp = perPrompt(records);
+  const pp = perPrompt(records, foreignPrompts(records, bootstrap.seed));
   const promptIds = [...new Set(records.map(r => r.promptId))].sort();
   const series = (stage, field) => promptIds.map(id => pp.get(`${stage}|${id}`)?.[field] ?? NaN);
   const ci = (stage, field) => bootstrapCI(series(stage, field), median, bootstrap);
+  // Own prompt minus foreign prompt, per prompt; NaN (no expectation) drops out.
+  const liftCI = (stage, field) => pairedDiffCI(series(stage, `${field}Foreign`), series(stage, field), median, bootstrap);
 
   const summary = { stages: {}, comparisons: [], byCategory: {} };
   for (const stage of stages) {
@@ -84,6 +125,7 @@ export function summarize(records, { stages, thresholds, bootstrap, extraCompari
     const lat = runs.map(r => r.latencyMs);
     const errorCounts = {};
     for (const r of runs) if (r.errorClass) errorCounts[r.errorClass] = (errorCounts[r.errorClass] ?? 0) + 1;
+    const withFallbacks = runs.filter(r => Array.isArray(r.fallbacks));
     const lanes = promptIds.map(id => pp.get(`${stage}|${id}`)?.laneEntropy).filter(Boolean);
     summary.stages[stage] = {
       n: runs.length,
@@ -91,12 +133,17 @@ export function summarize(records, { stages, thresholds, bootstrap, extraCompari
       validity: ci(stage, 'validityRate'),
       f1: ci(stage, 'f1'), precision: ci(stage, 'precision'), recall: ci(stage, 'recall'),
       f1Code: ci(stage, 'f1Code'),
+      liftF1: liftCI(stage, 'f1'), liftF1Code: liftCI(stage, 'f1Code'),
       entropy: ci(stage, 'entropy'),
       distinct: median(series(stage, 'distinct')),
       inKey: ci(stage, 'inKey'),
       clashRate: ci(stage, 'clashRate'),
       lowCrowding: ci(stage, 'lowCrowding'),
       fallbackRate: median(series(stage, 'fallbackRate')),
+      pooled: {
+        validity: runs.filter(r => r.errorClass === null).length / runs.length,
+        fallbackRate: withFallbacks.length ? withFallbacks.filter(r => r.fallbacks.length > 0).length / withFallbacks.length : NaN,
+      },
       laneEntropy: lanes.length ? Object.fromEntries(LANE_FIELDS.map(f => [f, median(lanes.map(l => l[f]))])) : null,
       latency: {
         median: median(lat), p95: percentile(lat, 95), ci: ci(stage, 'latencyMedian'),
@@ -138,11 +185,16 @@ const fci = c => `${f(c.estimate)} [${f(c.lower)}, ${f(c.upper)}]`;
 
 export function toMarkdown(summary) {
   const lines = [
-    '| Stage | n | Validity | F1 (ids/code) | F1 (code lexicon) | Entropy | Latency median / p95 (ms) | Miller median / p95 |',
-    '|---|---|---|---|---|---|---|---|',
+    '| Stage | n | Validity | Validity pooled | F1 (ids/code) | F1 (code lexicon) | Entropy | Latency median / p95 (ms) | Miller median / p95 |',
+    '|---|---|---|---|---|---|---|---|---|',
   ];
   for (const [stage, s] of Object.entries(summary.stages)) {
-    lines.push(`| ${stage} | ${s.n} | ${fci(s.validity)} | ${fci(s.f1)} | ${fci(s.f1Code)} | ${fci(s.entropy)} | ${f(s.latency.median, 0)} / ${f(s.latency.p95, 0)} | ${s.latency.bandMedian} / ${s.latency.bandP95} |`);
+    lines.push(`| ${stage} | ${s.n} | ${fci(s.validity)} | ${f(s.pooled.validity)} | ${fci(s.f1)} | ${fci(s.f1Code)} | ${fci(s.entropy)} | ${f(s.latency.median, 0)} / ${f(s.latency.p95, 0)} | ${s.latency.bandMedian} / ${s.latency.bandP95} |`);
+  }
+  lines.push('', 'Treue über Zufall: F1 eigener Prompt − F1 fremder Prompt (Median über Prompts).', '',
+    '| Stage | liftF1 (ids/code) | liftF1Code (code lexicon) |', '|---|---|---|');
+  for (const [stage, s] of Object.entries(summary.stages)) {
+    lines.push(`| ${stage} | ${fci(s.liftF1)} | ${fci(s.liftF1Code)} |`);
   }
   lines.push('', '| Stage | In key | Clash rate | Low crowding |', '|---|---|---|---|');
   for (const [stage, s] of Object.entries(summary.stages)) {
@@ -150,10 +202,10 @@ export function toMarkdown(summary) {
   }
   const formStages = Object.entries(summary.stages).filter(([, s]) => s.laneEntropy || Number.isFinite(s.fallbackRate));
   if (formStages.length) {
-    lines.push('', '| Stage | Fallback rate | Lane entropy (bassA / bassB / hat / openhat / clap / stab) |', '|---|---|---|');
+    lines.push('', '| Stage | Fallback rate | Fallback pooled | Lane entropy (bassA / bassB / hat / openhat / clap / stab) |', '|---|---|---|---|');
     for (const [stage, s] of formStages) {
       const le = s.laneEntropy ? ['bassA', 'bassB', 'hat', 'openhat', 'clap', 'stab'].map(k => f(s.laneEntropy[k], 2)).join(' / ') : '–';
-      lines.push(`| ${stage} | ${f(s.fallbackRate)} | ${le} |`);
+      lines.push(`| ${stage} | ${f(s.fallbackRate)} | ${f(s.pooled.fallbackRate)} | ${le} |`);
     }
   }
   lines.push('', '| From → To | Metric | Δ median [95% CI] | n | Threshold | Substantial |', '|---|---|---|---|---|---|');

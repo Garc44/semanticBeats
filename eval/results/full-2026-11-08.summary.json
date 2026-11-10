@@ -41,6 +41,18 @@
         "upper": 0,
         "n": 1
       },
+      "liftF1": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 1
+      },
+      "liftF1Code": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 1
+      },
       "entropy": {
         "estimate": null,
         "lower": null,
@@ -67,6 +79,10 @@
         "n": 0
       },
       "fallbackRate": null,
+      "pooled": {
+        "validity": 0,
+        "fallbackRate": null
+      },
       "laneEntropy": null,
       "latency": {
         "median": 13323.034187000245,
@@ -125,6 +141,18 @@
         "upper": 0,
         "n": 8
       },
+      "liftF1": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 8
+      },
+      "liftF1Code": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 8
+      },
       "entropy": {
         "estimate": 0,
         "lower": 0,
@@ -151,6 +179,10 @@
         "n": 2
       },
       "fallbackRate": null,
+      "pooled": {
+        "validity": 0.0075,
+        "fallbackRate": null
+      },
       "laneEntropy": null,
       "latency": {
         "median": 22796.63860400021,
@@ -210,6 +242,18 @@
         "upper": 0.22912698412698415,
         "n": 36
       },
+      "liftF1": {
+        "estimate": 0.028282828282828285,
+        "lower": -0.0126190476190476,
+        "upper": 0.14898989898989898,
+        "n": 36
+      },
+      "liftF1Code": {
+        "estimate": 0.028282828282828285,
+        "lower": -0.0126190476190476,
+        "upper": 0.14898989898989898,
+        "n": 36
+      },
       "entropy": {
         "estimate": 0.856863623584101,
         "lower": 0.7896900821428475,
@@ -236,6 +280,10 @@
         "n": 32
       },
       "fallbackRate": null,
+      "pooled": {
+        "validity": 0.705,
+        "fallbackRate": null
+      },
       "laneEntropy": null,
       "latency": {
         "median": 15824.795041500125,
@@ -289,6 +337,18 @@
         "upper": 0.19999999999999998,
         "n": 39
       },
+      "liftF1": {
+        "estimate": 0.01757575757575755,
+        "lower": 0,
+        "upper": 0.16363636363636372,
+        "n": 39
+      },
+      "liftF1Code": {
+        "estimate": 0,
+        "lower": -0.018181818181818132,
+        "upper": 0.02857142857142858,
+        "n": 39
+      },
       "entropy": {
         "estimate": 0.5128653141768609,
         "lower": 0.41056431174712077,
@@ -315,6 +375,10 @@
         "n": 40
       },
       "fallbackRate": null,
+      "pooled": {
+        "validity": 1,
+        "fallbackRate": null
+      },
       "laneEntropy": null,
       "latency": {
         "median": 18923.690854500048,
@@ -368,6 +432,18 @@
         "upper": 0.19999999999999998,
         "n": 39
       },
+      "liftF1": {
+        "estimate": 0.04040404040404033,
+        "lower": 0,
+        "upper": 0.16570707070707075,
+        "n": 39
+      },
+      "liftF1Code": {
+        "estimate": 0,
+        "lower": -0.018181818181818132,
+        "upper": 0.03356643356643356,
+        "n": 39
+      },
       "entropy": {
         "estimate": 0.6648834371105594,
         "lower": 0.5972988165616713,
@@ -394,6 +470,10 @@
         "n": 40
       },
       "fallbackRate": null,
+      "pooled": {
+        "validity": 1,
+        "fallbackRate": null
+      },
       "laneEntropy": null,
       "latency": {
         "median": 23287.89643700031,
@@ -447,6 +527,18 @@
         "upper": 0.19999999999999998,
         "n": 39
       },
+      "liftF1": {
+        "estimate": 0.08473304473304474,
+        "lower": 0,
+        "upper": 0.16363636363636372,
+        "n": 39
+      },
+      "liftF1Code": {
+        "estimate": 0,
+        "lower": -0.018181818181818188,
+        "upper": 0.0333333333333333,
+        "n": 39
+      },
       "entropy": {
         "estimate": 0.6876078152608656,
         "lower": 0.5331092497698138,
@@ -473,6 +565,10 @@
         "n": 40
       },
       "fallbackRate": null,
+      "pooled": {
+        "validity": 1,
+        "fallbackRate": null
+      },
       "laneEntropy": null,
       "latency": {
         "median": 24177.952499500476,
@@ -526,6 +622,18 @@
         "upper": 0.20089869281045752,
         "n": 39
       },
+      "liftF1": {
+        "estimate": 0.012380952380952381,
+        "lower": -0.0783882783882784,
+        "upper": 0.09419934640522877,
+        "n": 39
+      },
+      "liftF1Code": {
+        "estimate": 0.012380952380952381,
+        "lower": -0.0783882783882784,
+        "upper": 0.09419934640522877,
+        "n": 39
+      },
       "entropy": {
         "estimate": 0.6989700043360186,
         "lower": 0.6160396270529163,
@@ -552,6 +660,10 @@
         "n": 40
       },
       "fallbackRate": 0,
+      "pooled": {
+        "validity": 1,
+        "fallbackRate": 0.0225
+      },
       "laneEntropy": {
         "bassA": 0.8568636235841011,
         "bassB": 0.9397940008672035,

@@ -1,3 +1,7 @@
+import { TECHNO_DRUMS } from './techno/drums.js';
+import { TECHNO_BASS } from './techno/bass.js';
+import { TECHNO_MELODY } from './techno/melody.js';
+
 export const soundLibrary = {
   drums: [
 
@@ -37,6 +41,7 @@ export const soundLibrary = {
       code: `s("bd*4").bank("RolandTR909").gain("[1.2 0.9 1.0 0.95]")`,
       initialTransforms: { shape: 0.4, lopass: 420, reverb: 0.4, room_size: 0.75 } },
 
+    ...TECHNO_DRUMS,
   ],
 
 
@@ -106,6 +111,7 @@ export const soundLibrary = {
       code: `note("[~ g1 ~ g1] [~ ~ ab1 ~] [g1 ~ ~ f1] [~ eb1 ~ ~]").scale("G:minor").s("saw").decay(0.07).sustain(0.02)`,
       initialTransforms: { lopass: 450 } },
 
+    ...TECHNO_BASS,
   ],
 
 
@@ -236,6 +242,7 @@ export const soundLibrary = {
       code: `note("[as4 ~ b4 ~] [~ as4 ~ ~] [b4 ~ c5 ~] [~ b4 as4 ~]").s("triangle").decay(0.07).delaytime(0.375)`,
       initialTransforms: { shape: 0.25, lopass: 800, echo: 0.35, reverb: 0.4 } },
 
+    ...TECHNO_MELODY,
   ],
 
   transitions: [

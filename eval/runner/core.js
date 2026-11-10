@@ -8,6 +8,7 @@ import { harmonyMetrics } from '../harmony.js';
 import { EVAL_CONFIG } from '../config.js';
 import { tagsForPatternIds } from '../vocabulary.js';
 import { corpusHash } from '../corpus/corpus.js';
+import { libraryHash } from '../library/hash.js';
 import { OLLAMA_MODEL, OLLAMA_URL } from '../../src/llm.js';
 
 export const runKey = ({ stage, promptId, rep }) => `${stage}|${promptId}|${rep}`;
@@ -132,6 +133,7 @@ export async function collectMeta({ corpus, config }) {
     modelDetails: model?.details ?? null,
     ollamaVersion: version?.version ?? null,
     corpusHash: corpusHash(corpus),
+    libraryHash: libraryHash(),
     gitCommit: sh('git rev-parse HEAD'),
     gitDirty: Boolean(sh('git status --porcelain')),
     node: process.version,

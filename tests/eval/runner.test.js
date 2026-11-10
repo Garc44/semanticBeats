@@ -2,7 +2,8 @@ import { describe, it, expect, vi, afterAll } from 'vitest';
 import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { runMatrix, readDoneKeys, runKey } from '../../eval/runner/core.js';
+import { runMatrix, readDoneKeys, runKey, collectMeta } from '../../eval/runner/core.js';
+import { libraryHash } from '../../eval/library/hash.js';
 import { closeValidityWorker } from '../../eval/validity.js';
 
 const llm = { calls: 1, promptTokens: 10, evalTokens: 5, llmMs: 3, outputs: ['raw'] };
@@ -116,4 +117,19 @@ describe('runMatrix', () => {
   });
 
   it('runKey', () => expect(runKey({ stage: 'S0', promptId: 'd01', rep: 3 })).toBe('S0|d01|3'));
+});
+
+describe('collectMeta', () => {
+  it('records the library hash next to the corpus hash', async () => {
+    global.fetch = vi.fn(async () => { throw new Error('offline'); });
+    const meta = await collectMeta({ corpus: { prompts }, config: {} });
+    expect(meta.libraryHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(meta.libraryHash).toBe(libraryHash());
+  });
+
+  it('libraryHash covers drums, bass and melody only', () => {
+    const lib = { drums: [{ id: 'a' }], bass: [], melody: [], percussion: [{ id: 'p' }] };
+    expect(libraryHash(lib)).toBe(libraryHash({ ...lib, percussion: [] }));
+    expect(libraryHash(lib)).not.toBe(libraryHash({ ...lib, bass: [{ id: 'b' }] }));
+  });
 });

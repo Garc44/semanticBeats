@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { libraryCoverage, coverageGaps } from '../../eval/library/coverage.js';
 import { LIBRARY_COVERAGE } from '../../eval/config.js';
 import { ALL_TAGS, LIBRARY_TAG_MAP } from '../../eval/vocabulary.js';
+import { soundLibrary } from '../../src/library/soundLibrary.js';
 
 const mini = { drums: [{ tags: ['kick', 'dub'] }], bass: [], melody: [] };
 
@@ -32,4 +33,8 @@ describe('LIBRARY_TAG_MAP identity entries', () => {
   it('maps every vocabulary tag to itself', () => {
     for (const t of ALL_TAGS) expect(LIBRARY_TAG_MAP[t], t).toContain(t);
   });
+});
+
+describe('real library', () => {
+  it('meets LIBRARY_COVERAGE', () => expect(coverageGaps(soundLibrary)).toEqual([]));
 });

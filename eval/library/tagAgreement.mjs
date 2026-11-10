@@ -6,11 +6,15 @@ import { EVAL_VOCAB, normalizeLibraryTags } from '../vocabulary.js';
 import { LIBRARY_COVERAGE } from '../config.js';
 import { cohensKappa, meanJaccard } from '../corpus/agreement.js';
 import { NEW_PATTERNS } from './links.js';
+import { unblind } from './tagSheet.js';
 
 const vocab = [...EVAL_VOCAB.subgenre, ...EVAL_VOCAB.character];
 const keep = tags => tags.filter(t => vocab.includes(t));
 const path = process.argv[2] ?? new URL('./tags-B.json', import.meta.url);
-const B = JSON.parse(readFileSync(path, 'utf8'));
+// The sheet exports numbers (#n); the key written with the sheet maps them back to ids.
+const keys = JSON.parse(readFileSync(new URL('./tag-sheet-keys.json', import.meta.url), 'utf8'));
+const items = Object.entries(keys).map(([key, id]) => ({ key, id }));
+const B = Object.fromEntries(Object.entries(unblind(JSON.parse(readFileSync(path, 'utf8')), items)).map(([id, tags]) => [id, keep(tags)]));
 const A = Object.fromEntries(LIBRARY_COVERAGE.pillars.flatMap(p => NEW_PATTERNS[p].map(x => [x.id, keep(normalizeLibraryTags(x.tags))])));
 const ids = Object.keys(A);
 const missing = ids.filter(id => !(id in B));
@@ -21,6 +25,6 @@ console.log(`Cohen's kappa (pattern × tag): ${cohensKappa(A, B, ids, vocab).toF
 console.log(`mean Jaccard: ${meanJaccard(A, B, ids).toFixed(3)}`);
 for (const facet of ['subgenre', 'character'])
   console.log(`  kappa ${facet}: ${cohensKappa(A, B, ids, EVAL_VOCAB[facet]).toFixed(3)}`);
-const diffs = ids.filter(id => keep(B[id]).sort().join() !== A[id].slice().sort().join());
+const diffs = ids.filter(id => B[id].slice().sort().join() !== A[id].slice().sort().join());
 console.log(`\ndisagreements (${diffs.length}):`);
-for (const id of diffs) console.log(`  ${id}: author [${A[id].join(', ')}] vs B [${keep(B[id]).join(', ')}]`);
+for (const id of diffs) console.log(`  ${id}: author [${A[id].join(', ')}] vs B [${B[id].join(', ')}]`);

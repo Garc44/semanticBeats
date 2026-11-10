@@ -4,6 +4,7 @@ import { TECHNO_BASS } from '../../src/library/techno/bass.js';
 import { TECHNO_MELODY } from '../../src/library/techno/melody.js';
 import { compileTrack } from '../../src/compiler.js';
 import { makePillars } from '../../src/pillars.js';
+export { esc } from './tagSheet.js';
 
 // @strudel/core prints a banner on load; keep stdout pure HTML.
 const log = console.log;
@@ -15,7 +16,6 @@ export const NEW_PATTERNS = { drums: TECHNO_DRUMS, bass: TECHNO_BASS, melody: TE
 export const patternsOf = (pillar, onlyNew) => (onlyNew ? NEW_PATTERNS[pillar] : soundLibrary[pillar]);
 
 const pillars = makePillars();
-export const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
 // strudel.cc link to the pattern compiled exactly like S3–S5, at 130 BPM.
 export function strudelLink(pillarName, id) {

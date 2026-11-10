@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { perPrompt, summarize, toMarkdown, toCsv, loadRuns } from '../../eval/analysis.js';
+import { perPrompt, summarize, toMarkdown, toCsv, loadRuns, parseAnalyzeArgs } from '../../eval/analysis.js';
 
 const rec = (stage, promptId, rep, o = {}) => ({
   stage, promptId, category: 'direct_hit', rep, seed: 1000 + rep,
@@ -176,5 +176,18 @@ describe('loadRuns', () => {
   it('stagesByPath takes only the listed stages from a file', () => {
     const runs = loadRuns([b, a], { stagesByPath: { [a]: ['S0'] } });
     expect(runs.map(r => r.stage).sort()).toEqual(['S0', 'S2', 'S3']);
+  });
+});
+
+describe('parseAnalyzeArgs', () => {
+  it('names the output after the first plain file, even when --take comes first', () => {
+    const a = parseAnalyzeArgs(['--take', 'S0,S1@old.jsonl', 'new.jsonl']);
+    expect(a.stem).toBe('new');
+    expect(a.paths).toEqual(['old.jsonl', 'new.jsonl']);
+    expect(a.stagesByPath).toEqual({ 'old.jsonl': ['S0', 'S1'] });
+  });
+
+  it('refuses when every file comes from --take (would overwrite that run)', () => {
+    expect(() => parseAnalyzeArgs(['--take', 'S0@old.jsonl'])).toThrow(/plain/);
   });
 });

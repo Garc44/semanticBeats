@@ -31,6 +31,29 @@ export function loadRuns(paths, { stagesByPath = {} } = {}) {
   return out;
 }
 
+// CLI: plain files contribute all stages, --take S0,S1@<path> only the listed ones. Outputs are
+// named after the first plain file, so a --take source (an earlier run) is never overwritten.
+export function parseAnalyzeArgs(args) {
+  const paths = [];
+  const stagesByPath = {};
+  const plain = [];
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--take') {
+      const spec = args[++i] ?? '';
+      const at = spec.indexOf('@');
+      if (at <= 0 || at === spec.length - 1) throw new Error('--take expects S0,S1@<path>');
+      const path = spec.slice(at + 1);
+      stagesByPath[path] = spec.slice(0, at).split(',');
+      paths.push(path);
+    } else {
+      paths.push(args[i]);
+      plain.push(args[i]);
+    }
+  }
+  if (!plain.length) throw new Error('need at least one plain <run.jsonl> (outputs are named after it)');
+  return { paths, stagesByPath, stem: plain[0].replace(/\.jsonl$/, '') };
+}
+
 // Fidelity baseline: each prompt is scored against a foreign prompt's expectation. Sattolo's
 // shuffle yields a single cycle, so no prompt keeps its own (derangement); fixed by the seed.
 export function foreignPrompts(records, seed) {

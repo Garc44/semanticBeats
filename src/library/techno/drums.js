@@ -73,7 +73,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — dub: deep kick, delayed rim and percussion —
-  { id: "drums_dub_rim_echo", name: "Dub Rim Echo", tags: ["techno", "dub", "deep", "spacious", "kick", "percussion"],
+  { id: "drums_dub_rim_echo", name: "Dub Rim Echo", tags: ["techno", "dub", "deep", "spacious", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(250).lpq(2).room(0.4).sz(0.8).gain(1.2),
   s("~ ~ ~ rim ~ ~ rim ~ ~ ~ ~ rim ~ ~ ~ ~").bank("RolandTR808").delay(0.55).delaytime(0.375).delayfeedback(0.5).room(0.5).gain(0.55),
@@ -151,7 +151,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_industrial_crushed_clang", name: "Industrial Crushed Clang", tags: ["techno", "industrial", "dark", "metallic", "kick", "hats", "clap"],
+  { id: "drums_industrial_crushed_clang", name: "Industrial Crushed Clang", tags: ["techno", "industrial", "dark", "metallic", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").shape(0.55).lpf(500).gain(1.05),
   s("hh*16").bank("RolandTR909").crush(6).hpf(5000).gain("[0.25 0.15 0.35 0.15]*4"),

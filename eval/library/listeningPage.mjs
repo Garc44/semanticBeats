@@ -1,31 +1,12 @@
 // Usage: node --import ./eval/node-hooks/register.mjs eval/library/listeningPage.mjs [--only new] > library.html
 // One strudel.cc link per pattern (compiled exactly like S3–S5, at 130 BPM) for listening checks.
-import { soundLibrary } from '../../src/library/soundLibrary.js';
-import { TECHNO_DRUMS } from '../../src/library/techno/drums.js';
-import { TECHNO_BASS } from '../../src/library/techno/bass.js';
-import { TECHNO_MELODY } from '../../src/library/techno/melody.js';
-import { compileTrack } from '../../src/compiler.js';
-import { makePillars } from '../../src/pillars.js';
 import { LIBRARY_COVERAGE } from '../config.js';
-
-// @strudel/core prints a banner on load; keep stdout pure HTML.
-const log = console.log;
-console.log = (...a) => console.error(...a);
-const { code2hash } = await import('@strudel/core');
-console.log = log;
+import { patternsOf, strudelLink, esc } from './links.js';
 
 const onlyNew = process.argv.includes('--only') && process.argv[process.argv.indexOf('--only') + 1] === 'new';
-const NEW = { drums: TECHNO_DRUMS, bass: TECHNO_BASS, melody: TECHNO_MELODY };
-const pillars = makePillars();
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-
-export function strudelLink(pillarName, id) {
-  const code = compileTrack({ selectedId: id, modifications: { speed: 1, slowdown: 1 } }, pillarName, pillars.find(p => p.name === pillarName));
-  return `https://strudel.cc/#${code2hash(`setcpm(130/4)\n${code}`)}`;
-}
 
 const sections = LIBRARY_COVERAGE.pillars.map(pillar => {
-  const patterns = onlyNew ? NEW[pillar] : soundLibrary[pillar];
+  const patterns = patternsOf(pillar, onlyNew);
   const rows = patterns.map(p => `<tr><td><a href="${strudelLink(pillar, p.id)}" target="_blank">${esc(p.name)}</a></td><td><code>${esc(p.id)}</code></td><td>${esc(p.tags.join(', '))}</td></tr>`);
   return `<h2>${pillar} (${patterns.length})</h2>\n<table><tr><th>Pattern</th><th>ID</th><th>Tags</th></tr>\n${rows.join('\n')}\n</table>`;
 });

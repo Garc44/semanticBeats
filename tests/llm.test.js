@@ -298,6 +298,18 @@ describe('callOllamaDetailed', () => {
     expect(typeof r.durationMs).toBe('number');
     expect(seen).toHaveLength(1);
   });
+
+  it('marks the Ollama token-repeat abort as degenerate output', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, text: async () => '{"error":"prediction aborted, token repeat limit reached"}' });
+    await expect(callOllamaDetailed('sys', 'user')).rejects.toMatchObject({ code: 'degenerate' });
+  });
+
+  it('other HTTP errors stay plain errors', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, text: async () => '{"error":"model not found"}' });
+    const err = await callOllamaDetailed('sys', 'user').catch(e => e);
+    expect(err.message).toMatch(/Ollama HTTP 500/);
+    expect(err.code).toBeUndefined();
+  });
 });
 
 describe('generateTransformationPlan options', () => {

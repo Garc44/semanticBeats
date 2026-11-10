@@ -35,7 +35,13 @@ export function trimPartialTail(path) {
 // Validation, tagging and harmony happen outside the timed region.
 export async function evaluateRun({ stage, prompt, rep, seed, temperature, now = () => performance.now() }) {
   const t0 = now();
-  const result = await stage.run(prompt.text, { temperature, seed });
+  let result;
+  try {
+    result = await stage.run(prompt.text, { temperature, seed });
+  } catch (err) {
+    if (err?.code !== 'degenerate') throw err;
+    return degenerateRecord({ stage, prompt, rep, seed, temperature, latencyMs: now() - t0, detail: err.message });
+  }
   const latencyMs = now() - t0;
 
   const cycles = EVAL_CONFIG.contentCycles;
@@ -55,6 +61,22 @@ export async function evaluateRun({ stage, prompt, rep, seed, temperature, now =
     executes: validity.executes,
     tags, tagsFromCode: codeTags, expected: prompt.expected, harmony,
     latencyMs, llm: llmCounts, rawOutputs: outputs, plans: result.plans,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+// The model looped until Ollama aborted: an invalid run of this stage, recorded like
+// any other. Ollama returns no partial text or token counts, so those stay null.
+function degenerateRecord({ stage, prompt, rep, seed, temperature, latencyMs, detail }) {
+  return {
+    schema: 2,
+    stage: stage.id, promptId: prompt.id, category: prompt.category, rep, seed, temperature,
+    code: null, selectedIds: null, intent: null,
+    form: null, fallbacks: null,
+    errorClass: 'degenerate', errorDetail: detail, unknownSounds: [],
+    executes: false,
+    tags: [], tagsFromCode: [], expected: prompt.expected, harmony: null,
+    latencyMs, llm: { calls: null, promptTokens: null, evalTokens: null, llmMs: null }, rawOutputs: [], plans: [],
     timestamp: new Date().toISOString(),
   };
 }

@@ -42,7 +42,14 @@ export async function callOllamaDetailed(systemPrompt, userPrompt, {
     body: JSON.stringify(body),
   });
 
-  if (!response.ok) throw new Error(`Ollama HTTP ${response.status}`);
+  if (!response.ok) {
+    // Ollama aborts a generation that keeps repeating one token. That is the model's
+    // output (deterministic per seed), not an outage — tagged so callers can tell them apart.
+    const detail = await response.text?.().catch(() => '') ?? '';
+    const err = new Error(`Ollama HTTP ${response.status}${detail ? `: ${detail}` : ''}`);
+    if (/token repeat limit/i.test(detail)) err.code = 'degenerate';
+    throw err;
+  }
   const data = await response.json();
   const raw = data.message?.content ?? '';
   const result = {

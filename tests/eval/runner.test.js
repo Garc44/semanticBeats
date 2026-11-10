@@ -87,6 +87,17 @@ describe('runMatrix', () => {
     expect(rec.harmony).toBeNull();
   });
 
+  it('records degenerate model output (Ollama token-repeat abort) as an invalid run, not a crash', async () => {
+    const outPath = tmp();
+    const looping = { id: 'S0', tagSource: 'code', run: async () => { throw Object.assign(new Error('Ollama HTTP 500: token repeat limit reached'), { code: 'degenerate' }); } };
+    const res = await runMatrix({ ...base, reps: 1, prompts: prompts.slice(0, 1), stages: [looping], outPath });
+    expect(res).toEqual({ written: 1, skipped: 0, crashed: 0 });
+    const [rec] = readLines(outPath);
+    expect(rec).toMatchObject({ schema: 2, stage: 'S0', code: null, errorClass: 'degenerate', executes: false, tags: [], tagsFromCode: [], harmony: null });
+    expect(rec.errorDetail).toMatch(/token repeat limit/);
+    expect(typeof rec.latencyMs).toBe('number');
+  });
+
   it('records harmony over 4 bars, form and fallbacks from the stage result', async () => {
     const outPath = tmp();
     const formStage = {

@@ -27,7 +27,7 @@ Runs resume automatically; crashes land in `*.errors.jsonl` and are retried.
 `eval/corpus/prompts.json` holds the 40 techno prompts (10 each: `direct_hit`, `alias`, `structure`, `underspecified`), frozen 2026-10-26. Expected tags = consensus of two annotators (`annotation-A.json` author, `annotation-B.json` second person, `annotation-consensus.json`); κ 0.655 over 39 prompts.
 
 ## Metrics
-- **Validity**: `checkValidity` on bar 0. Classes `syntax`, `unknown_function`, `unknown_sound` (exposé) plus `empty`, `forbidden`, `runtime`, `no_pattern`, `silent`.
+- **Validity**: `checkValidity` on bar 0. Classes `syntax`, `unknown_function`, `unknown_sound` (exposé) plus `empty`, `forbidden`, `runtime`, `no_pattern`, `silent`, `degenerate` (Ollama aborted a generation stuck repeating one token; deterministic per seed, so an invalid run, not a crash).
 - **Content window**: lexicon and harmony read bars 0–4 (`EVAL_CONFIG.contentCycles`).
 - **Fidelity**: P/R/F1 vs frozen expected tags over executing runs. `f1Code` = code lexicon for every stage (main); `f1` = per-stage source. Open-ended prompts (`openEnded: true`, `expected: []`, currently u08) have no expectation: excluded from fidelity and from annotation agreement, kept for all other metrics.
 - **Harmony** (`harmony.js`): in-key share (best of 12 diatonic sets), clash rate (simultaneous interval class 1 or 6), low crowding (simultaneous pairs below C3 within an octave).

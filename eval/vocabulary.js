@@ -35,6 +35,10 @@ export const LIBRARY_TAG_MAP = {
   'complex': ['dense'], 'modular': ['evolving'], 'glitch': ['glitchy'], 'overdrive': ['gritty'],
   'sh101': ['lead'], 'raw': ['gritty'], 'dyad': ['chords'], 'upper': [], 'pan': ['spacious'],
   'ascending': [], 'minor7': ['chords'], 'stutter': ['glitchy'], 'tension': ['dissonant'],
+  // Identity entries (library v2): new patterns are tagged directly with vocabulary terms.
+  'peak-time': ['peak-time'], 'gritty': ['gritty'], 'spacious': ['spacious'], 'glitchy': ['glitchy'],
+  'dense': ['dense'], 'evolving': ['evolving'], 'percussion': ['percussion'], 'lead': ['lead'],
+  'chords': ['chords'], 'pad': ['pad'], 'fx': ['fx'],
 };
 
 // The pillar itself says what kind of element a pattern is.

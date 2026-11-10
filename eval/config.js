@@ -27,3 +27,12 @@ export const THRESHOLDS = {
 export const EXTRA_COMPARISONS = [['S2', 'S6'], ['S5', 'S6']];
 
 export const BOOTSTRAP = { iterations: 10000, alpha: 0.05, seed: 20261012 };
+
+// Library v2: minimum patterns per track and tag. Set before writing patterns (2026-11-10), not fitted.
+// exempt = musically meaningless track × tag pairs (drums carry no pitch, so no dissonance).
+export const LIBRARY_COVERAGE = {
+  pillars: ['drums', 'bass', 'melody'],
+  minPerSubgenre: 4,
+  minPerCharacter: 2,
+  exempt: { drums: ['dissonant'], bass: [], melody: [] },
+};

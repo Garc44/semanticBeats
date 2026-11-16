@@ -22,6 +22,12 @@ describe('blind tag sheet', () => {
     expect(html).toContain('#4');
   });
 
+  it('page keeps ticks across reloads (autosave in the browser)', () => {
+    const html = renderTagSheet(blindItems(lib, 7), link);
+    expect(html).toContain('localStorage.setItem');
+    expect(html).toContain('localStorage.getItem');
+  });
+
   it('unblind maps the exported numbers back to ids', () => {
     const items = blindItems(lib, 7);
     const exported = Object.fromEntries(items.map(i => [i.key, [i.id.split('_')[1]]]));

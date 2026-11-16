@@ -1,0 +1,387 @@
+{
+  "#1": [
+    "minimal",
+    "warm"
+  ],
+  "#2": [
+    "dense"
+  ],
+  "#3": [
+    "industrial",
+    "dark"
+  ],
+  "#4": [
+    "dub",
+    "deep"
+  ],
+  "#5": [
+    "hypnotic",
+    "spacious",
+    "sparse"
+  ],
+  "#6": [
+    "industrial",
+    "gritty"
+  ],
+  "#7": [
+    "detroit",
+    "evolving"
+  ],
+  "#8": [
+    "industrial",
+    "dense",
+    "evolving"
+  ],
+  "#9": [
+    "driving"
+  ],
+  "#10": [
+    "detroit",
+    "warm"
+  ],
+  "#11": [
+    "deep"
+  ],
+  "#12": [
+    "detroit",
+    "warm",
+    "spacious"
+  ],
+  "#13": [
+    "spacious",
+    "deep"
+  ],
+  "#14": [
+    "minimal",
+    "evolving"
+  ],
+  "#15": [
+    "minimal",
+    "driving",
+    "dense"
+  ],
+  "#16": [
+    "hypnotic",
+    "evolving"
+  ],
+  "#17": [
+    "dub",
+    "evolving"
+  ],
+  "#18": [
+    "acid",
+    "glitchy"
+  ],
+  "#19": [
+    "industrial",
+    "gritty",
+    "dissonant"
+  ],
+  "#20": [
+    "detroit",
+    "spacious"
+  ],
+  "#21": [
+    "minimal",
+    "sparse"
+  ],
+  "#22": [
+    "detroit",
+    "driving",
+    "warm",
+    "spacious"
+  ],
+  "#23": [],
+  "#24": [
+    "industrial",
+    "dark"
+  ],
+  "#25": [
+    "evolving"
+  ],
+  "#26": [
+    "peak-time",
+    "evolving"
+  ],
+  "#27": [
+    "dub",
+    "warm",
+    "spacious"
+  ],
+  "#28": [
+    "acid",
+    "spacious"
+  ],
+  "#29": [
+    "detroit",
+    "driving"
+  ],
+  "#30": [
+    "peak-time",
+    "driving"
+  ],
+  "#31": [
+    "minimal",
+    "warm",
+    "spacious"
+  ],
+  "#32": [
+    "hypnotic",
+    "evolving"
+  ],
+  "#33": [
+    "detroit",
+    "driving",
+    "warm"
+  ],
+  "#34": [
+    "minimal",
+    "dark",
+    "spacious"
+  ],
+  "#35": [
+    "hypnotic",
+    "evolving"
+  ],
+  "#36": [
+    "acid",
+    "dense",
+    "metallic"
+  ],
+  "#37": [
+    "industrial",
+    "dark",
+    "dense"
+  ],
+  "#38": [
+    "minimal",
+    "spacious",
+    "deep"
+  ],
+  "#39": [
+    "dub",
+    "dense",
+    "deep"
+  ],
+  "#40": [
+    "dub",
+    "spacious",
+    "deep",
+    "evolving"
+  ],
+  "#41": [
+    "detroit",
+    "driving",
+    "warm"
+  ],
+  "#42": [
+    "minimal",
+    "deep"
+  ],
+  "#43": [
+    "acid",
+    "gritty",
+    "spacious"
+  ],
+  "#44": [
+    "acid",
+    "deep",
+    "evolving"
+  ],
+  "#45": [
+    "detroit",
+    "dense",
+    "metallic"
+  ],
+  "#46": [
+    "industrial",
+    "dark",
+    "metallic"
+  ],
+  "#47": [
+    "hypnotic",
+    "spacious",
+    "dense"
+  ],
+  "#48": [
+    "acid",
+    "glitchy",
+    "metallic"
+  ],
+  "#49": [
+    "detroit",
+    "spacious",
+    "metallic"
+  ],
+  "#50": [
+    "peak-time",
+    "dark",
+    "spacious",
+    "evolving"
+  ],
+  "#51": [
+    "minimal",
+    "glitchy",
+    "deep"
+  ],
+  "#52": [
+    "dub",
+    "metallic",
+    "evolving"
+  ],
+  "#53": [
+    "dub",
+    "dense",
+    "evolving"
+  ],
+  "#54": [
+    "gritty",
+    "glitchy",
+    "dissonant"
+  ],
+  "#55": [
+    "acid",
+    "sparse"
+  ],
+  "#56": [
+    "sparse",
+    "dissonant"
+  ],
+  "#57": [
+    "minimal",
+    "sparse"
+  ],
+  "#58": [
+    "industrial",
+    "dark"
+  ],
+  "#59": [
+    "dub",
+    "dense",
+    "evolving"
+  ],
+  "#60": [
+    "dub",
+    "warm",
+    "gritty"
+  ],
+  "#61": [
+    "industrial",
+    "spacious",
+    "dissonant"
+  ],
+  "#62": [
+    "dub",
+    "spacious",
+    "deep"
+  ],
+  "#63": [
+    "acid",
+    "gritty",
+    "evolving"
+  ],
+  "#64": [
+    "dub",
+    "deep"
+  ],
+  "#65": [
+    "sparse",
+    "dissonant"
+  ],
+  "#66": [
+    "detroit",
+    "driving",
+    "warm",
+    "spacious"
+  ],
+  "#67": [
+    "peak-time",
+    "evolving"
+  ],
+  "#68": [
+    "gritty",
+    "metallic"
+  ],
+  "#69": [
+    "minimal",
+    "sparse",
+    "deep"
+  ],
+  "#70": [
+    "minimal",
+    "spacious",
+    "dissonant"
+  ],
+  "#71": [
+    "hypnotic",
+    "warm",
+    "spacious",
+    "metallic"
+  ],
+  "#72": [
+    "detroit",
+    "driving",
+    "warm"
+  ],
+  "#73": [
+    "dub",
+    "dense",
+    "deep"
+  ],
+  "#74": [
+    "detroit",
+    "driving",
+    "metallic"
+  ],
+  "#75": [
+    "acid",
+    "driving",
+    "deep"
+  ],
+  "#76": [
+    "detroit",
+    "warm",
+    "gritty"
+  ],
+  "#77": [
+    "minimal",
+    "sparse",
+    "deep"
+  ],
+  "#78": [
+    "industrial",
+    "gritty",
+    "dissonant"
+  ],
+  "#79": [
+    "detroit",
+    "warm",
+    "spacious"
+  ],
+  "#80": [
+    "minimal"
+  ],
+  "#81": [
+    "dark",
+    "deep",
+    "evolving"
+  ],
+  "#82": [
+    "dub",
+    "spacious"
+  ],
+  "#83": [
+    "acid",
+    "gritty",
+    "metallic"
+  ],
+  "#84": [
+    "hypnotic",
+    "dense"
+  ],
+  "#85": [
+    "spacious",
+    "dense",
+    "metallic"
+  ]
+}

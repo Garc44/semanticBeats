@@ -1,0 +1,479 @@
+{
+  "tags": {
+    "#1": [
+      "minimal",
+      "warm",
+      "sparse"
+    ],
+    "#2": [
+      "detroit",
+      "deep"
+    ],
+    "#3": [
+      "industrial",
+      "dark",
+      "metallic",
+      "dissonant"
+    ],
+    "#4": [
+      "minimal",
+      "dark",
+      "deep"
+    ],
+    "#5": [
+      "hypnotic",
+      "spacious",
+      "evolving"
+    ],
+    "#6": [
+      "industrial",
+      "gritty"
+    ],
+    "#7": [
+      "peak-time",
+      "dense",
+      "evolving"
+    ],
+    "#8": [
+      "peak-time",
+      "dense",
+      "evolving"
+    ],
+    "#9": [
+      "industrial",
+      "driving"
+    ],
+    "#10": [
+      "dub",
+      "warm"
+    ],
+    "#11": [
+      "hypnotic",
+      "dark",
+      "deep"
+    ],
+    "#12": [
+      "detroit",
+      "warm"
+    ],
+    "#13": [
+      "dub",
+      "spacious",
+      "deep"
+    ],
+    "#14": [
+      "dub",
+      "dark",
+      "evolving"
+    ],
+    "#15": [
+      "minimal",
+      "driving"
+    ],
+    "#16": [
+      "hypnotic",
+      "evolving"
+    ],
+    "#17": [
+      "detroit",
+      "dub",
+      "evolving"
+    ],
+    "#18": [
+      "acid",
+      "glitchy",
+      "evolving"
+    ],
+    "#19": [
+      "industrial",
+      "dark",
+      "driving",
+      "dissonant"
+    ],
+    "#20": [
+      "peak-time",
+      "spacious",
+      "dense"
+    ],
+    "#21": [
+      "warm",
+      "sparse"
+    ],
+    "#22": [
+      "detroit",
+      "warm"
+    ],
+    "#23": [
+      "industrial",
+      "gritty"
+    ],
+    "#24": [
+      "industrial",
+      "dark"
+    ],
+    "#25": [
+      "detroit",
+      "evolving"
+    ],
+    "#26": [
+      "peak-time",
+      "driving"
+    ],
+    "#27": [
+      "dub",
+      "warm",
+      "evolving"
+    ],
+    "#28": [
+      "peak-time",
+      "gritty",
+      "spacious"
+    ],
+    "#29": [
+      "peak-time",
+      "driving",
+      "dense"
+    ],
+    "#30": [
+      "peak-time",
+      "driving"
+    ],
+    "#31": [
+      "peak-time",
+      "driving",
+      "warm"
+    ],
+    "#32": [
+      "hypnotic",
+      "warm",
+      "evolving"
+    ],
+    "#33": [
+      "peak-time",
+      "driving"
+    ],
+    "#34": [
+      "dub",
+      "dissonant",
+      "evolving"
+    ],
+    "#35": [
+      "acid",
+      "hypnotic",
+      "evolving"
+    ],
+    "#36": [
+      "acid",
+      "dense"
+    ],
+    "#37": [
+      "industrial",
+      "dark",
+      "dense"
+    ],
+    "#38": [
+      "minimal",
+      "deep"
+    ],
+    "#39": [
+      "detroit",
+      "dense"
+    ],
+    "#40": [
+      "dub",
+      "spacious",
+      "evolving"
+    ],
+    "#41": [
+      "detroit",
+      "warm"
+    ],
+    "#42": [
+      "minimal",
+      "sparse"
+    ],
+    "#43": [
+      "acid",
+      "dark",
+      "gritty"
+    ],
+    "#44": [
+      "acid",
+      "gritty",
+      "evolving"
+    ],
+    "#45": [
+      "peak-time",
+      "metallic"
+    ],
+    "#46": [
+      "industrial",
+      "driving",
+      "metallic"
+    ],
+    "#47": [
+      "hypnotic",
+      "spacious"
+    ],
+    "#48": [
+      "acid",
+      "glitchy"
+    ],
+    "#49": [
+      "detroit",
+      "warm",
+      "metallic"
+    ],
+    "#50": [
+      "industrial",
+      "dark",
+      "dissonant"
+    ],
+    "#51": [
+      "minimal",
+      "warm"
+    ],
+    "#52": [
+      "industrial",
+      "dense",
+      "evolving"
+    ],
+    "#53": [
+      "industrial",
+      "dark",
+      "evolving"
+    ],
+    "#54": [
+      "dub",
+      "gritty"
+    ],
+    "#55": [
+      "acid",
+      "gritty",
+      "sparse"
+    ],
+    "#56": [
+      "minimal",
+      "sparse",
+      "dissonant"
+    ],
+    "#57": [],
+    "#58": [
+      "industrial",
+      "dark",
+      "dense"
+    ],
+    "#59": [
+      "dub",
+      "dark",
+      "evolving"
+    ],
+    "#60": [
+      "dub",
+      "driving",
+      "gritty"
+    ],
+    "#61": [
+      "industrial",
+      "spacious",
+      "metallic"
+    ],
+    "#62": [
+      "dub",
+      "spacious"
+    ],
+    "#63": [
+      "acid",
+      "gritty"
+    ],
+    "#64": [
+      "dub",
+      "deep"
+    ],
+    "#65": [
+      "minimal",
+      "glitchy",
+      "dissonant"
+    ],
+    "#66": [
+      "detroit",
+      "warm",
+      "spacious"
+    ],
+    "#67": [
+      "industrial",
+      "driving",
+      "evolving"
+    ],
+    "#68": [
+      "industrial",
+      "metallic",
+      "dissonant"
+    ],
+    "#69": [
+      "minimal",
+      "spacious",
+      "deep"
+    ],
+    "#70": [
+      "minimal",
+      "spacious",
+      "deep"
+    ],
+    "#71": [
+      "hypnotic",
+      "warm",
+      "metallic"
+    ],
+    "#72": [
+      "detroit",
+      "driving",
+      "warm",
+      "sparse"
+    ],
+    "#73": [
+      "dub",
+      "driving",
+      "deep"
+    ],
+    "#74": [
+      "peak-time",
+      "driving",
+      "gritty"
+    ],
+    "#75": [
+      "acid",
+      "evolving"
+    ],
+    "#76": [
+      "detroit",
+      "warm"
+    ],
+    "#77": [
+      "detroit",
+      "spacious",
+      "deep"
+    ],
+    "#78": [
+      "industrial",
+      "dissonant"
+    ],
+    "#79": [
+      "detroit",
+      "spacious"
+    ],
+    "#80": [
+      "minimal"
+    ],
+    "#81": [
+      "hypnotic",
+      "dark",
+      "evolving"
+    ],
+    "#82": [
+      "dub",
+      "spacious"
+    ],
+    "#83": [
+      "acid",
+      "metallic"
+    ],
+    "#84": [
+      "acid",
+      "gritty"
+    ],
+    "#85": [
+      "acid",
+      "spacious",
+      "dense"
+    ]
+  },
+  "notes": {
+    "#1": "",
+    "#2": "",
+    "#3": "",
+    "#4": "",
+    "#5": "",
+    "#6": "",
+    "#7": "",
+    "#8": "",
+    "#9": "",
+    "#10": "",
+    "#11": "",
+    "#12": "",
+    "#13": "",
+    "#14": "",
+    "#15": "",
+    "#16": "",
+    "#17": "",
+    "#18": "",
+    "#19": "",
+    "#20": "",
+    "#21": "",
+    "#22": "",
+    "#23": "",
+    "#24": "",
+    "#25": "",
+    "#26": "",
+    "#27": "",
+    "#28": "",
+    "#29": "",
+    "#30": "",
+    "#31": "",
+    "#32": "",
+    "#33": "",
+    "#34": "",
+    "#35": "",
+    "#36": "",
+    "#37": "",
+    "#38": "",
+    "#39": "",
+    "#40": "",
+    "#41": "",
+    "#42": "",
+    "#43": "",
+    "#44": "",
+    "#45": "",
+    "#46": "",
+    "#47": "",
+    "#48": "",
+    "#49": "",
+    "#50": "",
+    "#51": "",
+    "#52": "",
+    "#53": "",
+    "#54": "",
+    "#55": "",
+    "#56": "",
+    "#57": "",
+    "#58": "",
+    "#59": "",
+    "#60": "",
+    "#61": "",
+    "#62": "",
+    "#63": "",
+    "#64": "",
+    "#65": "",
+    "#66": "",
+    "#67": "",
+    "#68": "",
+    "#69": "",
+    "#70": "",
+    "#71": "",
+    "#72": "",
+    "#73": "",
+    "#74": "",
+    "#75": "",
+    "#76": "",
+    "#77": "",
+    "#78": "",
+    "#79": "",
+    "#80": "",
+    "#81": "",
+    "#82": "",
+    "#83": "",
+    "#84": "",
+    "#85": ""
+  },
+  "undecided": []
+}

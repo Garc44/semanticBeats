@@ -3,7 +3,7 @@
 export const TECHNO_DRUMS = [
 
   // — acid: straight 909 kits that leave room for a 303 line —
-  { id: "drums_acid_909_straight", name: "Acid 909 Straight Kit", tags: ["techno", "acid", "driving", "kick", "hats", "clap"],
+  { id: "drums_acid_909_straight", name: "Acid 909 Straight Kit", tags: ["techno", "dub", "spacious", "kick", "hats", "clap"],
     code: `stack(
   s("bd*4").bank("RolandTR909").shape(0.3).lpf(900).gain(1.1),
   s("[~ hh]*4").bank("RolandTR909").hpf(6000).gain(0.55),
@@ -20,7 +20,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_acid_808_cowbell_jack", name: "Acid 808 Cowbell Jack", tags: ["techno", "acid", "warm", "kick", "hats", "clap", "percussion"],
+  { id: "drums_acid_808_cowbell_jack", name: "Acid 808 Cowbell Jack", tags: ["techno", "detroit", "warm", "metallic", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR808").lpf(500).gain(1.2),
   s("[~ hh]*4").bank("RolandTR808").gain(0.5),
@@ -29,7 +29,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_acid_sparse_tick", name: "Acid Sparse Tick", tags: ["techno", "acid", "sparse", "kick", "hats"],
+  { id: "drums_acid_sparse_tick", name: "Acid Sparse Tick", tags: ["techno", "acid", "hypnotic", "evolving", "kick", "hats"],
     code: `stack(
   s("bd ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~ bd ~ bd ~").bank("RolandTR909").shape(0.25).lpf(600).gain(1.1),
   s("~ ~ hh ~").bank("RolandTR909").fast(4).hpf(8000).decay(0.05).gain(0.5)
@@ -37,7 +37,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — detroit: swung, soulful 808/909 grooves —
-  { id: "drums_detroit_swung_909", name: "Detroit Swung 909", tags: ["techno", "detroit", "warm", "driving", "kick", "hats", "clap"],
+  { id: "drums_detroit_swung_909", name: "Detroit Swung 909", tags: ["techno", "hypnotic", "warm", "evolving", "kick", "hats", "clap"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(800).gain(1.1),
   s("hh*8").bank("RolandTR909").swingBy(1/6, 4).gain("[0.4 0.6]*4"),
@@ -46,7 +46,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_detroit_808_soul", name: "Detroit 808 Soul Groove", tags: ["techno", "detroit", "warm", "kick", "hats", "clap", "percussion"],
+  { id: "drums_detroit_808_soul", name: "Detroit 808 Soul Groove", tags: ["techno", "hypnotic", "warm", "metallic", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd ~ ~ ~ bd ~ ~ bd ~ ~ bd ~ bd ~ ~ ~").bank("RolandTR808").lpf(400).gain(1.2),
   s("hh*16").bank("RolandTR808").swingBy(1/8, 4).gain("[0.3 0.15 0.45 0.15]*4"),
@@ -64,7 +64,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_detroit_late_night", name: "Detroit Late Night Kit", tags: ["techno", "detroit", "spacious", "warm", "kick", "hats", "clap"],
+  { id: "drums_detroit_late_night", name: "Detroit Late Night Kit", tags: ["techno", "detroit", "warm", "kick", "hats", "clap"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(650).gain(1.1),
   s("~ oh ~ oh ~ oh ~ oh").bank("RolandTR909").gain(0.3).decay(0.15),
@@ -73,7 +73,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — dub: deep kick, delayed rim and percussion —
-  { id: "drums_dub_rim_echo", name: "Dub Rim Echo", tags: ["techno", "dub", "deep", "spacious", "kick", "hats", "percussion"],
+  { id: "drums_dub_rim_echo", name: "Dub Rim Echo", tags: ["techno", "dub", "deep", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(250).lpq(2).room(0.4).sz(0.8).gain(1.2),
   s("~ ~ ~ rim ~ ~ rim ~ ~ ~ ~ rim ~ ~ ~ ~").bank("RolandTR808").delay(0.55).delaytime(0.375).delayfeedback(0.5).room(0.5).gain(0.55),
@@ -81,7 +81,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_dub_chord_space_kit", name: "Dub Space Kit", tags: ["techno", "dub", "spacious", "warm", "kick", "hats", "clap"],
+  { id: "drums_dub_chord_space_kit", name: "Dub Space Kit", tags: ["techno", "dub", "spacious", "kick", "hats", "clap"],
     code: `stack(
   s("bd*4").bank("RolandTR808").lpf(300).gain(1.25),
   s("~ ~ ~ ~ cp ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~").bank("RolandTR909").room(0.7).sz(0.95).delay(0.5).delaytime(0.375).delayfeedback(0.55).lpf(1800).gain(0.5),
@@ -89,7 +89,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_dub_deep_sparse", name: "Dub Deep Sparse", tags: ["techno", "dub", "sparse", "deep", "kick", "percussion"],
+  { id: "drums_dub_deep_sparse", name: "Dub Deep Sparse", tags: ["techno", "dub", "gritty", "kick", "percussion"],
     code: `stack(
   s("bd ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~ ~ ~").bank("RolandTR909").lpf(220).shape(0.2).room(0.5).sz(0.9).gain(1.25),
   s("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ rim ~ ~").bank("RolandTR909").delay(0.6).delaytime(0.375).delayfeedback(0.6).room(0.6).gain(0.5),
@@ -97,7 +97,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_dub_shaker_haze", name: "Dub Shaker Haze", tags: ["techno", "dub", "warm", "dark", "kick", "hats", "percussion"],
+  { id: "drums_dub_shaker_haze", name: "Dub Shaker Haze", tags: ["techno", "dub", "spacious", "evolving", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(280).gain(1.2),
   s("sh*8").bank("RolandTR808").gain("[0.2 0.35]*4").lpf(4000).room(0.5),
@@ -107,7 +107,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — hypnotic: rolling, repetitive percussion —
-  { id: "drums_hypnotic_rolling_toms", name: "Hypnotic Rolling Toms", tags: ["techno", "hypnotic", "driving", "deep", "kick", "hats", "percussion"],
+  { id: "drums_hypnotic_rolling_toms", name: "Hypnotic Rolling Toms", tags: ["techno", "dub", "driving", "deep", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(450).shape(0.3).gain(1.15),
   s("hh*16").bank("RolandTR909").gain("[0.2 0.3 0.45 0.3]*4").hpf(7000),
@@ -116,7 +116,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_hypnotic_euclid_loop", name: "Hypnotic Euclid Loop", tags: ["techno", "hypnotic", "dark", "kick", "hats", "percussion"],
+  { id: "drums_hypnotic_euclid_loop", name: "Hypnotic Euclid Loop", tags: ["techno", "dub", "dark", "evolving", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(380).lpq(2).gain(1.15),
   s("[~ hh]*4").bank("RolandTR909").gain(0.4),
@@ -125,7 +125,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_hypnotic_filter_drift", name: "Hypnotic Filter Drift", tags: ["techno", "hypnotic", "evolving", "kick", "hats", "percussion"],
+  { id: "drums_hypnotic_filter_drift", name: "Hypnotic Filter Drift", tags: ["techno", "hypnotic", "spacious", "evolving", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(420).gain(1.15),
   s("hh*16").bank("RolandTR909").lpf(sine.slow(8).range(2500, 9000)).gain(sine.slow(4).range(0.2, 0.45)),
@@ -133,7 +133,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_hypnotic_shaker_trance", name: "Hypnotic Shaker Trance", tags: ["techno", "hypnotic", "spacious", "kick", "hats", "clap", "percussion"],
+  { id: "drums_hypnotic_shaker_trance", name: "Hypnotic Shaker Trance", tags: ["techno", "hypnotic", "evolving", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(400).shape(0.2).gain(1.15),
   s("sh*16").bank("RolandTR808").gain("[0.15 0.25 0.35 0.25]*4").pan(sine.slow(8).range(0.3, 0.7)),
@@ -143,7 +143,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — industrial: distorted, metallic —
-  { id: "drums_industrial_metal_hammer", name: "Industrial Metal Hammer", tags: ["techno", "industrial", "metallic", "gritty", "kick", "percussion"],
+  { id: "drums_industrial_metal_hammer", name: "Industrial Metal Hammer", tags: ["techno", "industrial", "dark", "kick", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").distort(0.4).lpf(600).gain(1.0),
   s("metal(5,16)").hpf(1500).room(0.3).gain(0.4),
@@ -151,7 +151,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_industrial_crushed_clang", name: "Industrial Crushed Clang", tags: ["techno", "industrial", "dark", "metallic", "kick", "hats", "clap", "percussion"],
+  { id: "drums_industrial_crushed_clang", name: "Industrial Crushed Clang", tags: ["techno", "industrial", "dark", "evolving", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").shape(0.55).lpf(500).gain(1.05),
   s("hh*16").bank("RolandTR909").crush(6).hpf(5000).gain("[0.25 0.15 0.35 0.15]*4"),
@@ -160,7 +160,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_industrial_warehouse_dense", name: "Industrial Warehouse Dense", tags: ["techno", "industrial", "dense", "driving", "kick", "hats", "clap", "percussion"],
+  { id: "drums_industrial_warehouse_dense", name: "Industrial Warehouse Dense", tags: ["techno", "industrial", "dense", "evolving", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd*4, ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ bd ~").bank("RolandTR909").distort(0.3).lpf(550).gain(1.0),
   s("hh*16").bank("RolandTR909").gain("[0.3 0.2 0.45 0.2]*4").hpf(6000),
@@ -170,7 +170,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_industrial_glitch_grind", name: "Industrial Glitch Grind", tags: ["techno", "industrial", "glitchy", "gritty", "kick", "hats", "percussion"],
+  { id: "drums_industrial_glitch_grind", name: "Industrial Glitch Grind", tags: ["techno", "industrial", "driving", "kick", "hats", "percussion"],
     code: `stack(
   s("bd ~ bd ~ bd ~ bd [bd bd]").bank("RolandTR909").distort(0.35).lpf(500).gain(1.0),
   s("hh*16").bank("RolandTR909").degradeBy(0.35).crush(5).hpf(5000).gain(0.35),
@@ -180,7 +180,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — peak-time: driving 909, claps, open hats —
-  { id: "drums_peaktime_909_main_room", name: "Peak-Time 909 Main Room", tags: ["techno", "peak-time", "driving", "dense", "kick", "hats", "clap"],
+  { id: "drums_peaktime_909_main_room", name: "Peak-Time 909 Main Room", tags: ["techno", "peak-time", "spacious", "dense", "kick", "hats", "clap"],
     code: `stack(
   s("bd*4").bank("RolandTR909").shape(0.35).lpf(900).gain(1.15),
   s("[~ oh]*4").bank("RolandTR909").gain(0.45).decay(0.2),
@@ -208,7 +208,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_peaktime_build_roll", name: "Peak-Time Snare Build", tags: ["techno", "peak-time", "evolving", "kick", "hats", "clap", "percussion"],
+  { id: "drums_peaktime_build_roll", name: "Peak-Time Snare Build", tags: ["techno", "peak-time", "driving", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").shape(0.3).lpf(850).gain(1.15),
   s("[~ oh]*4").bank("RolandTR909").gain(0.4),
@@ -218,7 +218,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — minimal: sparse clicks, lots of rests —
-  { id: "drums_minimal_click_pulse", name: "Minimal Click Pulse", tags: ["techno", "minimal", "sparse", "kick", "hats", "percussion"],
+  { id: "drums_minimal_click_pulse", name: "Minimal Click Pulse", tags: ["techno", "minimal", "warm", "sparse", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(350).decay(0.2).gain(1.1),
   s("~ ~ click ~").fast(4).hpf(4000).decay(0.04).gain(0.35),
@@ -226,7 +226,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_minimal_glitch_ticks", name: "Minimal Glitch Ticks", tags: ["techno", "minimal", "glitchy", "sparse", "kick", "percussion"],
+  { id: "drums_minimal_glitch_ticks", name: "Minimal Glitch Ticks", tags: ["techno", "minimal", "sparse", "kick", "percussion"],
     code: `stack(
   s("bd ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~").bank("RolandTR909").lpf(380).gain(1.1),
   s("click*16").degradeBy(0.7).hpf(5000).decay(0.03).pan(sine.fast(3).range(0.2, 0.8)).gain(0.35),
@@ -234,7 +234,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_minimal_rim_offbeat", name: "Minimal Rim Offbeat", tags: ["techno", "minimal", "deep", "kick", "hats", "percussion"],
+  { id: "drums_minimal_rim_offbeat", name: "Minimal Rim Offbeat", tags: ["techno", "minimal", "driving", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR808").lpf(300).gain(1.2),
   s("[~ hh]*4").bank("RolandTR808").hpf(8000).decay(0.04).gain(0.35),
@@ -242,7 +242,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_minimal_micro_shift", name: "Minimal Micro Shift", tags: ["techno", "minimal", "evolving", "dark", "kick", "hats", "percussion"],
+  { id: "drums_minimal_micro_shift", name: "Minimal Micro Shift", tags: ["techno", "minimal", "dark", "deep", "kick", "hats", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").lpf(360).lpq(2).gain(1.1),
   s("hh*8").bank("RolandTR909").hpf(7000).decay(0.03).gain("<0.3 0.25 0.35 0.2>").degradeBy("<0 0.2 0.4 0.2>"),
@@ -251,7 +251,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — extra coverage —
-  { id: "drums_acid_glitch_stutter", name: "Acid Glitch Stutter", tags: ["techno", "acid", "glitchy", "dense", "kick", "hats", "clap"],
+  { id: "drums_acid_glitch_stutter", name: "Acid Glitch Stutter", tags: ["techno", "acid", "spacious", "dense", "kick", "hats", "clap"],
     code: `stack(
   s("bd*4").bank("RolandTR909").shape(0.3).lpf(750).gain(1.1),
   s("hh*16").bank("RolandTR909").sometimesBy(0.25, x => x.ply(2)).hpf(7000).gain("[0.25 0.2 0.4 0.2]*4"),
@@ -259,7 +259,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_peaktime_808_tribal_drive", name: "Peak-Time Tribal Drive", tags: ["techno", "peak-time", "dense", "warm", "kick", "hats", "clap", "percussion"],
+  { id: "drums_peaktime_808_tribal_drive", name: "Peak-Time Tribal Drive", tags: ["techno", "peak-time", "driving", "dense", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR909").shape(0.3).lpf(800).gain(1.15),
   s("[~ oh]*4").bank("RolandTR909").gain(0.35),

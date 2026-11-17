@@ -130,4 +130,38 @@ export const TECHNO_BASS = [
   { id: "bass_detroit_sparse_soul", name: "Sparse Soul Bass", tags: ["techno", "warm", "sparse", "bass"],
     code: `note("<[c2 ~ ~ ~ ~ ~ eb2 ~] [~ ~ bb1 ~ ~ ~ g1 ~]>").s("triangle").attack(0.01).decay(0.25).sustain(0.15).lpf(600).shape(0.2).room(0.3).sz(0.6)`,
     initialTransforms: {} },
+
+  // — coverage fill (dub, peak-time) —
+  { id: "bass_dub_deep_echo_pulse", name: "Dub Deep Echo Pulse", tags: ["techno", "dub", "deep", "bass", "sub"],
+    code: `note("<[~ g0 ~ ~] [~ ~ g0 ~] [~ g0 ~ ~] [~ ~ ~ bb0]>*2").s("sine").attack(0.01).decay(0.35).sustain(0.15).lpf(180).delay(0.55).delaytime(0.375).delayfeedback(0.6).room(0.6).sz(0.95)`,
+    initialTransforms: {} },
+
+  { id: "bass_dub_chord_space_stab", name: "Dub Space Stab Bass", tags: ["techno", "dub", "spacious", "bass", "sub"],
+    code: `stack(
+      note("[c1 ~ ~ ~] ~ [~ ~ c1 ~] ~").s("sine").attack(0.01).decay(0.4).sustain(0.2).lpf(160),
+      note("<[~ [c2,eb2,g2] ~ ~] [~ ~ [bb1,d2,f2] ~]>").s("triangle").decay(0.15).sustain(0).lpf(450).delay(0.65).delaytime(0.375).delayfeedback(0.65).room(0.7).sz(0.95).gain(0.6)
+    )`,
+    initialTransforms: {} },
+
+  { id: "bass_peaktime_main_room_roll", name: "Peak-Time Main Room Roll", tags: ["techno", "peak-time", "driving", "bass"],
+    code: `stack(
+      note("[~ a1 a1 a1]*4").s("sawtooth").lpf(950).lpq(3).decay(0.09).sustain(0).gain("[0 1.1 0.85 0.95]*4").shape(0.35),
+      note("[~ a0]*4").s("sine").decay(0.15).sustain(0).lpf(200).gain(0.9)
+    )`,
+    initialTransforms: {} },
+
+  { id: "bass_peaktime_octave_pump", name: "Peak-Time Octave Pump", tags: ["techno", "peak-time", "driving", "bass"],
+    code: `note("[~ e1 e2 e1]*4").s("sawtooth").lpf(sine.slow(8).range(700, 1200)).lpq(2).decay(0.08).sustain(0).gain("[0 1.1 0.9 1]*4").shape(0.4)`,
+    initialTransforms: {} },
+
+  { id: "bass_peaktime_gritty_stomper", name: "Peak-Time Gritty Stomper", tags: ["techno", "peak-time", "gritty", "bass"],
+    code: `note("[~ f1 ~ f1] [~ f1 f1 f1] [~ f1 ~ f1] [~ f1 ab1 f1]").s("square").lpf(1000).lpq(2).decay(0.09).sustain(0).distort(0.45).gain(1.05)`,
+    initialTransforms: {} },
+
+  { id: "bass_peaktime_dense_rush", name: "Peak-Time Dense Rush", tags: ["techno", "peak-time", "dense", "bass"],
+    code: `stack(
+      note("[~ d1 d1 d2 ~ d1 d1 d1]*2").s("sawtooth").lpf(saw.slow(4).range(600, 1200)).lpq(3).decay(0.07).sustain(0).gain("[0 1 0.8 1 0 1 0.85 0.95]*2").shape(0.3),
+      note("[~ d1]*4").s("sine").decay(0.12).sustain(0).lpf(180).gain(0.85)
+    )`,
+    initialTransforms: {} },
 ];

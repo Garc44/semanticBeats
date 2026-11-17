@@ -268,4 +268,54 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
+  // — coverage fill (acid, detroit, glitchy) —
+  { id: "drums_acid_stutter_chopper", name: "Acid Stutter Chopper", tags: ["techno", "acid", "glitchy", "kick", "hats", "clap", "percussion"],
+    code: `stack(
+  s("<[bd bd bd bd] [bd bd bd [bd*4]] [bd bd [bd*3] bd] [bd [~ bd] bd [bd*8]]>").bank("RolandTR909").shape(0.35).lpf(800).gain(1.1),
+  s("hh*16").bank("RolandTR909").sometimesBy(0.4, x => x.ply(4)).degradeBy(0.3).hpf(7000).gain("[0.3 0.2 0.45 0.2]*4"),
+  s("~ cp ~ [cp*4]").bank("RolandTR909").crush(6).room(0.25).gain(0.6),
+  s("rim(5,16)").bank("RolandTR909").sometimesBy(0.5, x => x.ply(3)).crush(7).hpf(1500).gain(0.4)
+)`,
+    initialTransforms: {} },
+
+  { id: "drums_acid_909_ride_driver", name: "Acid 909 Ride Driver", tags: ["techno", "acid", "driving", "kick", "hats", "clap", "percussion"],
+    code: `stack(
+  s("bd*4").bank("RolandTR909").shape(0.4).lpf(850).gain(1.15),
+  s("hh*16").bank("RolandTR909").hpf(7500).gain("[0.25 0.15 0.5 0.15]*4"),
+  s("[~ oh]*4").bank("RolandTR909").decay(0.12).gain(0.35),
+  s("rd*8").bank("RolandTR909").hpf(4000).gain(0.25),
+  s("~ cp ~ cp").bank("RolandTR909").room(0.2).gain(0.65),
+  s("~ ~ ~ rim ~ ~ rim ~ ~ ~ ~ rim ~ ~ ~ rim").bank("RolandTR909").gain(0.45)
+)`,
+    initialTransforms: {} },
+
+  { id: "drums_detroit_broken_swing", name: "Detroit Broken Swing", tags: ["techno", "detroit", "glitchy", "kick", "hats", "clap", "percussion"],
+    code: `stack(
+  s("<[bd*4] [bd bd ~ bd] [bd*4] [bd ~ bd [bd*4]]>").bank("RolandTR808").lpf(450).gain(1.2),
+  s("hh*16").bank("RolandTR808").swingBy(1/6, 4).sometimesBy(0.35, x => x.ply(3)).degradeBy(0.3).gain("[0.3 0.15 0.45 0.15]*4"),
+  s("~ cp ~ <cp [cp*3] cp [cp cp cp cp]>").bank("RolandTR808").room(0.35).gain(0.6),
+  s("~ ~ cb ~ ~ [cb*4] ~ ~").bank("RolandTR808").degradeBy(0.25).lpf(1500).gain(0.3)
+)`,
+    initialTransforms: {} },
+
+  { id: "drums_detroit_cowbell_soul", name: "Detroit Cowbell Soul", tags: ["techno", "detroit", "warm", "kick", "hats", "clap", "percussion"],
+    code: `stack(
+  s("bd*4").bank("RolandTR808").lpf(450).gain(1.2),
+  s("hh*8").bank("RolandTR808").swingBy(1/6, 4).gain("[0.35 0.55]*4"),
+  s("~ cp ~ cp").bank("RolandTR808").room(0.4).sz(0.6).gain(0.6),
+  s("~ ~ cb ~ ~ ~ cb ~").bank("RolandTR808").swingBy(1/6, 4).lpf(1400).gain(0.3),
+  s("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ mt ~ ~ ~ lt ~").bank("RolandTR808").lpf(900).gain(0.45)
+)`,
+    initialTransforms: {} },
+
+  { id: "drums_minimal_micro_cut", name: "Minimal Micro Cut", tags: ["techno", "minimal", "glitchy", "kick", "hats", "percussion"],
+    code: `stack(
+  s("<[bd ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~] [bd ~ ~ ~ bd ~ [bd bd bd] ~ ~ ~ ~ ~ bd ~ ~ ~] [bd ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~] [bd ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~ [bd*8] ~ ~ ~]>").bank("RolandTR909").lpf(400).gain(1.1),
+  s("click*16").sometimesBy(0.5, x => x.ply(4)).degradeBy(0.4).hpf(4000).decay(0.03).pan(sine.fast(4).range(0.15, 0.85)).gain(0.4),
+  s("~ ~ [glitch*4] ~ ~ ~ ~ [glitch glitch]").degradeBy(0.2).hpf(1500).gain(0.3),
+  s("[~ hh]*4").bank("RolandTR909").hpf(8000).degradeBy(0.35).decay(0.03).gain(0.3),
+  s("~ ~ ~ ~ ~ ~ rim ~ ~ ~ ~ ~ ~ [rim*3] ~ ~").bank("RolandTR808").crush(6).gain(0.4)
+)`,
+    initialTransforms: {} },
+
 ];

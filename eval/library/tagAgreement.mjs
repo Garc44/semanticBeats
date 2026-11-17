@@ -1,4 +1,5 @@
-// Usage: node --import ./eval/node-hooks/register.mjs eval/library/tagAgreement.mjs [eval/library/tags-B.json]
+// Usage: node --import ./eval/node-hooks/register.mjs eval/library/tagAgreement.mjs [--round 2] [<tags-B file>]
+// Pass A is read from the library: before consensus tags are applied it is the agent's tags, afterwards the consensus.
 // Agreement between the author's v2 tags (library, normalised) and the blind second pass,
 // over subgenre and character only (element tags follow from the code, not from listening).
 import { readFileSync } from 'node:fs';
@@ -7,15 +8,20 @@ import { LIBRARY_COVERAGE } from '../config.js';
 import { cohensKappa, meanJaccard } from '../corpus/agreement.js';
 import { NEW_PATTERNS } from './links.js';
 import { unblind } from './tagSheet.js';
+import { roundFiles, parseRound } from './round.js';
 
 const vocab = [...EVAL_VOCAB.subgenre, ...EVAL_VOCAB.character];
 const keep = tags => tags.filter(t => vocab.includes(t));
-const path = process.argv[2] ?? new URL('./tags-B.json', import.meta.url);
+const args = process.argv.slice(2);
+const files = roundFiles(parseRound(args));
+const plainArgs = args.filter((a, i) => a !== '--round' && args[i - 1] !== '--round');
+const path = plainArgs[0] ?? new URL(`./${files.b}`, import.meta.url);
 // The sheet exports numbers (#n); the key written with the sheet maps them back to ids.
-const keys = JSON.parse(readFileSync(new URL('./tag-sheet-keys.json', import.meta.url), 'utf8'));
+const keys = JSON.parse(readFileSync(new URL(`./${files.keys}`, import.meta.url), 'utf8'));
+const inRound = new Set(Object.values(keys));
 const items = Object.entries(keys).map(([key, id]) => ({ key, id }));
 const B = Object.fromEntries(Object.entries(unblind(JSON.parse(readFileSync(path, 'utf8')), items)).map(([id, tags]) => [id, keep(tags)]));
-const A = Object.fromEntries(LIBRARY_COVERAGE.pillars.flatMap(p => NEW_PATTERNS[p].map(x => [x.id, keep(normalizeLibraryTags(x.tags))])));
+const A = Object.fromEntries(LIBRARY_COVERAGE.pillars.flatMap(p => NEW_PATTERNS[p].filter(x => inRound.has(x.id)).map(x => [x.id, keep(normalizeLibraryTags(x.tags))])));
 const ids = Object.keys(A);
 const missing = ids.filter(id => !(id in B));
 if (missing.length) { console.error(`second pass misses: ${missing.join(', ')}`); process.exit(1); }

@@ -20,7 +20,7 @@ export function unblind(exported, items) {
   return Object.fromEntries(items.filter(it => it.key in exported).map(it => [it.id, exported[it.key]]));
 }
 
-export function renderTagSheet(items, linkFor) {
+export function renderTagSheet(items, linkFor, { store = 'library-tagging-v2', exportName = 'tags-B.json' } = {}) {
   const boxes = (key, facet) => EVAL_VOCAB[facet].map(t => `<label><input type="checkbox" data-key="${key}" value="${t}">${t}</label>`).join(' ');
   const rows = items.map(it => `<tr><td>${it.key}</td><td>${it.pillar}</td><td><a href="${esc(linkFor(it.pillar, it.id))}" target="_blank">anhören</a></td>
 <td><b>Unterart</b><br>${boxes(it.key, 'subgenre')}<br><b>Charakter</b><br>${boxes(it.key, 'character')}</td></tr>`);
@@ -39,7 +39,7 @@ const collect = () => {
   return out;
 };
 // Autosave: ticks survive closing the tab (same browser, same file). Export stays the hand-off.
-const STORE = 'library-tagging-v2';
+const STORE = '${store}';
 try {
   const saved = JSON.parse(localStorage.getItem(STORE) || '{}');
   for (const box of document.querySelectorAll('input[data-key]'))
@@ -50,7 +50,7 @@ document.getElementById('export').onclick = () => {
   const out = collect();
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' }));
-  a.download = 'tags-B.json';
+  a.download = '${exportName}';
   a.click();
 };
 </script></body></html>`;

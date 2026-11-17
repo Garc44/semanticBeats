@@ -24,7 +24,7 @@ export function consensusRows(keys, a, b) {
 
 // Unblinded only as far as needed: both tag sets are shown, pattern names and ids are not
 // (ids carry subgenre words and would pull the decision towards pass A).
-export function renderConsensusSheet(rows, linkFor) {
+export function renderConsensusSheet(rows, linkFor, { store = 'library-consensus-v2', exportName = 'tags-consensus.json' } = {}) {
   const box = (r, t) => {
     const mark = r.both.includes(t) ? 'both' : r.onlyA.includes(t) ? 'a' : r.onlyB.includes(t) ? 'b' : '';
     const badge = mark === 'both' ? '<sup>A+B</sup>' : mark === 'a' ? '<sup>A</sup>' : mark === 'b' ? '<sup>B</sup>' : '';
@@ -51,12 +51,12 @@ tr.done{opacity:.55}#bar{position:sticky;top:0;background:#fff;padding:.5rem 0;b
 <span style="background:#dbe8ff">A</span> = nur Durchgang A (Agent, vom Autor geprüft),
 <span style="background:#ffe7c7">B</span> = nur Durchgang B.
 Häkchen setzen oder entfernen, dann „entschieden“ anklicken. Alles wird automatisch im Browser gespeichert.
-Am Ende „Export“ und <code>tags-consensus.json</code> nach <code>eval/library/</code> legen.</p>
-<div id="bar"><span id="progress"></span> <button id="export">Export tags-consensus.json</button></div>
+Am Ende „Export“ und <code>${exportName}</code> nach <code>eval/library/</code> legen.</p>
+<div id="bar"><span id="progress"></span> <button id="export">Export ${exportName}</button></div>
 <table>${body.join('\n')}</table>
 <script>
 const keys = ${JSON.stringify(rows.map(r => r.key))};
-const STORE = 'library-consensus-v2';
+const STORE = '${store}';
 const q = s => [...document.querySelectorAll(s)];
 const collect = () => {
   const tags = {}, notes = {}, done = {};
@@ -90,7 +90,7 @@ document.getElementById('export').onclick = () => {
   if (open.length && !confirm(open.length + ' Patterns sind noch nicht entschieden (z. B. ' + open.slice(0, 5).join(', ') + '). Trotzdem exportieren?')) return;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify({ tags, notes, undecided: open }, null, 2)], { type: 'application/json' }));
-  a.download = 'tags-consensus.json';
+  a.download = '${exportName}';
   a.click();
 };
 </script></body></html>`;

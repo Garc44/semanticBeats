@@ -150,7 +150,7 @@ export const TECHNO_BASS = [
     )`,
     initialTransforms: {} },
 
-  { id: "bass_peaktime_octave_pump", name: "Peak-Time Octave Pump", tags: ["techno", "peak-time", "driving", "bass"],
+  { id: "bass_peaktime_octave_pump", name: "Peak-Time Octave Pump", tags: ["techno", "peak-time", "driving", "evolving", "bass"],
     code: `note("[~ e1 e2 e1]*4").s("sawtooth").lpf(sine.slow(8).range(700, 1200)).lpq(2).decay(0.08).sustain(0).gain("[0 1.1 0.9 1]*4").shape(0.4)`,
     initialTransforms: {} },
 

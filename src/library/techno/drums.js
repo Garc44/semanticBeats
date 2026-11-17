@@ -269,7 +269,7 @@ export const TECHNO_DRUMS = [
     initialTransforms: {} },
 
   // — coverage fill (acid, detroit, glitchy) —
-  { id: "drums_acid_stutter_chopper", name: "Acid Stutter Chopper", tags: ["techno", "acid", "glitchy", "kick", "hats", "clap", "percussion"],
+  { id: "drums_acid_stutter_chopper", name: "Acid Stutter Chopper", tags: ["techno", "acid", "gritty", "glitchy", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("<[bd bd bd bd] [bd bd bd [bd*4]] [bd bd [bd*3] bd] [bd [~ bd] bd [bd*8]]>").bank("RolandTR909").shape(0.35).lpf(800).gain(1.1),
   s("hh*16").bank("RolandTR909").sometimesBy(0.4, x => x.ply(4)).degradeBy(0.3).hpf(7000).gain("[0.3 0.2 0.45 0.2]*4"),
@@ -289,7 +289,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_detroit_broken_swing", name: "Detroit Broken Swing", tags: ["techno", "detroit", "glitchy", "kick", "hats", "clap", "percussion"],
+  { id: "drums_detroit_broken_swing", name: "Detroit Broken Swing", tags: ["techno", "acid", "glitchy", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("<[bd*4] [bd bd ~ bd] [bd*4] [bd ~ bd [bd*4]]>").bank("RolandTR808").lpf(450).gain(1.2),
   s("hh*16").bank("RolandTR808").swingBy(1/6, 4).sometimesBy(0.35, x => x.ply(3)).degradeBy(0.3).gain("[0.3 0.15 0.45 0.15]*4"),
@@ -298,7 +298,7 @@ export const TECHNO_DRUMS = [
 )`,
     initialTransforms: {} },
 
-  { id: "drums_detroit_cowbell_soul", name: "Detroit Cowbell Soul", tags: ["techno", "detroit", "warm", "kick", "hats", "clap", "percussion"],
+  { id: "drums_detroit_cowbell_soul", name: "Detroit Cowbell Soul", tags: ["techno", "detroit", "warm", "gritty", "kick", "hats", "clap", "percussion"],
     code: `stack(
   s("bd*4").bank("RolandTR808").lpf(450).gain(1.2),
   s("hh*8").bank("RolandTR808").swingBy(1/6, 4).gain("[0.35 0.55]*4"),

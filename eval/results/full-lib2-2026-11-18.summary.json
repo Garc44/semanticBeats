@@ -1,0 +1,1552 @@
+{
+  "stages": {
+    "S0": {
+      "n": 400,
+      "errorCounts": {
+        "forbidden": 146,
+        "runtime": 44,
+        "syntax": 153,
+        "unknown_function": 51,
+        "silent": 1,
+        "no_pattern": 4,
+        "degenerate": 1
+      },
+      "validity": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 40
+      },
+      "f1": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 1
+      },
+      "precision": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 1
+      },
+      "recall": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 1
+      },
+      "f1Code": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 1
+      },
+      "liftF1": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 1
+      },
+      "liftF1Code": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 1
+      },
+      "entropy": {
+        "estimate": null,
+        "lower": null,
+        "upper": null,
+        "n": 0
+      },
+      "distinct": null,
+      "inKey": {
+        "estimate": null,
+        "lower": null,
+        "upper": null,
+        "n": 0
+      },
+      "clashRate": {
+        "estimate": null,
+        "lower": null,
+        "upper": null,
+        "n": 0
+      },
+      "lowCrowding": {
+        "estimate": null,
+        "lower": null,
+        "upper": null,
+        "n": 0
+      },
+      "fallbackRate": null,
+      "pooled": {
+        "validity": 0,
+        "fallbackRate": null
+      },
+      "laneEntropy": null,
+      "latency": {
+        "median": 13323.034187000245,
+        "p95": 38092.8413503003,
+        "ci": {
+          "estimate": 13494.01312524965,
+          "lower": 12725.094895749353,
+          "upper": 14551.659052499977,
+          "n": 40
+        },
+        "bandMedian": ">10s",
+        "bandP95": ">10s",
+        "shareWithin2s": 0,
+        "shareWithin10s": 0.285
+      },
+      "tokens": {
+        "promptMedian": 110,
+        "evalMedian": 256
+      }
+    },
+    "S1": {
+      "n": 400,
+      "errorCounts": {
+        "unknown_function": 301,
+        "syntax": 80,
+        "runtime": 11,
+        "unknown_sound": 5
+      },
+      "validity": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 40
+      },
+      "f1": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 8
+      },
+      "precision": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 8
+      },
+      "recall": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 8
+      },
+      "f1Code": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 8
+      },
+      "liftF1": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 8
+      },
+      "liftF1Code": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 8
+      },
+      "entropy": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 3
+      },
+      "distinct": 1,
+      "inKey": {
+        "estimate": 0.8518518518518519,
+        "lower": 0.7142857142857143,
+        "upper": 1,
+        "n": 3
+      },
+      "clashRate": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 2
+      },
+      "lowCrowding": {
+        "estimate": 0.6499999999999999,
+        "lower": 0.3,
+        "upper": 1,
+        "n": 2
+      },
+      "fallbackRate": null,
+      "pooled": {
+        "validity": 0.0075,
+        "fallbackRate": null
+      },
+      "laneEntropy": null,
+      "latency": {
+        "median": 22796.63860400021,
+        "p95": 53237.71562740066,
+        "ci": {
+          "estimate": 24958.960229251068,
+          "lower": 21990.391978999716,
+          "upper": 25899.631739499513,
+          "n": 40
+        },
+        "bandMedian": ">10s",
+        "bandP95": ">10s",
+        "shareWithin2s": 0,
+        "shareWithin10s": 0.0825
+      },
+      "tokens": {
+        "promptMedian": 646,
+        "evalMedian": 435.5
+      }
+    },
+    "S2": {
+      "n": 400,
+      "errorCounts": {
+        "unknown_sound": 29,
+        "degenerate": 6,
+        "syntax": 39,
+        "unknown_function": 13
+      },
+      "validity": {
+        "estimate": 0.9,
+        "lower": 0.8,
+        "upper": 0.9,
+        "n": 40
+      },
+      "f1": {
+        "estimate": 0.17376262626262629,
+        "lower": 0.13582066082066083,
+        "upper": 0.23675657675657674,
+        "n": 38
+      },
+      "precision": {
+        "estimate": 0.11519215352548687,
+        "lower": 0.08951418951418952,
+        "upper": 0.16031468531468532,
+        "n": 38
+      },
+      "recall": {
+        "estimate": 0.49999999999999994,
+        "lower": 0.2777777777777778,
+        "upper": 0.5777777777777777,
+        "n": 38
+      },
+      "f1Code": {
+        "estimate": 0.17376262626262629,
+        "lower": 0.13582066082066083,
+        "upper": 0.23675657675657674,
+        "n": 38
+      },
+      "liftF1": {
+        "estimate": 0.06931244681244682,
+        "lower": 0,
+        "upper": 0.14640852974186308,
+        "n": 38
+      },
+      "liftF1Code": {
+        "estimate": 0.06931244681244682,
+        "lower": 0,
+        "upper": 0.14640852974186308,
+        "n": 38
+      },
+      "entropy": {
+        "estimate": 0.8795880017344073,
+        "lower": 0.8333333333333334,
+        "upper": 0.9999999999999998,
+        "n": 39
+      },
+      "distinct": 0.8333333333333334,
+      "inKey": {
+        "estimate": 0.9620884383200301,
+        "lower": 0.9468467935573199,
+        "upper": 0.987666847041847,
+        "n": 38
+      },
+      "clashRate": {
+        "estimate": 0.1507936507936508,
+        "lower": 0.1087962962962963,
+        "upper": 0.1791005291005291,
+        "n": 37
+      },
+      "lowCrowding": {
+        "estimate": 0.20555555555555557,
+        "lower": 0.1720486111111111,
+        "upper": 0.3178893178893179,
+        "n": 37
+      },
+      "fallbackRate": null,
+      "pooled": {
+        "validity": 0.7825,
+        "fallbackRate": null
+      },
+      "laneEntropy": null,
+      "latency": {
+        "median": 22023.25604200177,
+        "p95": 33154.42442850051,
+        "ci": {
+          "estimate": 22078.44244774978,
+          "lower": 20307.12588550034,
+          "upper": 23248.0820519994,
+          "n": 40
+        },
+        "bandMedian": ">10s",
+        "bandP95": ">10s",
+        "shareWithin2s": 0,
+        "shareWithin10s": 0.01
+      },
+      "tokens": {
+        "promptMedian": 1962.5,
+        "evalMedian": 324
+      }
+    },
+    "S3": {
+      "n": 400,
+      "errorCounts": {},
+      "validity": {
+        "estimate": 1,
+        "lower": 1,
+        "upper": 1,
+        "n": 40
+      },
+      "f1": {
+        "estimate": 0.20087024087024088,
+        "lower": 0.17485716897481604,
+        "upper": 0.2712454212454212,
+        "n": 39
+      },
+      "precision": {
+        "estimate": 0.12083333333333332,
+        "lower": 0.11012626262626261,
+        "upper": 0.16846264846264844,
+        "n": 39
+      },
+      "recall": {
+        "estimate": 0.6,
+        "lower": 0.5,
+        "upper": 0.7,
+        "n": 39
+      },
+      "f1Code": {
+        "estimate": 0.166986346986347,
+        "lower": 0.13538461538461538,
+        "upper": 0.23055555555555557,
+        "n": 39
+      },
+      "liftF1": {
+        "estimate": 0.0883882783882784,
+        "lower": 0.014995004995004974,
+        "upper": 0.13794871794871794,
+        "n": 39
+      },
+      "liftF1Code": {
+        "estimate": 0.03033189033189032,
+        "lower": 0,
+        "upper": 0.08333333333333336,
+        "n": 39
+      },
+      "entropy": {
+        "estimate": 0.7966576244513048,
+        "lower": 0.7177108148272637,
+        "upper": 0.8568636235841011,
+        "n": 40
+      },
+      "distinct": 0.7,
+      "inKey": {
+        "estimate": 0.9633235122365557,
+        "lower": 0.9470580808080808,
+        "upper": 0.9739035087719298,
+        "n": 40
+      },
+      "clashRate": {
+        "estimate": 0.12916666666666665,
+        "lower": 0.09686507936507938,
+        "upper": 0.17022321428571427,
+        "n": 40
+      },
+      "lowCrowding": {
+        "estimate": 0.124514652014652,
+        "lower": 0.050408496732026145,
+        "upper": 0.1973217787114846,
+        "n": 40
+      },
+      "fallbackRate": null,
+      "pooled": {
+        "validity": 1,
+        "fallbackRate": null
+      },
+      "laneEntropy": null,
+      "latency": {
+        "median": 22728.150061999448,
+        "p95": 25241.07365355063,
+        "ci": {
+          "estimate": 22480.821010249667,
+          "lower": 21811.084312248044,
+          "upper": 23116.829249999486,
+          "n": 40
+        },
+        "bandMedian": ">10s",
+        "bandP95": ">10s",
+        "shareWithin2s": 0,
+        "shareWithin10s": 0
+      },
+      "tokens": {
+        "promptMedian": 3062,
+        "evalMedian": 190
+      }
+    },
+    "S4": {
+      "n": 400,
+      "errorCounts": {},
+      "validity": {
+        "estimate": 1,
+        "lower": 1,
+        "upper": 1,
+        "n": 40
+      },
+      "f1": {
+        "estimate": 0.19645251807016514,
+        "lower": 0.1816300366300366,
+        "upper": 0.265,
+        "n": 39
+      },
+      "precision": {
+        "estimate": 0.12944444444444442,
+        "lower": 0.11318181818181819,
+        "upper": 0.16190476190476194,
+        "n": 39
+      },
+      "recall": {
+        "estimate": 0.6333333333333334,
+        "lower": 0.5,
+        "upper": 0.7,
+        "n": 39
+      },
+      "f1Code": {
+        "estimate": 0.16733932733932733,
+        "lower": 0.14460539460539462,
+        "upper": 0.2261111111111111,
+        "n": 39
+      },
+      "liftF1": {
+        "estimate": 0.07498814910579615,
+        "lower": 0.024999999999999998,
+        "upper": 0.13972027972027967,
+        "n": 39
+      },
+      "liftF1Code": {
+        "estimate": 0.02678571428571429,
+        "lower": -0.0046153846153846045,
+        "upper": 0.08356643356643359,
+        "n": 39
+      },
+      "entropy": {
+        "estimate": 0.856863623584101,
+        "lower": 0.7966576244513048,
+        "upper": 0.8795880017344073,
+        "n": 40
+      },
+      "distinct": 0.8,
+      "inKey": {
+        "estimate": 0.9663182921994252,
+        "lower": 0.9570100732600733,
+        "upper": 0.9771052631578947,
+        "n": 40
+      },
+      "clashRate": {
+        "estimate": 0.14239914021164024,
+        "lower": 0.08502976190476191,
+        "upper": 0.18173400673400672,
+        "n": 40
+      },
+      "lowCrowding": {
+        "estimate": 0.09910714285714287,
+        "lower": 0.06148809523809524,
+        "upper": 0.16130368814192342,
+        "n": 40
+      },
+      "fallbackRate": null,
+      "pooled": {
+        "validity": 1,
+        "fallbackRate": null
+      },
+      "laneEntropy": null,
+      "latency": {
+        "median": 23416.724270500243,
+        "p95": 28864.43757470008,
+        "ci": {
+          "estimate": 23923.855541750265,
+          "lower": 22645.071999748237,
+          "upper": 24482.985802250507,
+          "n": 40
+        },
+        "bandMedian": ">10s",
+        "bandP95": ">10s",
+        "shareWithin2s": 0,
+        "shareWithin10s": 0
+      },
+      "tokens": {
+        "promptMedian": 3324,
+        "evalMedian": 311
+      }
+    },
+    "S5": {
+      "n": 400,
+      "errorCounts": {},
+      "validity": {
+        "estimate": 1,
+        "lower": 1,
+        "upper": 1,
+        "n": 40
+      },
+      "f1": {
+        "estimate": 0.2188888888888889,
+        "lower": 0.1919191919191919,
+        "upper": 0.2688095238095238,
+        "n": 39
+      },
+      "precision": {
+        "estimate": 0.13203823953823957,
+        "lower": 0.11631313131313133,
+        "upper": 0.16841491841491846,
+        "n": 39
+      },
+      "recall": {
+        "estimate": 0.625,
+        "lower": 0.5,
+        "upper": 0.7000000000000001,
+        "n": 39
+      },
+      "f1Code": {
+        "estimate": 0.1641025641025641,
+        "lower": 0.13577985739750445,
+        "upper": 0.20343434343434347,
+        "n": 39
+      },
+      "liftF1": {
+        "estimate": 0.09063103563103564,
+        "lower": 0.02580649742414451,
+        "upper": 0.1448484848484848,
+        "n": 39
+      },
+      "liftF1Code": {
+        "estimate": 0.028571428571428574,
+        "lower": -0.014685314685314699,
+        "upper": 0.07450216450216451,
+        "n": 39
+      },
+      "entropy": {
+        "estimate": 0.7966576244513048,
+        "lower": 0.7591760034688149,
+        "upper": 0.8381228130928561,
+        "n": 40
+      },
+      "distinct": 0.7,
+      "inKey": {
+        "estimate": 0.9645516569200779,
+        "lower": 0.9520499108734404,
+        "upper": 0.9760309617918314,
+        "n": 40
+      },
+      "clashRate": {
+        "estimate": 0.16005504459308809,
+        "lower": 0.11641113516113516,
+        "upper": 0.22142857142857142,
+        "n": 40
+      },
+      "lowCrowding": {
+        "estimate": 0.11507492507492506,
+        "lower": 0.051623931623931626,
+        "upper": 0.15004960317460317,
+        "n": 40
+      },
+      "fallbackRate": null,
+      "pooled": {
+        "validity": 1,
+        "fallbackRate": null
+      },
+      "laneEntropy": null,
+      "latency": {
+        "median": 25410.668979499955,
+        "p95": 32558.82675895062,
+        "ci": {
+          "estimate": 24848.20028074924,
+          "lower": 23931.063396000536,
+          "upper": 26320.444989999756,
+          "n": 40
+        },
+        "bandMedian": ">10s",
+        "bandP95": ">10s",
+        "shareWithin2s": 0,
+        "shareWithin10s": 0
+      },
+      "tokens": {
+        "promptMedian": 3620.5,
+        "evalMedian": 305
+      }
+    },
+    "S6": {
+      "n": 400,
+      "errorCounts": {},
+      "validity": {
+        "estimate": 1,
+        "lower": 1,
+        "upper": 1,
+        "n": 40
+      },
+      "f1": {
+        "estimate": 0.13505494505494506,
+        "lower": 0.1270798319327731,
+        "upper": 0.19324175824175824,
+        "n": 39
+      },
+      "precision": {
+        "estimate": 0.08102064602064601,
+        "lower": 0.07252747252747252,
+        "upper": 0.12210178710178712,
+        "n": 39
+      },
+      "recall": {
+        "estimate": 0.5,
+        "lower": 0.33333333333333337,
+        "upper": 0.6666666666666667,
+        "n": 39
+      },
+      "f1Code": {
+        "estimate": 0.13505494505494506,
+        "lower": 0.1270798319327731,
+        "upper": 0.19324175824175824,
+        "n": 39
+      },
+      "liftF1": {
+        "estimate": 0.009467909971005939,
+        "lower": -0.07362745098039214,
+        "upper": 0.07709383753501403,
+        "n": 39
+      },
+      "liftF1Code": {
+        "estimate": 0.009467909971005939,
+        "lower": -0.07362745098039214,
+        "upper": 0.07709383753501403,
+        "n": 39
+      },
+      "entropy": {
+        "estimate": 0.6762456261857124,
+        "lower": 0.544471438844967,
+        "upper": 0.7290730039024168,
+        "n": 40
+      },
+      "distinct": 0.55,
+      "inKey": {
+        "estimate": 1,
+        "lower": 1,
+        "upper": 1,
+        "n": 40
+      },
+      "clashRate": {
+        "estimate": 0.04282407407407407,
+        "lower": 0.03253205128205128,
+        "upper": 0.05,
+        "n": 40
+      },
+      "lowCrowding": {
+        "estimate": 0,
+        "lower": 0,
+        "upper": 0,
+        "n": 40
+      },
+      "fallbackRate": 0,
+      "pooled": {
+        "validity": 1,
+        "fallbackRate": 0.015
+      },
+      "laneEntropy": {
+        "bassA": 0.7966576244513048,
+        "bassB": 0.856863623584101,
+        "hat": 0.2775280104064451,
+        "openhat": 0.2775280104064451,
+        "clap": 0.2775280104064451,
+        "stab": 0.5903089986991943
+      },
+      "latency": {
+        "median": 12312.50916650027,
+        "p95": 15947.39042290158,
+        "ci": {
+          "estimate": 12110.008218749892,
+          "lower": 11798.448228999623,
+          "upper": 12600.314562499523,
+          "n": 40
+        },
+        "bandMedian": ">10s",
+        "bandP95": ">10s",
+        "shareWithin2s": 0,
+        "shareWithin10s": 0.005
+      },
+      "tokens": {
+        "promptMedian": 771,
+        "evalMedian": 234
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "from": "S0",
+      "to": "S1",
+      "metric": "validity",
+      "estimate": 0,
+      "lower": 0,
+      "upper": 0,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S0",
+      "to": "S1",
+      "metric": "f1",
+      "estimate": null,
+      "lower": null,
+      "upper": null,
+      "n": 0,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S0",
+      "to": "S1",
+      "metric": "f1Code",
+      "estimate": null,
+      "lower": null,
+      "upper": null,
+      "n": 0,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S0",
+      "to": "S1",
+      "metric": "entropy",
+      "estimate": null,
+      "lower": null,
+      "upper": null,
+      "n": 0,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S0",
+      "to": "S1",
+      "metric": "inKey",
+      "estimate": null,
+      "lower": null,
+      "upper": null,
+      "n": 0,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S0",
+      "to": "S1",
+      "metric": "clashRate",
+      "estimate": null,
+      "lower": null,
+      "upper": null,
+      "n": 0,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S0",
+      "to": "S1",
+      "metric": "lowCrowding",
+      "estimate": null,
+      "lower": null,
+      "upper": null,
+      "n": 0,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S0",
+      "to": "S1",
+      "metric": "latencyMs",
+      "estimate": 9804.611916499096,
+      "lower": 6889.365635499824,
+      "upper": 12351.293802251254,
+      "n": 40,
+      "threshold": 500,
+      "substantial": true
+    },
+    {
+      "from": "S1",
+      "to": "S2",
+      "metric": "validity",
+      "estimate": 0.9,
+      "lower": 0.8,
+      "upper": 0.9,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S1",
+      "to": "S2",
+      "metric": "f1",
+      "estimate": 0.175649042315709,
+      "lower": 0,
+      "upper": 0.20970819304152638,
+      "n": 8,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S1",
+      "to": "S2",
+      "metric": "f1Code",
+      "estimate": 0.175649042315709,
+      "lower": 0,
+      "upper": 0.20970819304152638,
+      "n": 8,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S1",
+      "to": "S2",
+      "metric": "entropy",
+      "estimate": 0.7966576244513048,
+      "lower": 0.4841962570206112,
+      "upper": 0.9298966940476159,
+      "n": 3,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S1",
+      "to": "S2",
+      "metric": "inKey",
+      "estimate": 0.08639490139490125,
+      "lower": -0.03972039473684208,
+      "upper": 0.2857142857142857,
+      "n": 3,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S1",
+      "to": "S2",
+      "metric": "clashRate",
+      "estimate": 0.1506578947368421,
+      "lower": 0,
+      "upper": 0.3013157894736842,
+      "n": 2,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S1",
+      "to": "S2",
+      "metric": "lowCrowding",
+      "estimate": -0.46019736842105263,
+      "lower": -0.6203947368421052,
+      "upper": -0.3,
+      "n": 2,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S1",
+      "to": "S2",
+      "metric": "latencyMs",
+      "estimate": -900.0618755004252,
+      "lower": -3133.2850517503393,
+      "upper": 90.64436425012536,
+      "n": 40,
+      "threshold": 500,
+      "substantial": false
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "metric": "validity",
+      "estimate": 0.09999999999999998,
+      "lower": 0.09999999999999998,
+      "upper": 0.19999999999999996,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "metric": "f1",
+      "estimate": 0.024083046583046608,
+      "lower": -0.03695082695082698,
+      "upper": 0.08726856476856477,
+      "n": 38,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "metric": "f1Code",
+      "estimate": 0,
+      "lower": -0.01669417002750334,
+      "upper": 0.006991074466564627,
+      "n": 38,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "metric": "entropy",
+      "estimate": -0.06020599913279645,
+      "lower": -0.14313637641589882,
+      "upper": -0.050308692313208336,
+      "n": 39,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "metric": "inKey",
+      "estimate": 0.0014708317997791376,
+      "lower": -0.006970238485583757,
+      "upper": 0.01377584221334216,
+      "n": 38,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "metric": "clashRate",
+      "estimate": -0.00019841269841268383,
+      "lower": -0.03517316017316019,
+      "upper": 0.07756528964862294,
+      "n": 37,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "metric": "lowCrowding",
+      "estimate": -0.11240731785944552,
+      "lower": -0.1994047619047619,
+      "upper": -0.030357142857142916,
+      "n": 37,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "metric": "latencyMs",
+      "estimate": 244.50666700070724,
+      "lower": -867.3732604997931,
+      "upper": 1409.1916980008245,
+      "n": 40,
+      "threshold": 500,
+      "substantial": false
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "metric": "validity",
+      "estimate": 0,
+      "lower": 0,
+      "upper": 0,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "metric": "f1",
+      "estimate": 0.0030769230769230327,
+      "lower": -0.004981684981685053,
+      "upper": 0.014947274947274936,
+      "n": 39,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "metric": "f1Code",
+      "estimate": 0,
+      "lower": -0.004444444444444473,
+      "upper": 0,
+      "n": 39,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "metric": "entropy",
+      "estimate": 0.022724378150306312,
+      "lower": 0,
+      "upper": 0.06020599913279623,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "metric": "inKey",
+      "estimate": 0.007282599301852877,
+      "lower": -0.0018644274971675867,
+      "upper": 0.01763888888888898,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "metric": "clashRate",
+      "estimate": 0.004769059797832168,
+      "lower": -0.048882783882783894,
+      "upper": 0.028846153846153855,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "metric": "lowCrowding",
+      "estimate": 0.003125,
+      "lower": -0.019722222222222217,
+      "upper": 0.021946352258852247,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "metric": "latencyMs",
+      "estimate": 2402.7219790004892,
+      "lower": 403.8437290005386,
+      "upper": 3119.1852290000534,
+      "n": 40,
+      "threshold": 500,
+      "substantial": true
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "metric": "validity",
+      "estimate": 0,
+      "lower": 0,
+      "upper": 0,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "metric": "f1",
+      "estimate": 0.005656010656010624,
+      "lower": -0.002777777777777768,
+      "upper": 0.0121212121212122,
+      "n": 39,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "metric": "f1Code",
+      "estimate": -0.0019322344322344198,
+      "lower": -0.011329879271055776,
+      "upper": 0,
+      "n": 39,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "metric": "entropy",
+      "estimate": -0.022724378150306368,
+      "lower": -0.07156818820794936,
+      "upper": 0,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "metric": "inKey",
+      "estimate": 0,
+      "lower": -0.01521422205245726,
+      "upper": 0.008124999999999993,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "metric": "clashRate",
+      "estimate": 0.03437499999999996,
+      "lower": 0.00601190476190476,
+      "upper": 0.07867544040098387,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "metric": "lowCrowding",
+      "estimate": 0.011904761904761904,
+      "lower": -0.014725274725274726,
+      "upper": 0.03666666666666667,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "metric": "latencyMs",
+      "estimate": 726.2506977509038,
+      "lower": 234.80378074938199,
+      "upper": 1280.1990934994537,
+      "n": 40,
+      "threshold": 500,
+      "substantial": true
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "metric": "validity",
+      "estimate": 0,
+      "lower": 0,
+      "upper": 0,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "metric": "f1",
+      "estimate": -0.05969187675070023,
+      "lower": -0.07858585858585858,
+      "upper": -0.023854234001292773,
+      "n": 39,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "metric": "f1Code",
+      "estimate": -0.008083028083028077,
+      "lower": -0.033363531892943665,
+      "upper": 0.017808482367305922,
+      "n": 39,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "metric": "entropy",
+      "estimate": -0.17323937598229677,
+      "lower": -0.22358631114164768,
+      "upper": -0.06020599913279612,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "metric": "inKey",
+      "estimate": 0.03544834307992206,
+      "lower": 0.023969038208168647,
+      "upper": 0.04795008912655968,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "metric": "clashRate",
+      "estimate": -0.09957875457875456,
+      "lower": -0.17837301587301585,
+      "upper": -0.06666666666666668,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "metric": "lowCrowding",
+      "estimate": -0.11507492507492506,
+      "lower": -0.15004960317460317,
+      "upper": -0.051623931623931626,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "metric": "latencyMs",
+      "estimate": -12680.215510249429,
+      "lower": -13867.497469000053,
+      "upper": -11522.058771250537,
+      "n": 40,
+      "threshold": 500,
+      "substantial": true
+    },
+    {
+      "from": "S2",
+      "to": "S6",
+      "metric": "validity",
+      "estimate": 0.09999999999999998,
+      "lower": 0.09999999999999998,
+      "upper": 0.19999999999999996,
+      "n": 40,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S2",
+      "to": "S6",
+      "metric": "f1",
+      "estimate": -0.03294797794797795,
+      "lower": -0.05177586937390859,
+      "upper": 0,
+      "n": 38,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S2",
+      "to": "S6",
+      "metric": "f1Code",
+      "estimate": -0.03294797794797795,
+      "lower": -0.05177586937390859,
+      "upper": 0,
+      "n": 38,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S2",
+      "to": "S6",
+      "metric": "entropy",
+      "estimate": -0.23092668971159713,
+      "lower": -0.30102999566398125,
+      "upper": -0.13323906959631104,
+      "n": 39,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S2",
+      "to": "S6",
+      "metric": "inKey",
+      "estimate": 0.03791156167996984,
+      "lower": 0.012333152958152904,
+      "upper": 0.05315320644268007,
+      "n": 38,
+      "threshold": 0.05,
+      "substantial": false
+    },
+    {
+      "from": "S2",
+      "to": "S6",
+      "metric": "clashRate",
+      "estimate": -0.110152964319631,
+      "lower": -0.13754327248334797,
+      "upper": -0.06683982683982687,
+      "n": 37,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S2",
+      "to": "S6",
+      "metric": "lowCrowding",
+      "estimate": -0.20555555555555557,
+      "lower": -0.3178893178893179,
+      "upper": -0.1720486111111111,
+      "n": 37,
+      "threshold": 0.05,
+      "substantial": true
+    },
+    {
+      "from": "S2",
+      "to": "S6",
+      "metric": "latencyMs",
+      "estimate": -9065.385239999741,
+      "lower": -10620.662801750761,
+      "upper": -8146.18074999901,
+      "n": 40,
+      "threshold": 500,
+      "substantial": true
+    }
+  ],
+  "byCategory": {
+    "S0": {
+      "direct_hit": {
+        "validity": 0,
+        "f1": null,
+        "f1Code": null,
+        "entropy": null,
+        "inKey": null,
+        "latencyMedian": 13112.088624998927
+      },
+      "alias": {
+        "validity": 0,
+        "f1": null,
+        "f1Code": null,
+        "entropy": null,
+        "inKey": null,
+        "latencyMedian": 13835.973124999553
+      },
+      "structure": {
+        "validity": 0,
+        "f1": null,
+        "f1Code": null,
+        "entropy": null,
+        "inKey": null,
+        "latencyMedian": 14574.30170799978
+      },
+      "underspecified": {
+        "validity": 0,
+        "f1": 0,
+        "f1Code": 0,
+        "entropy": null,
+        "inKey": null,
+        "latencyMedian": 12122.581791498698
+      }
+    },
+    "S1": {
+      "direct_hit": {
+        "validity": 0,
+        "f1": 0,
+        "f1Code": 0,
+        "entropy": 0,
+        "inKey": 0.783068783068783,
+        "latencyMedian": 21342.054666499997
+      },
+      "alias": {
+        "validity": 0,
+        "f1": 0,
+        "f1Code": 0,
+        "entropy": null,
+        "inKey": null,
+        "latencyMedian": 25142.609875500202
+      },
+      "structure": {
+        "validity": 0,
+        "f1": 0,
+        "f1Code": 0,
+        "entropy": 0,
+        "inKey": null,
+        "latencyMedian": 20064.049165999983
+      },
+      "underspecified": {
+        "validity": 0,
+        "f1": 0.25,
+        "f1Code": 0.25,
+        "entropy": null,
+        "inKey": 1,
+        "latencyMedian": 24241.974458000623
+      }
+    },
+    "S2": {
+      "direct_hit": {
+        "validity": 0.95,
+        "f1": 0.08527583527583528,
+        "f1Code": 0.08527583527583528,
+        "entropy": 0.8333333333333333,
+        "inKey": 0.9923076923076923,
+        "latencyMedian": 21155.11631250009
+      },
+      "alias": {
+        "validity": 0.75,
+        "f1": 0.17086462919796253,
+        "f1Code": 0.17086462919796253,
+        "entropy": 1,
+        "inKey": 0.9496947643000275,
+        "latencyMedian": 25198.59033349948
+      },
+      "structure": {
+        "validity": 0.9,
+        "f1": 0.2273101898101898,
+        "f1Code": 0.2273101898101898,
+        "entropy": 0.898127334200537,
+        "inKey": 0.9496410256410257,
+        "latencyMedian": 19629.707791499794
+      },
+      "underspecified": {
+        "validity": 0.8500000000000001,
+        "f1": 0.17450660450660455,
+        "f1Code": 0.17450660450660455,
+        "entropy": 0.9649483470238078,
+        "inKey": 0.9620884383200301,
+        "latencyMedian": 22578.360021000262
+      }
+    },
+    "S3": {
+      "direct_hit": {
+        "validity": 1,
+        "f1": 0.30355311355311354,
+        "f1Code": 0.09269230769230768,
+        "entropy": 0.7063486257521105,
+        "inKey": 0.976095410941146,
+        "latencyMedian": 22890.90022899909
+      },
+      "alias": {
+        "validity": 1,
+        "f1": 0.17444055944055942,
+        "f1Code": 0.17073093573093576,
+        "entropy": 0.7177108148272637,
+        "inKey": 0.9419149902030337,
+        "latencyMedian": 23090.57552049961
+      },
+      "structure": {
+        "validity": 1,
+        "f1": 0.24285660418013355,
+        "f1Code": 0.21987484737484742,
+        "entropy": 0.808019813526458,
+        "inKey": 0.9698524720893141,
+        "latencyMedian": 21679.485207999358
+      },
+      "underspecified": {
+        "validity": 1,
+        "f1": 0.17485716897481604,
+        "f1Code": 0.19428571428571426,
+        "entropy": 0.8682258126592541,
+        "inKey": 0.9473389110889112,
+        "latencyMedian": 22670.88797900011
+      }
+    },
+    "S4": {
+      "direct_hit": {
+        "validity": 1,
+        "f1": 0.2909107559107559,
+        "f1Code": 0.1214102564102564,
+        "entropy": 0.808019813526458,
+        "inKey": 0.9894736842105264,
+        "latencyMedian": 22530.819666500203
+      },
+      "alias": {
+        "validity": 1,
+        "f1": 0.14460581085581087,
+        "f1Code": 0.163986013986014,
+        "entropy": 0.8381228130928561,
+        "inKey": 0.9618393866020984,
+        "latencyMedian": 23570.403874999844
+      },
+      "structure": {
+        "validity": 1,
+        "f1": 0.2545864919394331,
+        "f1Code": 0.20427350427350427,
+        "entropy": 0.8381228130928561,
+        "inKey": 0.9717857142857143,
+        "latencyMedian": 23706.46516649984
+      },
+      "underspecified": {
+        "validity": 1,
+        "f1": 0.18410256410256412,
+        "f1Code": 0.19311355311355308,
+        "entropy": 0.9096910013008055,
+        "inKey": 0.9638782562466774,
+        "latencyMedian": 24077.443541498855
+      }
+    },
+    "S5": {
+      "direct_hit": {
+        "validity": 1,
+        "f1": 0.31682761682761684,
+        "f1Code": 0.14701423576423578,
+        "entropy": 0.7290730039024168,
+        "inKey": 0.9864035087719298,
+        "latencyMedian": 26468.89372899942
+      },
+      "alias": {
+        "validity": 1,
+        "f1": 0.19417388167388167,
+        "f1Code": 0.15707584082584083,
+        "entropy": 0.808019813526458,
+        "inKey": 0.9529451345755694,
+        "latencyMedian": 26338.363687499892
+      },
+      "structure": {
+        "validity": 1,
+        "f1": 0.258456510809452,
+        "f1Code": 0.19122766122766127,
+        "entropy": 0.7966576244513048,
+        "inKey": 0.9632884294068503,
+        "latencyMedian": 24132.63508349983
+      },
+      "underspecified": {
+        "validity": 1,
+        "f1": 0.19303030303030302,
+        "f1Code": 0.1813320013320013,
+        "entropy": 0.7966576244513048,
+        "inKey": 0.969970964707807,
+        "latencyMedian": 25170.685916501097
+      }
+    },
+    "S6": {
+      "direct_hit": {
+        "validity": 1,
+        "f1": 0.14026066039223933,
+        "f1Code": 0.14026066039223933,
+        "entropy": 0.6575048156944674,
+        "inKey": 1,
+        "latencyMedian": 13803.192832999863
+      },
+      "alias": {
+        "validity": 1,
+        "f1": 0.16039098972922503,
+        "f1Code": 0.16039098972922503,
+        "entropy": 0.6347804375441612,
+        "inKey": 1,
+        "latencyMedian": 12475.946416999679
+      },
+      "structure": {
+        "validity": 1,
+        "f1": 0.13211080586080587,
+        "f1Code": 0.13211080586080587,
+        "entropy": 0.6446395015176065,
+        "inKey": 1,
+        "latencyMedian": 11334.894458500668
+      },
+      "underspecified": {
+        "validity": 1,
+        "f1": 0.12855042016806723,
+        "f1Code": 0.12855042016806723,
+        "entropy": 0.6989700043360187,
+        "inKey": 1,
+        "latencyMedian": 12153.619645499624
+      }
+    }
+  }
+}
